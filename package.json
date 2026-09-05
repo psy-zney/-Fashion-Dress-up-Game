@@ -1,0 +1,30 @@
+{
+  "name": "tung-tung-dress-up",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build",
+    "start": "next start --hostname 127.0.0.1",
+    "prepare:studio": "node scripts/studio/prepare-assets.mjs",
+    "prepare:products": "node scripts/studio/prepare-product-previews.mjs",
+    "validate:studio": "node scripts/studio/validate-assets.mjs",
+    "render:studio:qa": "node scripts/studio/render-qa.mjs",
+    "pipeline:studio": "node scripts/studio/run-pipeline.mjs",
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "next": "16.3.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@types/node": "^24.0.0",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.6",
+    "sharp": "^0.35.4",
+    "typescript": "~5.9.3"
+  }
+}

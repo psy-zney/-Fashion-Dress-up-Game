@@ -1,0 +1,731 @@
+/* ==========================================================================
+   AUTHENTIC FIGMA DRESSING ROOM STYLES
+   Matches image.png, image-6.png, and user feedback.
+   ========================================================================== */
+
+.game-shell {
+  min-height: 100svh;
+  width: 100vw;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(
+    ellipse 118svh 84svh at 50% 48%,
+    #41ffad 6%,
+    #71ead6 26%,
+    #a0d4ff 46%,
+    #d0eaff 70%,
+    #e8f5ff 100%
+  );
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.game-canvas.dressing-room {
+  width: 100vw;
+  height: 100svh;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: transparent;
+  display: grid;
+  place-items: center;
+}
+
+.dressing-room-content {
+  width: min(100vw, 140.625svh);
+  aspect-ratio: 1440 / 1024;
+  container-type: inline-size;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Circular back button in top-left */
+.back-button {
+  position: absolute;
+  left: 3.958333%;
+  top: 3.613281%;
+  width: 4.444444%;
+  height: 5.761719%;
+  border-radius: 50%;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: transform 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.back-button img {
+  width: 55%;
+  height: 55%;
+  pointer-events: none;
+}
+
+.back-button:hover {
+  transform: scale(1.08);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Character stage wrap & floor shadow */
+.character-stage-wrap {
+  position: absolute;
+  left: 2.8cqw;
+  top: 4.5cqw;
+  width: 36cqw;
+  height: 60cqw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.character-spotlight {
+  position: absolute;
+  left: 50%;
+  bottom: 4.4cqw;
+  width: 25cqw;
+  height: 41cqw;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at 50% 82%, rgba(255, 255, 255, 0.72), rgba(211, 255, 241, 0.22) 44%, transparent 72%);
+  filter: blur(0.35cqw);
+  opacity: 0.88;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.character-podium {
+  position: absolute;
+  left: 50%;
+  bottom: 1.5cqw;
+  width: 22cqw;
+  height: 4.7cqw;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 50% 25%, rgba(255, 255, 255, 0.96) 0 16%, rgba(196, 255, 236, 0.92) 42%, rgba(91, 222, 191, 0.82) 68%, rgba(38, 148, 133, 0.68) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  box-shadow:
+    0 0.5cqw 1.4cqw rgba(23, 126, 116, 0.28),
+    inset 0 0.35cqw 0.7cqw rgba(255, 255, 255, 0.62);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.character-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 0.8cqw;
+  transform: translateX(-50%);
+  width: 22cqw;
+  height: 4cqw;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.32;
+}
+
+.studio-stage {
+  position: relative;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  isolation: isolate;
+  z-index: 2;
+  pointer-events: auto;
+  border-radius: 1.4cqw;
+  transition: outline 0.18s ease;
+}
+
+.studio-stage.is-drag-over {
+  outline: 3px dashed #3ddab4;
+  outline-offset: 6px;
+  background: rgba(65, 255, 173, 0.08);
+}
+
+.stage-drop-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(65, 255, 173, 0.07);
+  border-radius: 20px;
+  z-index: 99;
+  pointer-events: none;
+  animation: dropPulse 1.2s ease-in-out infinite;
+}
+
+.stage-drop-overlay span {
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid #3ddab4;
+  border-radius: 999px;
+  color: #1b4b3e;
+  font-weight: 600;
+  font-size: 15px;
+  box-shadow: 0 8px 25px rgba(61, 218, 180, 0.35);
+}
+
+@keyframes dropPulse {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+.studio-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center bottom;
+  pointer-events: none;
+  transform-origin: center;
+}
+
+.studio-layer.is-shortened-for-boots {
+  clip-path: inset(0 0 35.2% 0);
+}
+
+/* Garment drop snap animation */
+@keyframes garmentSnap {
+  0% {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 14px rgba(74, 238, 196, 0.85));
+  }
+  60% {
+    transform: scale(0.99);
+    filter: drop-shadow(0 0 6px rgba(74, 238, 196, 0.5));
+  }
+  100% {
+    transform: scale(1);
+    filter: none;
+  }
+}
+
+.animate-snap {
+  animation: garmentSnap 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* ==========================================================================
+   3-SECTOR RADIAL WHEEL SELECTOR
+   Matches image-6.png & image.png exactly.
+   Positioned seamlessly against the left edge of the wardrobe.
+   ========================================================================== */
+
+.game-canvas.dressing-room .studio-radial-nav {
+  position: absolute;
+  left: 39cqw;
+  top: 26.458cqw;
+  width: 11cqw;
+  height: 22cqw;
+  z-index: 55;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.category-launcher {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 5.5cqw;
+  height: 11cqw;
+  min-width: 54px;
+  min-height: 108px;
+  transform: translateY(-50%);
+  display: grid;
+  justify-items: center;
+  place-content: center;
+  gap: 0.28cqw;
+  padding: 0;
+  border-radius: 999px 0 0 999px;
+  border-right: 0;
+  border: 1.5px solid rgba(255, 255, 255, 0.94);
+  color: #175f54;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(215, 255, 242, 0.92));
+  box-shadow: 0 0.45cqw 1.4cqw rgba(32, 125, 111, 0.26), inset 0 1px 0 #fff;
+  pointer-events: auto;
+  z-index: 3;
+  transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.category-launcher:hover,
+.category-launcher[aria-expanded="true"] {
+  transform: translateY(-50%);
+  background: #fff;
+  box-shadow: 0 0.55cqw 1.6cqw rgba(32, 125, 111, 0.34), 0 0 0 0.35cqw rgba(91, 242, 198, 0.22);
+}
+
+.category-launcher-mark {
+  width: 1.55cqw;
+  min-width: 20px;
+  height: 1.15cqw;
+  min-height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.category-launcher-label {
+  display: block;
+  text-align: center;
+  font-size: 0.65cqw;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+
+.studio-radial-svg {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  opacity: 0;
+  transform: translateX(32%) scale(0.78);
+  transform-origin: right center;
+  filter: drop-shadow(-4px 6px 16px rgba(45, 135, 115, 0.25));
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.studio-radial-nav.is-open .studio-radial-svg {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  pointer-events: auto;
+}
+
+.wheel-sector {
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.2s ease;
+  transform-origin: 160px 160px;
+}
+
+.wheel-sector path {
+  transition: fill 0.2s ease;
+}
+
+.wheel-sector:hover,
+.wheel-sector.is-active {
+  filter: drop-shadow(0 0 10px rgba(95, 255, 210, 0.8));
+}
+
+.wheel-sector g path {
+  transition: stroke-width 0.2s ease, filter 0.2s ease;
+}
+
+.wheel-sector:hover g path,
+.wheel-sector.is-active g path {
+  stroke-width: 2.8px;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.95));
+}
+
+
+/* ==========================================================================
+   FROSTED GLASS WARDROBE PANEL
+   Matches image.png with pure, clean aesthetic (no redundant content).
+   ========================================================================== */
+
+.game-canvas.dressing-room .wardrobe {
+  position: absolute;
+  left: 50cqw;
+  top: 6.042cqw;
+  width: 38.194cqw;
+  height: 62.361cqw;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.38);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    0 16px 45px rgba(50, 110, 130, 0.14),
+    inset 0 1px 2px rgba(255, 255, 255, 0.85);
+  display: flex;
+  flex-direction: column;
+  padding: 1.8cqw 3.55cqw 1.35cqw;
+  z-index: 50;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Header pill: "Pick an outfit" */
+.wardrobe-header {
+  margin: 0 0 1.05cqw;
+  background: #ffffff;
+  border-radius: 12px;
+  height: 3.4cqw;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.wardrobe-header h1 {
+  margin: 0;
+  font-family: inherit;
+  font-size: 1.667cqw;
+  font-weight: 400;
+  color: #1e293b;
+  letter-spacing: -0.2px;
+}
+
+/* Scrollable cards list */
+.wardrobe-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.25cqw;
+  min-height: 0;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #ffffff rgba(255, 255, 255, 0.2);
+}
+
+.wardrobe-scroll::-webkit-scrollbar {
+  width: 7px;
+}
+
+.wardrobe-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+}
+
+.wardrobe-scroll::-webkit-scrollbar-thumb {
+  background: #ffffff;
+  border-radius: 999px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* 2-column cards grid */
+.outfit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.45cqw 1.875cqw;
+  padding-bottom: 1cqw;
+}
+
+/* Outfit card displaying clean studio product shot */
+.outfit-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  height: 18.54cqw;
+  border-radius: 1.1cqw;
+  overflow: hidden;
+  border: 2px solid transparent;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  cursor: grab;
+  padding: 0;
+  text-align: center;
+  touch-action: pan-y;
+  user-select: none;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
+}
+
+.outfit-card:hover {
+  transform: none;
+  box-shadow: 0 8px 22px rgba(60, 140, 120, 0.15);
+}
+
+.outfit-card.is-selected {
+  border-color: #38d39f;
+  box-shadow: 0 0 0 3px rgba(56, 211, 159, 0.35);
+}
+
+.outfit-card.is-dragging {
+  opacity: 1;
+  transform: none;
+  cursor: grabbing;
+}
+
+.native-drag-image {
+  position: fixed;
+  left: -10px;
+  top: -10px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.garment-drag-preview {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 1;
+  overflow: visible;
+  filter: drop-shadow(0 8px 12px rgba(23, 95, 84, 0.2));
+  will-change: transform;
+}
+
+.garment-drag-preview img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 1;
+}
+
+.outfit-card-thumb {
+  position: relative;
+  width: 100%;
+  height: 15.05cqw;
+  flex: 0 0 auto;
+  background: #f8fafc;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.outfit-card-img {
+  width: auto;
+  height: auto;
+  max-width: 88%;
+  max-height: 88%;
+  object-fit: contain;
+  padding: 0.55cqw;
+  pointer-events: none;
+  transition: transform 0.2s ease;
+}
+
+.outfit-card:hover .outfit-card-img {
+  transform: none;
+}
+
+.outfit-card-check {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #38d39f;
+  color: white;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(56, 211, 159, 0.4);
+}
+
+.outfit-card-name {
+  padding: 0.55cqw 0.4cqw 0.62cqw;
+  font-size: 0.9cqw;
+  color: #334155;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  display: block;
+}
+
+@media (max-width: 600px) and (orientation: portrait) {
+  .game-shell {
+    place-items: start center;
+    overflow-y: auto;
+    background: radial-gradient(ellipse 145% 54% at 50% 28%, #41ffad 0, #77e9d8 28%, #a8d8ff 58%, #e8f5ff 100%);
+  }
+
+  .game-canvas.dressing-room {
+    width: 100vw;
+    min-height: 100svh;
+    height: auto;
+    aspect-ratio: auto;
+    overflow: hidden;
+    container-type: normal;
+    background: radial-gradient(ellipse 145% 54% at 50% 28%, #41ffad 0, #77e9d8 28%, #a8d8ff 58%, #e8f5ff 100%);
+  }
+
+  .dressing-room-content {
+    width: 100vw;
+    min-height: 100svh;
+    aspect-ratio: auto;
+    container-type: normal;
+  }
+
+  .back-button {
+    left: 16px;
+    top: 16px;
+    width: 46px;
+    height: 46px;
+  }
+
+  .character-stage-wrap {
+    left: 7vw;
+    top: 28px;
+    width: 67vw;
+    height: 46svh;
+  }
+
+  .character-spotlight {
+    width: 62vw;
+    height: 42svh;
+    bottom: 1.5svh;
+  }
+
+  .character-podium {
+    width: 52vw;
+    height: 11vw;
+    bottom: 0;
+  }
+
+  .character-shadow {
+    width: 48vw;
+    height: 9vw;
+    bottom: -1vw;
+  }
+
+  .studio-stage {
+    border-radius: 16px;
+  }
+
+  .game-canvas.dressing-room .studio-radial-nav {
+    left: auto;
+    right: 6vw;
+    top: 16svh;
+    width: 120px;
+    height: 240px;
+  }
+
+  .category-launcher {
+    right: 0;
+    width: 60px;
+    height: 120px;
+  }
+
+  .category-launcher-mark {
+    width: 22px;
+    height: 16px;
+  }
+
+  .category-launcher-label {
+    font-size: 10px;
+  }
+
+  .game-canvas.dressing-room .wardrobe {
+    left: 4vw;
+    top: 50.5svh;
+    width: 92vw;
+    height: 47svh;
+    border-radius: 22px;
+    padding: 14px 14px 12px;
+  }
+
+  .wardrobe-header {
+    height: 42px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+  }
+
+  .wardrobe-header h1 {
+    font-size: 18px;
+  }
+
+  .wardrobe-scroll {
+    padding-right: 5px;
+  }
+
+  .outfit-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding-bottom: 10px;
+  }
+
+  .outfit-card {
+    width: 100%;
+    height: 214px;
+    border-radius: 14px;
+  }
+
+  .outfit-card-thumb {
+    height: 176px;
+  }
+
+  .outfit-card-img {
+    padding: 8px;
+  }
+
+  .outfit-card-name {
+    padding: 8px 6px 10px;
+    font-size: 12px;
+  }
+}
+
+/* Explicit resets isolate the live studio from the old Figma screen CSS. */
+.dressing-room .character-stage-wrap { align-items: flex-end; }
+.dressing-room .character-shadow { top: auto; }
+.dressing-room .wardrobe-header h1 { position: static; width: auto; height: auto; background: transparent; }
+.dressing-room .wardrobe-scroll { position: relative; inset: auto; }
+.dressing-room .wardrobe-scroll::-webkit-scrollbar { display: block; }
+.dressing-room .outfit-card { width: 100%; }
+.dressing-room .outfit-card-img { position: static; }
+.showcase-button {
+  position: absolute; left: 11cqw; top: 65.5cqw; width: 20cqw; min-height: 36px;
+  padding: .65cqw 1.2cqw; border: 1px solid #fff; border-radius: 999px;
+  background: #e1fff1cc; color: #175f54; font-size: max(12px, 1cqw); z-index: 20;
+  box-shadow: 0 6px 20px #237e6b20;
+}
+.showcase-button:disabled { opacity: .5; cursor: default; }
+.studio-stage.is-showcasing { transform-origin: 50% 95%; animation: showLook 2.4s ease-in-out; }
+@keyframes showLook {
+  0%, 100% { transform: translateY(0) rotate(0); filter: none; }
+  25% { transform: translateY(-8px) rotate(-2deg); }
+  55% { transform: translateY(-6px) rotate(2deg); filter: drop-shadow(0 0 18px #edfff2); }
+  80% { transform: translateY(-3px) rotate(-.7deg); }
+}
+@media (max-width: 600px) and (orientation: portrait) {
+  .showcase-button { left: 13vw; top: calc(46svh + 30px); width: 54vw; padding: 7px; }
+  .game-canvas.dressing-room .wardrobe { top: calc(50.5svh + 104px); }
+  .dressing-room-content { min-height: calc(100svh + 106px); }
+  .game-canvas.dressing-room .studio-radial-nav { left: calc(50% - 60px); right: auto; top: calc(50.5svh - 76px); width: 120px; height: 240px; transform: rotate(90deg); transform-origin: center; }
+  .category-launcher > * { transform: rotate(-90deg); }
+  .studio-radial-svg { width: 120px; height: 240px; flex-shrink: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-snap, .studio-stage.is-showcasing, .stage-drop-overlay { animation-duration: .01ms; animation-iteration-count: 1; }
+}
+
+/* Accessibility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Fallback pending screen */
+.studio-pending {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #e0f2fe;
+  color: #0f172a;
+  text-align: center;
+  padding: 24px;
+}
+
+.studio-pending a {
+  text-decoration: underline;
+  color: #0284c7;
+}

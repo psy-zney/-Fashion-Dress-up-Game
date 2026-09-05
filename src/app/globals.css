@@ -1,0 +1,74 @@
+:root {
+  color-scheme: light;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #111;
+  background: #fff;
+  --glass: linear-gradient(180deg, rgb(156 156 156 / 25%), rgb(255 255 255 / 25%) 49.038%, rgb(105 105 105 / 25%));
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+button, input { font: inherit; }
+button, a, input { -webkit-tap-highlight-color: transparent; }
+a { color: inherit; text-decoration: none; }
+button { color: inherit; cursor: pointer; }
+img { display: block; max-width: none; user-select: none; }
+:focus-visible { outline: 3px solid #3e3ae3; outline-offset: 4px; }
+.game-shell { min-height: 100svh; display: grid; place-items: center; overflow: hidden; }
+.game-canvas {
+  width: min(100vw, 140.625svh);
+  aspect-ratio: 1440 / 1024;
+  container-type: inline-size;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.landing-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.landing-overlay { z-index: 1; }
+.landing-shell { background: #577e78; position: relative; isolation: isolate; }
+.landing-shell::before { content: ""; position: absolute; inset: -35px; z-index: -1; background: var(--landing-bg, url('/game/ui/landing-background.png')) center / cover; filter: blur(28px) brightness(.8) saturate(.8); }
+.glass-button { position: absolute; z-index: 2; display: grid; place-items: center; background: var(--glass); border: 1px solid white; border-radius: 3.472222cqw; font-weight: 400; font-size: 1.666667cqw; transition: background-color .15s, box-shadow .15s; }
+.glass-button:hover { background-color: rgb(255 255 255 / 35%); box-shadow: 0 4px 20px rgb(0 0 0 / 10%); }
+.play-button { left: 86.319444%; top: 4.785156%; width: 9.791667%; height: 5.761719%; }
+.help-button { left: 4.236111%; top: 4.785156%; width: 4.444444%; height: 5.761719%; }
+.dressing-room { background: radial-gradient(ellipse 82.909722cqw 58.958333cqw at 50% 48.046875%, #41ffad 5.9921%, #71ead6 25.592%, #a0d4ff 45.192%, #d0eaff 67.788%, #fff 90.385%); }
+.character-shadow { position: absolute; left: 16.388889%; top: 85.253906%; width: 23.819444%; height: 9.082031%; }
+.character { position: absolute; overflow: hidden; }
+.character img, .outfit-card img { position: absolute; pointer-events: none; }
+.back-button { position: absolute; left: 3.958333%; top: 3.613281%; width: 4.444444%; height: 5.761719%; border-radius: 50%; transition: filter .15s; }
+.back-button img { width: 100%; height: 100%; }
+.back-button:hover { filter: brightness(1.06); }
+.wardrobe { position: absolute; left: 50%; top: 8.496094%; width: 38.194444%; height: 83.886719%; overflow: hidden; background: linear-gradient(180deg, rgb(204 204 204 / 20%), rgb(255 255 255 / 20%) 46.635%, rgb(153 153 153 / 20%)); border: 1px solid rgb(255 255 255 / 45%); }
+.wardrobe h1 { position: absolute; z-index: 1; top: 1.805556cqw; left: 3.576389cqw; width: 31.041667cqw; height: 3.402778cqw; margin: 0; border-radius: .347222cqw; background: #fff; font-size: 1.666667cqw; font-weight: 400; display: grid; place-items: center; }
+.wardrobe-scroll { position: absolute; left: 4.236111cqw; right: 3.194444cqw; top: 6.597222cqw; bottom: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; overscroll-behavior: contain; }
+.wardrobe-scroll::-webkit-scrollbar { display: none; }
+.outfit-grid { display: grid; grid-template-columns: repeat(2, 14.097222cqw); gap: 1.458333cqw 1.875cqw; padding-bottom: 1.458333cqw; }
+.outfit-card { display: block; position: relative; width: 14.097222cqw; height: 18.541667cqw; overflow: hidden; background: #fff; }
+.outfit-card::after { content: ""; position: absolute; inset: 0; border: 0 solid white; pointer-events: none; transition: border-width .12s; }
+.outfit-card:hover::after { border-width: .277778cqw; }
+.outfit-card:focus-visible { outline-offset: -4px; }
+.scroll-control { position: absolute; left: 36.041667cqw; top: 3.125cqw; width: .625cqw; height: 54.583333cqw; border-radius: 30px; background: rgb(217 217 217 / 50%); }
+.scroll-thumb { position: absolute; top: calc(var(--scroll-progress, 0) * (100% - 4.305556cqw)); width: 100%; height: 4.305556cqw; border-radius: 30px; background: #fff; }
+.scroll-control input { position: absolute; inset: 0 -8px; width: calc(100% + 16px); height: 100%; margin: 0; opacity: 0; cursor: pointer; writing-mode: vertical-lr; direction: ltr; }
+.scroll-control:focus-within { outline: 2px solid #3e3ae3; outline-offset: 3px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.help-dialog { width: min(440px, calc(100vw - 40px)); padding: 0; border: 1px solid white; border-radius: 24px; background: #f2faff; box-shadow: 0 24px 80px #17294433; }
+.help-dialog::backdrop { background: #16344160; backdrop-filter: blur(8px); }
+.help-content { padding: 36px; }
+.help-eyebrow { font-size: 10px; letter-spacing: 2px; color: #597582; }
+.help-content h1 { font-size: 30px; font-weight: 500; line-height: 1.1; margin: 18px 0; }
+.help-content p { font-size: 15px; line-height: 1.7; color: #3d545f; }
+.help-close { width: 100%; margin-top: 16px; background: #202e38; color: #fff; padding: 14px; border: 0; border-radius: 30px; }
+.not-found { min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #e1f5ff; }
+.not-found a { text-decoration: underline; }
+@media (max-width: 600px) and (orientation: portrait) {
+  .game-shell { background: #d6edff; }
+  .game-canvas { width: 100vw; }
+  .glass-button { font-size: 14px; border-radius: 30px; }
+  .help-button, .back-button { min-width: 44px; min-height: 44px; }
+  .play-button { left: auto; right: 4%; width: 70px; min-height: 44px; }
+  .wardrobe h1 { font-size: 12px; }
+  .help-content { padding: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+}

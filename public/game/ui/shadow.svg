@@ -1,0 +1,17 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="343" height="93" viewBox="0 0 343 93" fill="none" xmlns="http://www.w3.org/2000/svg">
+<foreignObject x="0" y="0" width="343" height="93"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(2px);clip-path:url(#bgblur_0_0_28_clip_path);height:100%;width:100%"></div></foreignObject><g id="Ellipse 1" filter="url(#filter0_f_0_28)" data-figma-bg-blur-radius="4">
+<ellipse cx="171.5" cy="46.5" rx="131.5" ry="6.5" fill="url(#paint0_radial_0_28)"/>
+</g>
+<defs>
+<filter id="filter0_f_0_28" x="0" y="0" width="343" height="93" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="20" result="effect1_foregroundBlur_0_28"/>
+</filter>
+<clipPath id="bgblur_0_0_28_clip_path" transform="translate(0 0)"><ellipse cx="171.5" cy="46.5" rx="131.5" ry="6.5"/>
+</clipPath><radialGradient id="paint0_radial_0_28" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(171.5 46.5) scale(131.5 6.5)">
+<stop offset="0.625" stop-color="#737373"/>
+<stop offset="1" stop-color="#D9D9D9" stop-opacity="0"/>
+</radialGradient>
+</defs>
+</svg>
