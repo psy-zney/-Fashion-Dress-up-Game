@@ -204,6 +204,29 @@ img { display: block; max-width: none; user-select: none; }
   gap: 8px;
 }
 
+.heart-loading-track {
+  width: min(420px, 78vw);
+  height: 7px;
+  margin-top: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .1);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, .35);
+}
+
+.heart-loading-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff1f55, #ff9ab4);
+  box-shadow: 0 0 18px rgba(255, 45, 85, .85);
+  transition: width .16s ease-out;
+}
+
+.heart-loading-error { max-width: 420px; color: #ffd6df; font-size: 12px; line-height: 1.5; text-align: center; }
+.heart-loading-retry { min-height: 42px; padding: 0 20px; border: 1px solid #ffffff80; border-radius: 999px; background: #fff; color: #4b1020; font: inherit; font-weight: 700; }
+
 .heart-loading-percent {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   font-size: 22px;

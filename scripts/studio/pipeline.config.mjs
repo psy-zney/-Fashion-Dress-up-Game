@@ -222,7 +222,7 @@ export const CONFIGS = Object.freeze({
   "top-fitted-denim": {
     category: "tops",
     name: "Áo denim ôm sát",
-    sourceDir: "assets/studio/sources/garments/iterations/top-fitted-denim-v2",
+    sourceDir: "assets/studio/sources/garments/iterations/top-fitted-denim-v3",
     sourceFile: "model-worn.png",
     extractionMask: "assets/studio/masks/top-fitted-denim.svg",
     trimLightExterior: true,

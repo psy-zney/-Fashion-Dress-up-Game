@@ -8,6 +8,8 @@ export const CORE_PRELOAD_IMAGES: string[] = [
   `${basePath}/game/ui/landing-overlay.png`,
   `${basePath}/game/ui/back.svg`,
   `${basePath}/game/ui/shadow.svg`,
+  `${basePath}/game/photoshoot/background.png`,
+  `${basePath}/game/photoshoot/camera.svg`,
 
   // Base doll models
   `${basePath}/game/studio/layers/model.png`,
@@ -32,15 +34,18 @@ export const CORE_PRELOAD_AUDIO: string[] = [
   `${basePath}/game/effects/click_btn.mp3`,
   `${basePath}/game/effects/particles_sparkle_small.mp3`,
   `${basePath}/game/effects/particles_sparkle_small 2.mp3`,
+  `${basePath}/game/effects/buble.mp3`,
 ];
 
 let isGlobalPreloaded = false;
+let activePreload: Promise<void> | null = null;
+const PRELOAD_STORAGE_KEY = "tung_tung_preloaded_v3";
 
 export function isAssetsPreloaded(): boolean {
   if (isGlobalPreloaded) return true;
   if (typeof window !== "undefined") {
     try {
-      if (sessionStorage.getItem("tung_tung_preloaded_v1") === "true") {
+      if (sessionStorage.getItem(PRELOAD_STORAGE_KEY) === "true") {
         isGlobalPreloaded = true;
         return true;
       }
@@ -55,7 +60,7 @@ export function markAssetsPreloaded() {
   isGlobalPreloaded = true;
   if (typeof window !== "undefined") {
     try {
-      sessionStorage.setItem("tung_tung_preloaded_v1", "true");
+      sessionStorage.setItem(PRELOAD_STORAGE_KEY, "true");
     } catch {
       // Ignore storage errors
     }
@@ -63,37 +68,64 @@ export function markAssetsPreloaded() {
 }
 
 function preloadSingleImage(url: string): Promise<void> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const img = new Image();
-    img.src = url;
-    if (img.complete && img.naturalWidth > 0) {
-      resolve();
-      return;
-    }
     img.onload = () => {
       if (typeof img.decode === "function") {
-        img.decode().then(resolve).catch(resolve);
+        img.decode().then(resolve).catch(() => reject(new Error(`Unable to decode ${url}`)));
       } else {
         resolve();
       }
     };
-    img.onerror = () => resolve(); // don't block
+    img.onerror = () => reject(new Error(`Unable to load ${url}`));
+    img.src = url;
+    if (img.complete && img.naturalWidth > 0) resolve();
   });
 }
 
 async function preloadSingleAudio(url: string): Promise<void> {
-  try {
-    await fetch(url);
-  } catch {
-    // Continue
-  }
+  const response = await fetch(url, { cache: "force-cache" });
+  if (!response.ok) throw new Error(`Unable to load ${url} (${response.status})`);
+  await response.arrayBuffer();
 }
 
-export async function preloadAllAssets(onProgress?: (progress: number) => void): Promise<void> {
-  if (isAssetsPreloaded()) {
+async function withRetry(load: () => Promise<void>, retries = 2): Promise<void> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      await load();
+      return;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
+}
+
+export async function preloadAllAssets(
+  onProgress?: (progress: number) => void,
+  options: { force?: boolean } = {},
+): Promise<void> {
+  if (!options.force && isAssetsPreloaded()) {
     onProgress?.(100);
     return;
   }
+
+  if (activePreload) {
+    await activePreload;
+    onProgress?.(100);
+    return;
+  }
+
+  activePreload = preloadAssets(onProgress);
+  try {
+    await activePreload;
+  } finally {
+    activePreload = null;
+  }
+}
+
+async function preloadAssets(onProgress?: (progress: number) => void): Promise<void> {
 
   const allItems = [
     ...CORE_PRELOAD_IMAGES.map((url) => ({ type: "image" as const, url })),
@@ -110,13 +142,9 @@ export async function preloadAllAssets(onProgress?: (progress: number) => void):
     await Promise.all(
       batch.map(async (item) => {
         try {
-          if (item.type === "image") {
-            await preloadSingleImage(item.url);
-          } else {
-            await preloadSingleAudio(item.url);
-          }
-        } catch {
-          // Continue on errors
+          await withRetry(() => item.type === "image"
+            ? preloadSingleImage(item.url)
+            : preloadSingleAudio(item.url));
         } finally {
           completed++;
           onProgress?.(Math.min(100, Math.round((completed / total) * 100)));

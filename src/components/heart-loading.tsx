@@ -19,6 +19,8 @@ export function HeartLoading({
   const [progress, setProgress] = useState(0);
   const [hidden, setHidden] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
+  const [error, setError] = useState("");
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     if (!active) {
@@ -35,7 +37,8 @@ export function HeartLoading({
 
     setHidden(false);
     setIsExiting(false);
-    setProgress(15);
+    setError("");
+    setProgress(0);
 
     const startTime = performance.now();
     let isMounted = true;
@@ -45,7 +48,7 @@ export function HeartLoading({
       if (isMounted) {
         setProgress((prev) => Math.max(prev, p));
       }
-    });
+    }, { force: true });
 
     // Ensure smooth display duration for the heart animation
     const minTimerPromise = new Promise((resolve) => setTimeout(resolve, minDurationMs));
@@ -62,12 +65,15 @@ export function HeartLoading({
           onFinish?.();
         }, 350);
       }, 200);
+    }).catch(() => {
+      if (!isMounted) return;
+      setError("Some game assets could not be loaded. Check your connection and retry.");
     });
 
     return () => {
       isMounted = false;
     };
-  }, [active, minDurationMs, onFinish]);
+  }, [active, attempt, minDurationMs, onFinish]);
 
   if (hidden) return null;
 
@@ -113,6 +119,13 @@ export function HeartLoading({
         <div className="heart-loading-meta">
           <span className="heart-loading-percent">{progress}%</span>
           <span className="heart-loading-text">{title}</span>
+          <div className="heart-loading-track" aria-hidden="true">
+            <span className="heart-loading-fill" style={{ width: `${progress}%` }} />
+          </div>
+          {error && <>
+            <span className="heart-loading-error">{error}</span>
+            <button type="button" className="heart-loading-retry" onClick={() => setAttempt((value) => value + 1)}>Retry loading</button>
+          </>}
         </div>
       </div>
     </div>

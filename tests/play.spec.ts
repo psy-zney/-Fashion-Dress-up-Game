@@ -65,6 +65,34 @@ const regeneratedProductIds = new Set([
   "bottom-denim-sculpted-skirt",
 ]);
 
+test("mobile landing disperses a small bubble set", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await expect(page.locator(".soap-bubble")).toHaveCount(6);
+  const sizes = await page.locator(".soap-bubble").evaluateAll((bubbles) =>
+    bubbles.map((bubble) => Number.parseFloat((bubble as HTMLElement).style.width)),
+  );
+  expect(Math.max(...sizes)).toBeLessThanOrEqual(40);
+  await expect(page.getByRole("link", { name: "PLAY" })).toHaveClass(/is-freshly-loaded/);
+  await page.screenshot({ path: "artifacts/studio/qa/landing-mobile-bubbles.png" });
+});
+
+test("PLAY blocks interaction until the complete wardrobe preload resolves", async ({ page }) => {
+  let garmentReleased = false;
+  await page.route("**/game/studio/layers/top-fitted-denim.png", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 450));
+    garmentReleased = true;
+    await route.continue();
+  });
+  await page.goto("/play", { waitUntil: "domcontentloaded" });
+  await expect(page.getByTestId("heart-loader")).toBeVisible();
+  await expect(page.locator(".heart-loading-track")).toBeVisible();
+  await page.screenshot({ path: "artifacts/studio/qa/play-loading.png" });
+  await expect(page.getByTestId("heart-loader")).toHaveCount(0);
+  expect(garmentReleased).toBe(true);
+  await expectLoadedStage(page);
+});
+
 test("5 ảnh sản phẩm active có alpha thật và không mang viền nền trắng", async () => {
   const directory = "public/game/studio/products";
   const availableFiles = new Set((await readdir(directory)).filter((file) => file.endsWith(".png")));
@@ -177,7 +205,7 @@ test("chọn nhóm độc lập áo, quần, giày phối hợp tự nhiên", as
   await page.getByTestId("garment-bottom-sculpted-jeans").click();
   await expect(page.locator('[data-garment="bottom-denim-sculpted-skirt"]')).toHaveCount(0);
   await expect(page.getByTestId("studio-stage").locator("img").first()).toHaveAttribute("src", /\/model\.png/);
-  await page.getByRole("button", { name: "Show my look" }).click();
+  await page.getByRole("button", { name: "SHOW YOUR LOOK" }).click();
   await expect(page).toHaveURL(/\/photoshoot/);
   await expect(page.getByTestId("photoshoot-look")).toBeVisible();
   await page.mouse.move(0, 0);

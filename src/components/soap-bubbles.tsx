@@ -21,10 +21,14 @@ interface Bubble {
 const WAND_X = 66;
 const WAND_Y = 24;
 
-function createBubble(id: number, fromWand = false): Bubble {
-  const isWand = fromWand || Math.random() < 0.65;
-  const startX = isWand ? WAND_X + (Math.random() - 0.5) * 9 : 10 + Math.random() * 80;
-  const startY = isWand ? WAND_Y + (Math.random() - 0.5) * 8 : 15 + Math.random() * 75;
+function createBubble(id: number, fromWand = false, compact = false, slot = 0): Bubble {
+  const isWand = fromWand || Math.random() < (compact ? 0.12 : 0.22);
+  const startX = isWand
+    ? WAND_X + (Math.random() - 0.5) * (compact ? 12 : 18)
+    : 10 + ((slot * 37 + Math.random() * 12) % 80);
+  const startY = isWand
+    ? WAND_Y + (Math.random() - 0.5) * (compact ? 10 : 15)
+    : 10 + ((slot * 29 + Math.random() * 12) % 80);
 
   // Trajectory biased outwards from the wand with organic dispersion
   const angle = isWand
@@ -41,7 +45,7 @@ function createBubble(id: number, fromWand = false): Bubble {
     y: startY,
     vx,
     vy,
-    size: 26 + Math.floor(Math.random() * 42),
+    size: compact ? 16 + Math.floor(Math.random() * 25) : 24 + Math.floor(Math.random() * 38),
     phaseX: Math.random() * Math.PI * 2,
     phaseY: Math.random() * Math.PI * 2,
     wobbleSpeed: 0.002 + Math.random() * 0.003,
@@ -52,16 +56,26 @@ function createBubble(id: number, fromWand = false): Bubble {
 
 export function SoapBubbles({ count = 14, enabled = true }: { count?: number; enabled?: boolean }) {
   const [bubbles, setBubbles] = useState<Bubble[]>([]);
+  const [compact, setCompact] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const nextId = useRef(1);
   const animFrame = useRef<number | null>(null);
 
-  // Initialize bubbles
+  useEffect(() => {
+    const query = window.matchMedia("(max-width: 600px), (max-height: 600px)");
+    const update = () => setCompact(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+
+  // Start dispersed so the opening frame never has one dense bubble cluster.
   useEffect(() => {
     if (!enabled) return;
 
-    const initialBubbles: Bubble[] = Array.from({ length: count }, () =>
-      createBubble(nextId.current++, Math.random() < 0.5),
+    const visibleCount = compact ? Math.min(count, 6) : count;
+    const initialBubbles: Bubble[] = Array.from({ length: visibleCount }, (_, slot) =>
+      createBubble(nextId.current++, false, compact, slot),
     );
 
     setBubbles(initialBubbles);
@@ -124,11 +138,11 @@ export function SoapBubbles({ count = 14, enabled = true }: { count?: number; en
     return () => {
       if (animFrame.current) cancelAnimationFrame(animFrame.current);
     };
-  }, [count, enabled]);
+  }, [compact, count, enabled]);
 
   function respawnBubble(id: number) {
     setBubbles((prev) =>
-      prev.map((b) => (b.id === id ? createBubble(nextId.current++, true) : b)),
+      prev.map((b) => (b.id === id ? createBubble(nextId.current++, true, compact) : b)),
     );
   }
 

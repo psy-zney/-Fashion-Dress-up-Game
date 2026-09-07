@@ -49,7 +49,7 @@ test("empty and damaged saves have a recoverable entry state", async ({ page }) 
 test("look survives navigation and reload; Figma background exports as PNG", async ({ page }) => {
   await prepare(page);
   await page.goto("/play");
-  await page.getByRole("button", { name: "Show my look" }).click();
+  await page.getByRole("button", { name: "SHOW YOUR LOOK" }).click();
   await expect(page).toHaveURL(/\/photoshoot/);
   await expect(page.getByTestId("photoshoot-look")).toBeVisible();
   const look = await page.getByTestId("photoshoot-look").getAttribute("src");

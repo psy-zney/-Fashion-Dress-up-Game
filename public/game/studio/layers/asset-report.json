@@ -1,20 +1,5 @@
 [
   {
-    "id": "top-fitted-denim",
-    "category": "tops",
-    "name": "Áo denim ôm sát",
-    "width": 1024,
-    "height": 1536,
-    "hasAlpha": true,
-    "bounds": {
-      "left": 409,
-      "top": 267,
-      "width": 203,
-      "height": 375,
-      "visiblePixels": 64576
-    }
-  },
-  {
     "id": "top-modal-grommet",
     "category": "tops",
     "name": "Áo cotton modal đính khoen",
@@ -72,6 +57,21 @@
       "width": 198,
       "height": 135,
       "visiblePixels": 8754
+    }
+  },
+  {
+    "id": "top-fitted-denim",
+    "category": "tops",
+    "name": "Áo denim ôm sát",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 409,
+      "top": 267,
+      "width": 202,
+      "height": 375,
+      "visiblePixels": 63939
     }
   }
 ]

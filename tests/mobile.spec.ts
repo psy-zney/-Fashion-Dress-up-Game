@@ -15,11 +15,11 @@ test("touch outfit selection, full character and photoshoot on a phone", async (
   const box = (await stage.boundingBox())!;
   expect(box.height / box.width).toBeCloseTo(1.5, 1);
   expect(box.y).toBeGreaterThanOrEqual(0);
-  expect(box.y + box.height).toBeLessThan((await page.getByRole("button", { name: "Show my look" }).boundingBox())!.y);
+  expect(box.y + box.height).toBeLessThan((await page.getByRole("button", { name: "SHOW YOUR LOOK" }).boundingBox())!.y);
   await expect(page.getByTestId("foreground-arms")).toHaveCSS("z-index", "38");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `artifacts/mobile/${testInfo.project.name}-play.png`, scale: "css" });
-  await page.getByRole("button", { name: "Show my look" }).tap();
+  await page.getByRole("button", { name: "SHOW YOUR LOOK" }).tap();
   await expect(page).toHaveURL(/\/photoshoot/);
   await expect(page.getByTestId("photoshoot-look")).toBeVisible();
   const actor = (await page.getByTestId("photoshoot-look").boundingBox())!;
@@ -35,8 +35,8 @@ test("touch outfit selection, full character and photoshoot on a phone", async (
   await expect(page.locator('[data-garment="bottom-sculpted-jeans"]')).toBeVisible();
   await page.setViewportSize({ width: 844, height: 390 });
   await expect(stage).toBeInViewport();
-  await expect(page.getByRole("button", { name: "Show my look" })).toBeInViewport();
-  await page.getByRole("button", { name: "Show my look" }).tap();
+  await expect(page.getByRole("button", { name: "SHOW YOUR LOOK" })).toBeInViewport();
+  await page.getByRole("button", { name: "SHOW YOUR LOOK" }).tap();
   await expect(page.getByTestId("photoshoot-look")).toBeVisible();
   await expect(page.getByRole("link", { name: "GO BACK" })).toBeInViewport();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

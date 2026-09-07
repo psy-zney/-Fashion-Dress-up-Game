@@ -201,6 +201,29 @@
   gap: 8px;
 }
 
+.heart-loading-track {
+  width: min(420px, 78vw);
+  height: 7px;
+  margin-top: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, .28);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .1);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, .35);
+}
+
+.heart-loading-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff1f55, #ff9ab4);
+  box-shadow: 0 0 18px rgba(255, 45, 85, .85);
+  transition: width .16s ease-out;
+}
+
+.heart-loading-error { max-width: 420px; color: #ffd6df; font-size: 12px; line-height: 1.5; text-align: center; }
+.heart-loading-retry { min-height: 42px; padding: 0 20px; border: 1px solid #ffffff80; border-radius: 999px; background: #fff; color: #4b1020; font: inherit; font-weight: 700; }
+
 .heart-loading-percent {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   font-size: 22px;
@@ -1346,10 +1369,12 @@
 .showcase-button {
   position: absolute; left: 11cqw; top: 65.5cqw; width: 20cqw; min-height: 36px;
   padding: .65cqw 1.2cqw; border: 1px solid #fff; border-radius: 999px;
-  background: #e1fff1cc; color: #175f54; font-size: max(12px, 1cqw); z-index: 20;
-  box-shadow: 0 6px 20px #237e6b20;
+  background: rgba(255,255,255,.92); color: #175f54; font-size: max(12px, 1cqw); font-weight: 800; letter-spacing: .04em; z-index: 60;
+  box-shadow: 0 8px 24px #237e6b35, inset 0 0 0 1px #52dcb466;
 }
-.showcase-button:disabled { opacity: .5; cursor: default; }
+.showcase-button.is-ready { background: linear-gradient(135deg, #dfff55, #a8ffcf); color: #103e37; animation: showcasePulse 2.2s ease-in-out infinite; }
+.showcase-button:disabled { opacity: .72; cursor: default; }
+@keyframes showcasePulse { 0%, 100% { box-shadow: 0 8px 24px #237e6b35, 0 0 0 0 #dfff5580; } 50% { box-shadow: 0 10px 28px #237e6b45, 0 0 0 7px #dfff5500; } }
 .studio-stage.is-showcasing { transform-origin: 50% 95%; animation: showLook 2.4s ease-in-out; }
 @keyframes showLook {
   0%, 100% { transform: translateY(0) rotate(0); filter: none; }
@@ -1395,7 +1420,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .animate-snap, .studio-stage.is-showcasing, .stage-drop-overlay { animation-duration: .01ms; animation-iteration-count: 1; }
+  .animate-snap, .studio-stage.is-showcasing, .stage-drop-overlay, .showcase-button.is-ready { animation-duration: .01ms; animation-iteration-count: 1; }
 }
 
 /* Accessibility */

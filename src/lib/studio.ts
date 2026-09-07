@@ -20,7 +20,7 @@ export type Garment = {
 
 export const garments: Garment[] = [
   // A compact, pose-friendly capsule: close silhouettes and no tall boots.
-  { id: "top-fitted-denim", name: "Fitted Denim Top", category: "tops", source: "generated-top-fitted-denim-v2" },
+  { id: "top-fitted-denim", name: "Fitted Denim Top", category: "tops", source: "generated-top-fitted-denim-v3" },
   { id: "top-modal-grommet", name: "Modal Grommet Top", category: "tops", source: "generated-top-modal-grommet-v3" },
   { id: "bottom-sculpted-jeans", name: "Sculpted Balloon Jeans", category: "bottoms", source: "generated-bottom-sculpted-jeans-v1" },
   { id: "bottom-denim-sculpted-skirt", name: "Sculpted Denim Maxi Skirt", category: "bottoms", source: "generated-bottom-denim-sculpted-skirt-v4" },

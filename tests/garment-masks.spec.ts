@@ -1,6 +1,28 @@
 import { expect, test } from "@playwright/test";
 import sharp from "sharp";
 
+test("fitted denim top stays body-aligned with a continuous clean edge", async () => {
+  const data = await sharp("public/game/studio/layers/top-fitted-denim.png").ensureAlpha().raw().toBuffer();
+  const alpha = (x: number, y: number) => data[(y * 1024 + x) * 4 + 3];
+  let strayPixels = 0;
+  let antialiasedPixels = 0;
+  for (let y = 260; y < 650; y++) {
+    for (let x = 0; x < 1024; x++) {
+      const value = alpha(x, y);
+      if ((x < 380 || x > 645) && value > 0) strayPixels++;
+      if (value > 0 && value < 255) antialiasedPixels++;
+    }
+  }
+  expect(strayPixels, "the source arms and checker background must stay transparent").toBe(0);
+  expect(antialiasedPixels, "the top must retain a continuous antialiased silhouette").toBeGreaterThan(800);
+
+  let fabricHoles = 0;
+  for (let y = 360; y < 590; y++) {
+    for (let x = 430; x < 595; x++) if (alpha(x, y) !== 255) fabricHoles++;
+  }
+  expect(fabricHoles, "the fitted torso must not expose the model through the denim").toBeLessThan(1_000);
+});
+
 test("sculpted jeans keep continuous fabric and exclude the source arms", async () => {
   const data = await sharp("public/game/studio/layers/bottom-sculpted-jeans.png").ensureAlpha().raw().toBuffer();
   const alpha = (x: number, y: number) => data[(y * 1024 + x) * 4 + 3];

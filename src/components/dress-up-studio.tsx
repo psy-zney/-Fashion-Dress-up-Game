@@ -22,8 +22,7 @@ import {
 import { playSound, type SoundEffect } from "@/lib/sound-effects";
 import { initAudio } from "@/lib/audio-manager";
 import { AudioSettingsModal } from "@/components/audio-settings-modal";
-import { PlayfulLoading } from "@/components/playful-loading";
-import { isAssetsPreloaded } from "@/lib/asset-preloader";
+import { HeartLoading } from "@/components/heart-loading";
 import { MagicBlingSparkles } from "@/components/magic-bling";
 
 type DragPreview = {
@@ -60,7 +59,7 @@ export function DressUpStudio() {
   const [hydrated, setHydrated] = useState(false);
   const [status, setStatus] = useState("Select or drag and drop an item to start styling.");
   const [audioModalOpen, setAudioModalOpen] = useState(false);
-  const [loadingActive, setLoadingActive] = useState(() => !isAssetsPreloaded());
+  const [loadingActive, setLoadingActive] = useState(true);
 
   // Drag & drop state
   const [isDragging, setIsDragging] = useState<string | null>(null);
@@ -360,8 +359,13 @@ export function DressUpStudio() {
             )}
           </div>
         </div>
-        <button className="showcase-button" disabled={!hydrated || !outfitComplete} onClick={showLook}>
-          <span aria-hidden="true">✧</span> Show my look
+        <button
+          className={`showcase-button ${outfitComplete ? "is-ready" : ""}`}
+          disabled={!hydrated || !outfitComplete}
+          onClick={showLook}
+          title={outfitComplete ? "Open the photoshoot" : "Choose a top, bottom and shoes first"}
+        >
+          <span aria-hidden="true">✧</span> SHOW YOUR LOOK
         </button>
 
         {/* On phones, direct tabs replace the radial wheel so the model and
@@ -595,7 +599,12 @@ export function DressUpStudio() {
         </div>
       )}
       <AudioSettingsModal open={audioModalOpen} onClose={() => setAudioModalOpen(false)} />
-      <PlayfulLoading active={loadingActive} onFinish={() => setLoadingActive(false)} />
+      <HeartLoading
+        active={loadingActive}
+        minDurationMs={650}
+        title="LOADING YOUR WARDROBE…"
+        onFinish={() => setLoadingActive(false)}
+      />
     </main>
   );
 }

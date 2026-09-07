@@ -6,6 +6,7 @@ import { looks, wardrobeCards, type LookScreen, type Screen } from "@/lib/outfit
 import { playSound } from "@/lib/sound-effects";
 import { SoapBubbles } from "@/components/soap-bubbles";
 import { loadMusicWithProgress, initAudio } from "@/lib/audio-manager";
+import { preloadAllAssets } from "@/lib/asset-preloader";
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const asset = (name: string) => `${basePath}/game/ui/${name}`;
@@ -80,17 +81,30 @@ export function DressUpGame({ screen }: { screen: Screen }) {
   const [audioLoading, setAudioLoading] = useState(() => screen === 1);
   const [audioProgress, setAudioProgress] = useState(0);
   const [freshlyLoaded, setFreshlyLoaded] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
 
   useEffect(() => {
     if (screen === 1) {
       let isMounted = true;
-      void loadMusicWithProgress((pct) => {
-        if (isMounted) setAudioProgress(pct);
-      }).then(() => {
-        if (isMounted) {
-          setAudioLoading(false);
-          setFreshlyLoaded(true);
-        }
+      setAudioLoading(true);
+      setLoadError(false);
+      setAudioProgress(0);
+      void (async () => {
+        await preloadAllAssets((pct) => {
+          if (isMounted) setAudioProgress(Math.round(pct * .9));
+        });
+        await loadMusicWithProgress((pct) => {
+          if (isMounted) setAudioProgress(90 + Math.round(pct * .1));
+        });
+        if (!isMounted) return;
+        setAudioProgress(100);
+        setAudioLoading(false);
+        setFreshlyLoaded(true);
+      })().catch(() => {
+        if (!isMounted) return;
+        setAudioLoading(false);
+        setLoadError(true);
       });
       return () => {
         isMounted = false;
@@ -98,7 +112,7 @@ export function DressUpGame({ screen }: { screen: Screen }) {
     } else {
       initAudio();
     }
-  }, [screen]);
+  }, [loadAttempt, screen]);
 
   return (
     <main
@@ -121,13 +135,19 @@ export function DressUpGame({ screen }: { screen: Screen }) {
             draggable={false}
           />
           <SoapBubbles count={12} />
-          <Link
+          {loadError ? <button
+            type="button"
+            className="glass-button play-button is-freshly-loaded"
+            onClick={() => setLoadAttempt((value) => value + 1)}
+          >
+            RETRY
+          </button> : <Link
             className={`glass-button play-button ${audioLoading ? "is-loading-hidden" : ""} ${freshlyLoaded ? "is-freshly-loaded" : ""}`}
             href="/play"
             onClick={() => playSound("play")}
           >
             PLAY
-          </Link>
+          </Link>}
           <div
             className={`landing-loading-bar-wrap ${!audioLoading ? "is-hidden" : ""}`}
             aria-hidden={!audioLoading}
@@ -136,7 +156,7 @@ export function DressUpGame({ screen }: { screen: Screen }) {
               <div className="landing-loading-fill" style={{ width: `${audioProgress}%` }} />
             </div>
             <span className="landing-loading-label">
-              {audioProgress < 100 ? `Loading soundtrack ${audioProgress}%` : "Ready to play"}
+              {loadError ? "Loading failed — tap retry" : audioProgress < 100 ? `Loading game assets ${audioProgress}%` : "Ready to play"}
             </span>
           </div>
           <Help />
