@@ -2,18 +2,26 @@
 
 Cập nhật 05/09/2026. Đây là tài liệu cho người làm asset/agent tiếp theo; không được import vào web. `SESSION_HANDOFF.md` là lịch sử, còn cấu hình và code hiện tại mới là nguồn xác định hành vi đang chạy.
 
-**Cập nhật preview:** cả 14 ô đồ và hình kéo hiện dùng `public/game/studio/products-v2/`. Đọc [PRODUCT-PREVIEWS.md](PRODUCT-PREVIEWS.md) trước khi đổi ảnh tủ; các đường dẫn preview cũ bên dưới chỉ còn là nguồn đầu vào/lịch sử. Pipeline sprite mặc và pipeline ảnh sản phẩm chạy độc lập.
+**Capsule active:** giao diện hiện chỉ dùng 5 món: 2 áo, balloon jeans, váy denim dài ráp cong và Mary Jane. Boot cao cùng catalog cũ được giữ trong source/backup nhưng không còn hiển thị. Đọc [PRODUCT-PREVIEWS.md](PRODUCT-PREVIEWS.md) trước khi đổi ảnh tủ.
+
+## Responsive của phòng phối đồ
+
+- Desktop giữ bố cục Figma: model trái, nút/bánh xe bán nguyệt ở mép tủ, tủ hai cột bên phải.
+- Điện thoại dọc (`≤600px`): model chiếm vùng trên; `Show my look`, ba tab trực tiếp `Tops / Bottoms / Shoes`, rồi tủ dạng khay nằm lần lượt phía dưới. Tủ cuộn **ngang** để danh sách không đẩy model khỏi viewport. Không hiện bánh xe bán nguyệt trên mobile.
+- Điện thoại ngang (`≤900px` và cao `≤600px`): chia thành ba vùng ngang model – tab dọc – tủ. Không dùng canvas desktop thu nhỏ ở giữa màn hình.
+- Các vùng phải không giao nhau và toàn trang không được tràn ngang/dọc. Test responsive chạy ở 375×667, 390×844, 430×932 và 844×390; ảnh QA nằm trong `artifacts/studio/qa/play-mobile-*.png`.
+- Khi đổi chiều cao model, tab hoặc tủ, cập nhật đồng thời các mốc trong media query và giữ các assertion hình học ở test. Với tủ dọc, card dùng `touch-action: pan-x`: vuốt ngang để duyệt, kéo dọc lên model để mặc.
 
 ## 1. Bắt đầu một lần làm ảnh
 
 1. Xác định đang sửa ảnh nguồn, tách nền, ảnh trong tủ, hay thứ tự lớp. Chụp đúng lỗi trên web trước khi thay ảnh.
-2. Đọc `src/lib/studio.ts` để biết catalog đang dùng: 6 áo, 6 quần/váy, 2 giày. Không khôi phục/gen toàn bộ catalog cũ.
+2. Đọc `src/lib/studio.ts` để biết capsule đang dùng: 2 áo, 2 quần/váy, 1 giày. Không khôi phục/gen toàn bộ catalog cũ.
 3. Đọc `scripts/studio/pipeline.config.mjs` cho canvas, vùng tách, các bộ lọc và đường dẫn. Đọc `PIPELINE.md` cho cách chạy thử riêng.
 4. Giữ nguyên model master. Tạo phiên bản nguồn mới, ghi lại ảnh tham chiếu, prompt, kết quả và quyết định chọn/bỏ. Không ghi đè hoặc xoá ảnh nguồn khi đang thử.
 5. Copy `intake.template.json` thành một file intake riêng, điền đủ thông tin. Chạy công cụ tạo prompt ở dưới. File intake và prompt không ảnh hưởng giao diện.
 
 ```powershell
-node scripts/studio/create-intake.mjs docs/studio/intake.template.json artifacts/studio-intake/example
+node scripts/studio/create-intake.mjs docs/studio/intake.template.json artifacts/studio/intake/example
 ```
 
 Lệnh này tạo `prompt.md` và bản sao intake; nó không gọi dịch vụ sinh ảnh, không tiêu tốn lượt gen và không đổi asset trên web. Sửa nội dung mẫu trước khi thực sự sinh ảnh. Khi đưa prompt cho công cụ gen, phải đính kèm các file được liệt kê; đường dẫn viết trong prompt không tự tải được ảnh.
@@ -24,7 +32,7 @@ Lệnh này tạo `prompt.md` và bản sao intake; nó không gọi dịch vụ
 | --- | --- |
 | Canvas sprite/source worn | 1024 × 1536, hướng dọc, gốc tọa độ góc trái trên |
 | Tọa độ mặc mặc định | x=0, y=0, scaleX=1, scaleY=1, rotation=0 |
-| Model | `assets/studio/source/model-master-straight-nude.png` |
+| Model | `assets/studio/sources/model/model-master.png` |
 | Pose | Chính diện, chân đứng thẳng, hai tay xuôi, giữ nguyên camera và silhouette master |
 | Crop sprite | Không trim canvas; vùng alpha có thể nhỏ nhưng file vẫn 1024 × 1536 |
 | Phóng to web | Tất cả layer cùng một hệ số, stage tỷ lệ 2:3; không fit từng món riêng |
@@ -44,7 +52,7 @@ Mỗi món có hai vai trò ảnh tách biệt:
 
 Ưu tiên ảnh sản phẩm chính diện, đủ cả hai tay/đôi giày, không cắt mất gấu. Nếu chỉ có ảnh góc nghiêng thì ghi rõ phần chưa biết trong intake; không tự phát minh mặt sau để làm sprite mặt trước. Giày phải có đủ cả đôi, cùng phối cảnh với bàn chân master.
 
-Lưu nguồn vào thư mục phiên bản, ví dụ `assets/studio/source/iterations/navy-v2/`. Chỉ trỏ `sourceDir`/`sourceFile` tới nguồn đã xem và chọn. `assets/studio/source/worn/` hiện là 14 ảnh model mặc đồ đang được pipeline đọc mặc định.
+Lưu nguồn thử vào thư mục phiên bản, ví dụ `assets/studio/sources/garments/iterations/navy-v2/`. Chỉ trỏ `sourceDir`/`sourceFile` tới nguồn đã xem và chọn. Catalog hiện có 14 nguồn mặc đã duyệt trong `worn/` và một nguồn phiên bản cho quần jeans ráp mảnh trong `iterations/`.
 
 ## 4. Sinh ảnh với độ thực tế nhất quán
 
@@ -68,7 +76,7 @@ Chạy bản nháp theo `PIPELINE.md`. Script hiện dùng chênh lệch pixel m
 
 Không dùng một ngưỡng “gần trắng → trong suốt” cho toàn ảnh: nó làm thủng áo trắng và mất ren. Không xoá các đoạn alpha ngắn theo từng dòng trên váy có chấm bi/xếp ly: đây chính là nguyên nhân vệt đứt ngang đã gặp. `preserveContinuousFabric` bật cho ba váy navy/xám/trắng để bỏ bước lọc đó.
 
-Preview quần áo hiện dùng ảnh sản phẩm đã khôi phục ở `public/studio-v2/generated/`; preview giày dùng bản crop ở `public/game/studio/previews/`. Các preview được tách tự động khác chỉ là kết quả thử, **không tự thay** vào tủ vì bộ lọc màu có thể làm mất thân áo hoặc ren. Mỗi preview phải được duyệt như một asset độc lập.
+Ảnh card/drag được tạo từ `assets/studio/sources/products/`: `original/` giữ ảnh gốc, `edited/` giữ bản chỉnh kèm prompt và `approved/` giữ cutout đã duyệt. Preview tách tự động của pipeline sprite nằm ở `artifacts/studio/generated-previews/`, **không tự thay** vào tủ vì bộ lọc màu có thể làm mất thân áo hoặc ren. Mỗi preview phải được duyệt như một asset độc lập.
 
 ## 7. Kiểm tra phối chéo trước khi đưa lên web
 
@@ -87,7 +95,7 @@ Vùng rủi ro: hở eo, đầu tay thừa, da dính trong vải, gấu váy đ�
 
 ## 9. Chốt một phiên bản
 
-Ghi intake, prompt chính xác, tên ảnh đầu vào/đầu ra, lý do chọn, thông số extraction và ảnh QA. Sau khi duyệt, chỉ chép những sprite cần dùng sang runtime. Giữ bản trước ở `assets/studio/archive/`. Chạy typecheck, build và E2E sau tích hợp.
+Ghi intake, prompt chính xác, tên ảnh đầu vào/đầu ra, lý do chọn, thông số extraction và ảnh QA. Sau khi duyệt, chỉ chép những sprite cần dùng sang runtime. Giữ bản trước ở `assets/studio/backups/runtime-layers/`. Chạy typecheck, build và E2E sau tích hợp.
 
 Không xoá nguồn/backup chỉ vì web không tham chiếu trực tiếp: chúng cần để sinh lại. Nếu dọn project, lập danh sách trước, phân biệt runtime với nguồn và bản thử; dùng archive phục hồi được. Không dọn Recycle Bin trong workflow này.
 

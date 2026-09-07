@@ -1,11 +1,25 @@
 # Session handoff — GameDressUp
 
+## Cập nhật 2026-09-06 — cấu trúc thư mục chuẩn
+
+- `public/game/studio/` chỉ còn runtime web tải: `layers/` và `products/`.
+- Nguồn chuẩn chuyển vào `assets/studio/sources/`: `model/`, `garments/worn/`, `products/original|edited|approved/`.
+- Backup runtime chuyển vào `assets/studio/backups/runtime-layers/<timestamp>/`; không còn lớp thư mục `archive/<timestamp>/layers` dư thừa. Xem manifest trong `assets/studio/backups/README.md`.
+- Bản thử, intake, preview trung gian và QA gom dưới `artifacts/studio/`. Dữ liệu v2 cũ không còn tham gia pipeline nằm tại `assets/studio/legacy/v2/`.
+- Các đường dẫn lịch sử cũ ở phần bàn giao dài bên dưới chỉ mô tả trạng thái trước đợt tổ chức này; không dùng chúng làm input hiện hành.
+
+## Cập nhật 2026-09-05 — responsive mobile
+
+- Mobile dọc dùng ba vùng không chồng: model trên, tab `Tops / Bottoms / Shoes`, tủ cuộn ngang ở đáy; bánh xe bán nguyệt desktop được ẩn.
+- Mobile ngang dùng bố cục model – tab dọc – tủ, tận dụng toàn màn hình thay vì thu nhỏ canvas desktop.
+- Playwright kiểm tra hình học và overflow ở 375×667, 390×844, 430×932, 844×390. Xem `docs/studio/WORKFLOW.md` và `artifacts/studio/qa/play-mobile-*.png`.
+
 ## Cập nhật 2026-09-05 — ảnh trưng bày và sticker
 
-- 14 ảnh tủ đồ và ghost kéo dùng chung `/game/studio/products-v2/<id>.png` qua `previewAssetUrl`. Các đường dẫn preview trong ghi chú lịch sử bên dưới không còn là mapping runtime.
+- 14 ảnh tủ đồ và ghost kéo dùng chung `/game/studio/products/<id>.png` qua `previewAssetUrl`. Các đường dẫn preview trong ghi chú lịch sử bên dưới không còn là mapping runtime.
 - Nền trắng/caro là pixel RGB trong nguồn, không phải nền của drag DOM. Pipeline riêng `npm.cmd run prepare:products` tạo alpha thật; không thay layer mặc hoặc model.
-- Ảnh Mary Jane trưng bày có nguồn mới với quai/lòng giày đầy đủ; ảnh gốc và prompt giữ tại `assets/studio/source/product-edits/`. Không xoá ảnh nguồn trong lần sửa này.
-- Xem `docs/studio/PRODUCT-PREVIEWS.md` để tái tạo, kiểm tra alpha, giữ tỷ lệ và đối chiếu nguồn. Bằng chứng kéo thực tế nằm ở `artifacts/studio-qa/products/`.
+- Ảnh Mary Jane trưng bày có nguồn mới với quai/lòng giày đầy đủ; ảnh gốc và prompt giữ tại `assets/studio/sources/products/edited/`. Không xoá ảnh nguồn trong lần sửa này.
+- Xem `docs/studio/PRODUCT-PREVIEWS.md` để tái tạo, kiểm tra alpha, giữ tỷ lệ và đối chiếu nguồn. Bằng chứng kéo thực tế nằm ở `artifacts/studio/qa/products/`.
 - Các test gồm kiểm tra 14 PNG và kéo áo cột phải, jeans, short trắng, váy navy, Mary Jane (cùng kích thước, opacity 1, thả mặc được).
 
 > Ngày bàn giao: 2026-09-04
@@ -27,7 +41,7 @@
 
 ### Quy trình tạo ảnh bắt buộc
 
-1. Dùng duy nhất `public/studio-v2/model-master-straight-nude.png` làm model master.
+1. Dùng duy nhất `assets/studio/sources/model/model-master.png` làm model master.
 2. Với từng món, **generate một ảnh toàn thân của chính model master đang mặc món đó**. Không generate sản phẩm rời rồi cố kéo/căn vào người.
 3. Giữ nguyên tuyệt đối khuôn mặt, tóc, dáng đứng chính diện, vị trí vai/tay/eo/hông/chân, góc máy, tỷ lệ và canvas 1024 × 1536 giữa mọi lần generate.
 4. Từ ảnh model mặc đồ, tách đúng phần trang phục nhìn thấy ở **mặt trước** thành sprite RGBA. Sprite chỉ chứa pixel của mặt trước món đồ dùng để đè lên base model.
@@ -144,15 +158,15 @@ Skill `imagegen` đã được dùng để tạo một model đứng thẳng c�
 
 ### Model
 
-- Bản đầu có áo hai dây/quần trắng: `public/studio-v2/model-master.png`
+- Bản đầu có áo hai dây/quần trắng: `assets/studio/legacy/v2/model-master.png`
 - Bản được chọn làm master có bandeau + briefs màu nude đào để không lộ lớp trắng dưới cổ áo sâu:
-  - `public/studio-v2/model-master-straight-nude.png`
+  - `assets/studio/legacy/v2/model-master-straight-nude.png`
 
 Model cuối cùng là nhân vật nữ trưởng thành hư cấu, đứng thẳng chính diện, tay buông và chân song song.
 
 ### 33 ảnh tạo mới
 
-- Nguồn sinh mới: `public/studio-v2/generated/*.png`
+- Nguồn sinh mới hiện được lưu tại: `assets/studio/sources/products/original/*.png`
 - Có đủ:
   - 16 áo
   - 11 quần/váy
@@ -161,13 +175,11 @@ Model cuối cùng là nhân vật nữ trưởng thành hư cấu, đứng th�
   - 3 đôi giày
   - 1 đôi tất
 - Một số món trắng có bản làm sạch lần hai:
-  - `public/studio-v2/generated-clean/dress-white-slip.png`
-  - `public/studio-v2/generated-clean/bottom-white-shorts.png`
-  - `public/studio-v2/generated-clean/top-white-hearts.png`
+  - Nguồn `generated-clean` lịch sử; phần còn giữ nằm dưới `assets/studio/legacy/v2/generated-clean/`.
 
 ### Sprite thành phẩm
 
-`public/studio-v2/ready/`
+Thư mục `ready` v2 lịch sử (không còn trong tree hiện hành).
 
 Thư mục này hiện có:
 
@@ -187,7 +199,7 @@ File chính:
 
 Chức năng:
 
-- Đọc ảnh sinh mới từ `public/studio-v2/generated/`.
+- Đọc ảnh nguồn sản phẩm từ `assets/studio/sources/products/original/`.
 - Ưu tiên bản trong `generated-clean/` nếu có.
 - Tách nền caro bằng mẫu chu kỳ và flood fill.
 - Chuẩn hóa alpha có sẵn.
@@ -221,11 +233,11 @@ npm.cmd run render:studio:qa
 
 Ảnh đầu ra:
 
-- `artifacts/studio-qa/all-items-contact-sheet.png`
-- `artifacts/studio-qa/look-lace.png`
-- `artifacts/studio-qa/look-denim.png`
-- `artifacts/studio-qa/look-autumn.png`
-- `artifacts/studio-qa/look-dress.png`
+- `artifacts/studio/qa/all-items-contact-sheet.png`
+- `artifacts/studio/qa/look-lace.png`
+- `artifacts/studio/qa/look-denim.png`
+- `artifacts/studio/qa/look-autumn.png`
+- `artifacts/studio/qa/look-dress.png`
 
 Quan sát gần nhất:
 
@@ -243,7 +255,7 @@ Không báo hoàn thành trước khi xử lý các điểm này:
 
 ### Một số bottom có alpha chính bắt đầu quá thấp
 
-Theo `public/studio-v2/ready/asset-report.json`:
+Theo báo cáo asset của bản `ready` v2 lịch sử:
 
 - `bottom-navy-dots`: vùng alpha chính bắt đầu khoảng `top: 717`, dù cấu hình fit là `590`.
 - `bottom-plaid-mini`: bắt đầu khoảng `top: 707`.
@@ -271,7 +283,7 @@ Hướng xử lý khuyến nghị:
 Trong lúc bàn giao đã xuất hiện các file:
 
 - `scripts/validate-studio-v2.mjs`
-- `artifacts/studio-qa/asset-validation-v2.json`
+- `artifacts/studio/qa/asset-validation-v2.json`
 
 Một agent QA đang thực hiện phần này nhưng session chạm giới hạn trước khi nhận báo cáo cuối. Session mới phải đọc và kiểm tra nội dung file, không mặc định là hoàn tất hoặc đúng.
 
@@ -341,7 +353,7 @@ Agent QA có thể đã thêm lệnh validate; cần đọc `package.json` để
 1. Đọc `AGENTS.md`, file handoff này và tài liệu Next.js local liên quan.
 2. Xem mục 0 là yêu cầu hiện hành; không tiếp tục sửa/căn mù bộ 33 sprite hiện tại.
 3. Chọn catalog mới đúng 14 món: 6 áo, 6 quần/váy, 2 giày; không xóa asset ngoài catalog.
-4. Tạo một thư mục phiên bản mới cho ảnh nguồn model-mặc-đồ và sprite mặt trước; không ghi đè `public/studio-v2/`.
+4. Tạo một thư mục phiên bản mới dưới `assets/studio/sources/garments/`; không ghi đè nguồn đã duyệt.
 5. Dùng `imagegen` tạo lại từng món với model master đang mặc trực tiếp theo prompt ở mục 0.
 6. Tách sprite mặt trước, đặt nguyên tọa độ/canvas lên model, rồi xem bằng mắt từng món. Món nào còn lệch phải generate lại, không chữa bằng warp.
 7. Render contact sheet 14 món và ít nhất 6 bộ phối chéo; kiểm tra kỹ vai, tay, eo, hông, đũng, chân và giày.
@@ -428,7 +440,7 @@ Người dùng đã hỏi khi nào nên dùng reset. Câu trả lời đã đưa
    - Hỗ trợ cả **hover** và **click** trên từng sector để chuyển nhóm trang phục lập tức.
 
 4. **Trang phục hiển thị trong ô đồ (`image-4.png`)**:
-   - Sử dụng trực tiếp ảnh chụp sản phẩm studio sạch nền từ `public/studio-v2/generated/${id}.png`, không dùng ảnh sprite cắt viền trắng/xám cũ.
+   - Sử dụng ảnh nguồn sản phẩm từ `assets/studio/sources/products/original/${id}.png`, không dùng ảnh sprite cắt viền trắng/xám cũ.
 
 5. **Tương tác kéo thả (Drag & Drop) đồ (`feedback.md` mục 9)**:
    - Hỗ trợ kéo trực tiếp thẻ trang phục từ tủ đồ thả vào khung nhân vật để mặc đồ.
@@ -445,12 +457,12 @@ Người dùng đã hỏi khi nào nên dùng reset. Câu trả lời đã đưa
    - Đã xóa sạch các thư mục asset cũ không còn sử dụng:
      - `public/studio/` (39 file sprite V1 cũ)
      - `public/studio-v3/` (thư mục thử nghiệm cũ)
-     - `public/studio-v2/ready/` (37 sprite cũ)
-     - `public/studio-v2/generated-clean/`
+     - Bản `ready` v2 (37 sprite cũ; không còn trong tree hiện hành)
+     - Thư mục `generated-clean` cũ; phần còn giữ đã chuyển vào `assets/studio/legacy/v2/`
      - Các script kiểm tra tạm thời trong `ge/scripts/`.
    - Giữ nguyên các tài nguyên cần thiết:
      - `public/ge/ready/`: 14 sprite thành phẩm (`model.png`, 6 áo, 6 quần/váy, 2 giày).
-     - `public/studio-v2/generated/`: Các ảnh tham khảo gốc dùng cho ô đồ trong tủ.
+     - `assets/studio/sources/products/original/`: Các ảnh tham khảo gốc dùng để tạo ô đồ trong tủ.
      - `public/figma/`: Nút quay lại, bóng đổ, background landing.
 
 ### 18.2. Kết quả kiểm định chất lượng (QA & Tests)
@@ -466,7 +478,7 @@ Người dùng đã hỏi khi nào nên dùng reset. Câu trả lời đã đưa
   6. `chuyển đổi danh mục bằng hover và click trên bánh xe 3 phần`: PASS
   7. `kéo thả món đồ vào khung nhân vật để mặc đồ kèm hiệu ứng`: PASS
   8. `PLAY dùng được ở mobile và không tràn ngang`: PASS
-- Ảnh chụp màn hình nghiệm thu thực tế được lưu tại `artifacts/studio-qa/play-desktop.png` và `artifacts/studio-qa/play-mobile.png`.
+- Ảnh chụp màn hình nghiệm thu thực tế được lưu tại `artifacts/studio/qa/play-desktop.png` và các file `artifacts/studio/qa/play-mobile-*.png`.
 
 ### 18.3. Những hạn chế kỹ thuật hiện tại (Chưa thể tự động 100%)
 

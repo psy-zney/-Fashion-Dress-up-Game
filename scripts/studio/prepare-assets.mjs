@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import crypto from "node:crypto";
 import sharp from "sharp";
 import { CONFIGS, PATHS, STAGE } from "./pipeline.config.mjs";
 
@@ -7,6 +8,41 @@ const MODEL_PATH = PATHS.model;
 const SOURCE_WORN = PATHS.sourceWorn;
 const READY_OUT = PATHS.runtimeLayers;
 const PREVIEW_OUT = PATHS.previews;
+const RUNTIME_LAYERS = "public/game/studio/layers";
+const BACKUP_ROOT = "assets/studio/backups/runtime-layers";
+
+async function imageFingerprint(directory) {
+  try {
+    const entries = await fs.readdir(directory, { withFileTypes: true });
+    const names = entries.filter((entry) => entry.isFile() && entry.name.endsWith(".png")).map((entry) => entry.name).sort();
+    if (!names.length) return null;
+    const hash = crypto.createHash("sha256");
+    for (const name of names) {
+      hash.update(name);
+      hash.update(await fs.readFile(path.join(directory, name)));
+    }
+    return hash.digest("hex");
+  } catch (error) {
+    if (error.code === "ENOENT") return null;
+    throw error;
+  }
+}
+
+async function backupRuntimeLayers() {
+  // Draft output roots are disposable and must never create runtime backups.
+  if (READY_OUT !== RUNTIME_LAYERS) return;
+  const currentFingerprint = await imageFingerprint(READY_OUT);
+  if (!currentFingerprint) return;
+  await fs.mkdir(BACKUP_ROOT, { recursive: true });
+  const snapshots = (await fs.readdir(BACKUP_ROOT, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort();
+  const latest = snapshots.at(-1);
+  if (latest && await imageFingerprint(path.join(BACKUP_ROOT, latest)) === currentFingerprint) return;
+  const timestamp = new Date().toISOString().replaceAll(":", "-").replaceAll(".", "-");
+  await fs.cp(READY_OUT, path.join(BACKUP_ROOT, timestamp), { recursive: true });
+}
 
 function looksLikeSkin(r, g, b) {
   return r > 145 && g > 75 && b > 45 && r - g > 28 && g - b > 18;
@@ -97,6 +133,68 @@ function removeUnsupportedDarkNoise(rgba, width, height) {
         if (delta !== 0 && alpha[index + delta * width] > 0) verticalSupport++;
       }
       if (verticalSupport < 3) rgba[offset + 3] = 0;
+    }
+  }
+}
+
+function filterToCoolGarment(rgba, width, height, radius = 3) {
+  const supported = new Uint8Array(width * height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const index = y * width + x;
+      const offset = index * 4;
+      if (rgba[offset + 3] === 0) continue;
+      const red = rgba[offset];
+      const green = rgba[offset + 1];
+      const blue = rgba[offset + 2];
+      if (blue < red + 5 || blue < green) continue;
+      for (let dy = -radius; dy <= radius; dy++) {
+        const nextY = y + dy;
+        if (nextY < 0 || nextY >= height) continue;
+        for (let dx = -radius; dx <= radius; dx++) {
+          const nextX = x + dx;
+          if (nextX >= 0 && nextX < width) supported[nextY * width + nextX] = 1;
+        }
+      }
+    }
+  }
+
+  for (let index = 0; index < supported.length; index++) {
+    if (!supported[index]) rgba[index * 4 + 3] = 0;
+  }
+}
+
+function clearModelRegions(rgba, modelRgb, width, height, regions, radius = 2) {
+  const body = new Uint8Array(width * height);
+  for (const region of regions) {
+    for (let y = region.minY; y <= region.maxY; y++) {
+      for (let x = region.minX; x <= region.maxX; x++) {
+        const rgbOffset = (y * width + x) * 3;
+        const red = modelRgb[rgbOffset];
+        const green = modelRgb[rgbOffset + 1];
+        const blue = modelRgb[rgbOffset + 2];
+        const lightness = Math.max(red, green, blue);
+        const chroma = lightness - Math.min(red, green, blue);
+        if (lightness < 225 || chroma > 12) body[y * width + x] = 1;
+      }
+    }
+  }
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let shouldClear = false;
+      for (let dy = -radius; dy <= radius && !shouldClear; dy++) {
+        const nextY = y + dy;
+        if (nextY < 0 || nextY >= height) continue;
+        for (let dx = -radius; dx <= radius; dx++) {
+          const nextX = x + dx;
+          if (nextX >= 0 && nextX < width && body[nextY * width + nextX]) {
+            shouldClear = true;
+            break;
+          }
+        }
+      }
+      if (shouldClear) rgba[(y * width + x) * 4 + 3] = 0;
     }
   }
 }
@@ -226,10 +324,8 @@ function removeCheckerboard(rgba, width, height) {
 async function run() {
   const requested = process.argv.slice(2).filter((arg) => !arg.startsWith("--"));
   for (const id of requested) if (!CONFIGS[id]) throw new Error(`Unknown garment: ${id}`);
-  // Preserve the last runtime release before regenerating any derived files.
-  const backup = path.join("assets/studio/archive", new Date().toISOString().replaceAll(":", "-"));
-  try { await fs.access(READY_OUT); await fs.cp(READY_OUT, path.join(backup, "layers"), { recursive: true }); }
-  catch (error) { if (error.code !== "ENOENT") throw error; }
+  // Preserve a distinct runtime release before regenerating derived files.
+  await backupRuntimeLayers();
   await fs.mkdir(READY_OUT, { recursive: true });
   await fs.mkdir(PREVIEW_OUT, { recursive: true });
 
@@ -361,6 +457,10 @@ async function run() {
       }
     }
 
+    if (cfg.filterToCoolGarment) filterToCoolGarment(rgba, width, height);
+
+    if (cfg.preserveModelRegions) clearModelRegions(rgba, nudeData, width, height, cfg.preserveModelRegions);
+
     if (cfg.trimLightExterior) trimLightExterior(rgba, width, height);
     if (cfg.keepLargestComponent) {
       keepLargestAlphaComponent(rgba, width, height);
@@ -368,6 +468,20 @@ async function run() {
     if (cfg.category === "bottoms" && !cfg.preserveContinuousFabric) {
       removeNarrowRowFragments(rgba, width, height, 42);
       removeUnsupportedDarkNoise(rgba, width, height);
+    }
+
+    // Reviewed contours supersede color-difference extraction: skin-colored
+    // stitching and shadows are fabric too. The mask excludes source limbs,
+    // so these pixels never get baked into a garment above the real model.
+    if (cfg.extractionMask) {
+      const mask = await sharp(cfg.extractionMask).ensureAlpha().raw().toBuffer();
+      for (let pixel = 0; pixel < width * height; pixel++) {
+        rgba[pixel * 4] = wornData[pixel * 3];
+        rgba[pixel * 4 + 1] = wornData[pixel * 3 + 1];
+        rgba[pixel * 4 + 2] = wornData[pixel * 3 + 2];
+        rgba[pixel * 4 + 3] = mask[pixel * 4 + 3];
+      }
+      if (cfg.trimLightExterior) trimLightExterior(rgba, width, height);
     }
 
     const bounds = computeBounds(rgba, width, height);

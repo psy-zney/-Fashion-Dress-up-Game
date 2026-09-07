@@ -1,19 +1,20 @@
 export const STAGE = Object.freeze({ width: 1024, height: 1536 });
 const outputRoot = process.env.STUDIO_OUTPUT_ROOT || "public/game/studio";
+const isRuntimeOutput = outputRoot === "public/game/studio";
 
 export const PATHS = Object.freeze({
-  model: "assets/studio/source/model-master-straight-nude.png",
-  sourceWorn: "assets/studio/source/worn",
+  model: "assets/studio/sources/model/model-master.png",
+  sourceWorn: "assets/studio/sources/garments/worn",
   runtimeLayers: `${outputRoot}/layers`,
-  previews: `${outputRoot}/previews`,
-  qa: "artifacts/studio-qa/assets",
-  validationReport: "artifacts/studio-qa/pipeline-validation.json",
+  previews: isRuntimeOutput ? "artifacts/studio/generated-previews" : `${outputRoot}/previews`,
+  qa: "artifacts/studio/qa/assets",
+  validationReport: "artifacts/studio/qa/pipeline-validation.json",
 });
 
 export const INTERACTIONS = Object.freeze({
-  tallBootId: "shoes-brown-boots",
+  tallBootId: null,
   tallBootClipRatio: 0.648,
-  longBottomIds: ["bottom-blue-jeans"],
+  longBottomIds: [],
 });
 
 export const QUALITY_LIMITS = Object.freeze({
@@ -21,10 +22,10 @@ export const QUALITY_LIMITS = Object.freeze({
   minimumPreviewDimension: 40,
   previewOccupancyMin: 0.5,
   previewOccupancyMax: 0.94,
-  expectedCategories: { tops: 6, bottoms: 6, shoes: 2 },
+  expectedCategories: { tops: 2, bottoms: 2, shoes: 1 },
 });
 
-export const CONFIGS = Object.freeze({
+const ARCHIVED_CONFIGS = Object.freeze({
   "top-white-basic": {
     category: "tops",
     name: "Áo hai dây trắng basic",
@@ -77,7 +78,8 @@ export const CONFIGS = Object.freeze({
     category: "tops",
     name: "Áo dệt kim kem",
     minY: 230,
-    maxY: 628,
+    maxY: 638,
+    extractionMask: "assets/studio/masks/top-ivory-pointelle.svg",
     minX: 350,
     maxX: 670,
     threshold: 22,
@@ -106,6 +108,28 @@ export const CONFIGS = Object.freeze({
     maxX: 700,
     threshold: 25,
     filterBodyArtifacts: true,
+    keepLargestComponent: true,
+  },
+  "bottom-sculpted-jeans": {
+    category: "bottoms",
+    name: "Quần jeans balloon ráp mảnh",
+    sourceDir: "assets/studio/sources/garments/iterations/bottom-sculpted-jeans-v1",
+    sourceFile: "model-worn.png",
+    extractionMask: "assets/studio/masks/bottom-sculpted-jeans.svg",
+    trimLightExterior: true,
+    minY: 555,
+    maxY: 1460,
+    minX: 280,
+    maxX: 745,
+    threshold: 22,
+    preserveContinuousFabric: true,
+    filterBodyArtifacts: true,
+    filterToCoolGarment: true,
+    preserveModelRegions: [
+      { minX: 280, maxX: 385, minY: 555, maxY: 880 },
+      { minX: 640, maxX: 745, minY: 555, maxY: 880 },
+      { minX: 370, maxX: 655, minY: 1435, maxY: 1495 },
+    ],
     keepLargestComponent: true,
   },
   "bottom-white-shorts": {
@@ -192,4 +216,56 @@ export const CONFIGS = Object.freeze({
     threshold: 14,
     onlyDark: true,
   },
+});
+
+export const CONFIGS = Object.freeze({
+  "top-fitted-denim": {
+    category: "tops",
+    name: "Áo denim ôm sát",
+    sourceDir: "assets/studio/sources/garments/iterations/top-fitted-denim-v2",
+    sourceFile: "model-worn.png",
+    extractionMask: "assets/studio/masks/top-fitted-denim.svg",
+    trimLightExterior: true,
+    minY: 260,
+    maxY: 650,
+    minX: 380,
+    maxX: 645,
+    threshold: 18,
+    filterToCoolGarment: true,
+    keepLargestComponent: true,
+  },
+  "top-modal-grommet": {
+    category: "tops",
+    name: "Áo cotton modal đính khoen",
+    sourceDir: "assets/studio/sources/garments/iterations/top-modal-grommet-v3",
+    sourceFile: "model-worn.png",
+    extractionMask: "assets/studio/masks/top-modal-grommet.svg",
+    trimLightExterior: true,
+    minY: 285,
+    maxY: 650,
+    minX: 380,
+    maxX: 645,
+    threshold: 18,
+    filterSkin: true,
+    keepLargestComponent: true,
+  },
+  "bottom-sculpted-jeans": ARCHIVED_CONFIGS["bottom-sculpted-jeans"],
+  "bottom-denim-sculpted-skirt": {
+    category: "bottoms",
+    name: "Váy denim dài ráp cong",
+    sourceDir: "assets/studio/sources/garments/iterations/bottom-denim-sculpted-skirt-v4",
+    sourceFile: "model-worn.png",
+    extractionMask: "assets/studio/masks/bottom-denim-sculpted-skirt-v3.svg",
+    trimLightExterior: true,
+    minY: 530,
+    maxY: 1465,
+    minX: 295,
+    maxX: 725,
+    threshold: 18,
+    preserveContinuousFabric: true,
+    filterBodyArtifacts: true,
+    filterToCoolGarment: true,
+    keepLargestComponent: true,
+  },
+  "shoes-mary-janes": ARCHIVED_CONFIGS["shoes-mary-janes"],
 });

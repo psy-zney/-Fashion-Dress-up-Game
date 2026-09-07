@@ -1,25 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type KeyboardEvent } from "react";
+import { useRouter } from "next/navigation";
+import { initialFit, readLook, rememberLook, type Fit } from "@/lib/studio-look";
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type KeyboardEvent } from "react";
 import {
   STAGE,
   assetUrl,
   categories,
   garments,
+  allGarments,
   layerOrder,
+  foregroundArmsOrder,
+  foregroundArmsPath,
+  bootTuckBottomIds,
   previewAssetUrl,
   type Category,
   type Garment,
   type Selection,
 } from "@/lib/studio";
-
-type Fit = { x: number; y: number; scaleX: number; scaleY: number; angle: number };
-type SavedStudio = {
-  selected: Selection;
-  fits: Record<string, Fit>;
-  held: Partial<Record<Category, boolean>>;
-};
+import { playSound, type SoundEffect } from "@/lib/sound-effects";
+import { initAudio } from "@/lib/audio-manager";
+import { AudioSettingsModal } from "@/components/audio-settings-modal";
+import { PlayfulLoading } from "@/components/playful-loading";
+import { isAssetsPreloaded } from "@/lib/asset-preloader";
+import { MagicBlingSparkles } from "@/components/magic-bling";
 
 type DragPreview = {
   id: string;
@@ -32,57 +37,42 @@ type DragPreview = {
   padding: string;
 };
 
-const initialFit: Fit = { x: 0, y: 0, scaleX: 1, scaleY: 1, angle: 0 };
-const storageKey = "tung-tung-play-ge";
-
 const fitFields = [
-  { key: "x", label: "Ngang", min: -100, max: 100, step: 1, suffix: " px" },
-  { key: "y", label: "Dọc", min: -100, max: 100, step: 1, suffix: " px" },
-  { key: "scaleX", label: "Rộng", min: 0.7, max: 1.3, step: 0.005, suffix: "×" },
-  { key: "scaleY", label: "Dài", min: 0.7, max: 1.3, step: 0.005, suffix: "×" },
-  { key: "angle", label: "Xoay", min: -15, max: 15, step: 0.1, suffix: "°" },
+  { key: "x", label: "Horizontal", min: -100, max: 100, step: 1, suffix: " px" },
+  { key: "y", label: "Vertical", min: -100, max: 100, step: 1, suffix: " px" },
+  { key: "scaleX", label: "Width", min: 0.7, max: 1.3, step: 0.005, suffix: "×" },
+  { key: "scaleY", label: "Length", min: 0.7, max: 1.3, step: 0.005, suffix: "×" },
+  { key: "angle", label: "Rotate", min: -15, max: 15, step: 0.1, suffix: "°" },
 ] as const;
-
-function isSafeFit(value: unknown): value is Fit {
-  if (!value || typeof value !== "object") return false;
-  const fit = value as Fit;
-  return (
-    [fit.x, fit.y, fit.scaleX, fit.scaleY, fit.angle].every(Number.isFinite) &&
-    Math.abs(fit.x) <= 100 &&
-    Math.abs(fit.y) <= 100 &&
-    fit.scaleX >= 0.7 &&
-    fit.scaleX <= 1.3 &&
-    fit.scaleY >= 0.7 &&
-    fit.scaleY <= 1.3 &&
-    Math.abs(fit.angle) <= 15
-  );
-}
 
 function PinIcon({ active }: { active: boolean }) {
   return <span aria-hidden="true">{active ? "●" : "○"}</span>;
 }
 
 export function DressUpStudio() {
+  const router = useRouter();
+  const armsClipId = useId();
   const [category, setCategory] = useState<Category>("tops");
   const [selected, setSelected] = useState<Selection>({});
   const [held, setHeld] = useState<Partial<Record<Category, boolean>>>({});
   const [fits, setFits] = useState<Record<string, Fit>>({});
   const [positionsLocked, setPositionsLocked] = useState(true);
   const [hydrated, setHydrated] = useState(false);
-  const [exporting, setExporting] = useState(false);
-  const [status, setStatus] = useState("Chọn hoặc kéo thả một món đồ để bắt đầu.");
+  const [status, setStatus] = useState("Select or drag and drop an item to start styling.");
+  const [audioModalOpen, setAudioModalOpen] = useState(false);
+  const [loadingActive, setLoadingActive] = useState(() => !isAssetsPreloaded());
 
   // Drag & drop state
   const [isDragging, setIsDragging] = useState<string | null>(null);
   const [isDragOverStage, setIsDragOverStage] = useState(false);
   const [dragPreview, setDragPreview] = useState<DragPreview | null>(null);
   const [recentlyWorn, setRecentlyWorn] = useState<string | null>(null);
+  const [recentlyWornCategory, setRecentlyWornCategory] = useState<Category | null>(null);
   const [menuPinned, setMenuPinned] = useState(false);
   const [menuHovered, setMenuHovered] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
   const pointerDrag = useRef<{ preview: DragPreview; startX: number; startY: number; active: boolean } | null>(null);
   const suppressClick = useRef(false);
-  const [showcase, setShowcase] = useState(false);
   const outfitComplete = Boolean(selected.tops && selected.bottoms && selected.shoes);
 
   const menuOpen = menuPinned || menuHovered;
@@ -93,7 +83,6 @@ export function DressUpStudio() {
         finishDrag();
         setMenuPinned(false);
         setMenuHovered(false);
-        setShowcase(false);
       }
     }
     window.addEventListener("keydown", cancel);
@@ -102,50 +91,27 @@ export function DressUpStudio() {
   }, []);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(storageKey);
-      if (raw) {
-        const saved = JSON.parse(raw) as SavedStudio;
-        const validSelection: Selection = {};
-        categories.forEach(({ id }) => {
-          const selectedId = saved.selected?.[id];
-          if (garments.some((item) => item.id === selectedId && item.category === id)) {
-            validSelection[id] = selectedId;
-          }
-        });
-        const validFits: Record<string, Fit> = {};
-        garments.forEach((item) => {
-          const fit = saved.fits?.[item.id];
-          if (isSafeFit(fit)) validFits[item.id] = fit;
-        });
-        const validHeld: Partial<Record<Category, boolean>> = {};
-        categories.forEach(({ id }) => {
-          if (saved.held?.[id] && validSelection[id]) validHeld[id] = true;
-        });
-        setSelected(validSelection);
-        setFits(validFits);
-        setHeld(validHeld);
-      }
-    } catch {
-      setStatus("Không đọc được bản phối đã lưu; bạn vẫn có thể tiếp tục chơi.");
-    }
+    const saved = readLook();
+    setSelected(saved.selected);
+    setFits(saved.fits);
+    setHeld(saved.held);
     setHydrated(true);
+    initAudio();
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
     try {
-      localStorage.setItem(storageKey, JSON.stringify({ selected, fits, held } satisfies SavedStudio));
+      rememberLook({ selected, fits, held });
     } catch {
-      setStatus("Trình duyệt không thể lưu bản phối hiện tại.");
+      setStatus("Unable to save current outfit in browser storage.");
     }
   }, [fits, held, hydrated, selected]);
 
   function garmentLayer(item: Garment) {
     if (
       item.id === "shoes-brown-boots" &&
-      selected.bottoms &&
-      selected.bottoms === "bottom-blue-jeans"
+      selected.bottoms && bootTuckBottomIds.has(selected.bottoms)
     ) {
       return 35;
     }
@@ -153,7 +119,7 @@ export function DressUpStudio() {
   }
 
   const layers = useMemo(
-    () => garments
+    () => allGarments
       .filter((item) => selected[item.category] === item.id)
       .sort((left, right) => garmentLayer(left) - garmentLayer(right)),
     [selected],
@@ -163,17 +129,21 @@ export function DressUpStudio() {
     [category],
   );
   const activeId = selected[category];
-  const activeItem = activeId ? garments.find((item) => item.id === activeId) : undefined;
+  const activeItem = activeId ? allGarments.find((item) => item.id === activeId) : undefined;
   const activeFit = activeId ? fits[activeId] || initialFit : initialFit;
 
-  function choose(id: string) {
-    const item = garments.find((candidate) => candidate.id === id);
+  function choose(id: string, sound: SoundEffect = "dress") {
+    const item = allGarments.find((candidate) => candidate.id === id);
     if (!item) return;
-    setShowcase(false);
+    playSound(sound);
     setSelected((previous) => ({ ...previous, [item.category]: id }));
     setRecentlyWorn(id);
-    setTimeout(() => setRecentlyWorn((current) => (current === id ? null : current)), 600);
-    setStatus(`Đã mặc ${item.name.toLocaleLowerCase("vi")}.`);
+    setRecentlyWornCategory(item.category);
+    setTimeout(() => {
+      setRecentlyWorn((current) => (current === id ? null : current));
+      setRecentlyWornCategory((current) => (current === item.category ? null : current));
+    }, 700);
+    setStatus(`Wearing ${item.name.toLowerCase()}.`);
   }
 
   function handlePointerDown(event: PointerEvent<HTMLButtonElement>, id: string) {
@@ -202,7 +172,8 @@ export function DressUpStudio() {
   function handlePointerMove(event: PointerEvent<HTMLButtonElement>) {
     const drag = pointerDrag.current;
     if (!drag) return;
-    if (!drag.active && Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < 6) return;
+    if (!drag.active && Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < 3) return;
+    if (!drag.active) playSound("pickup");
     drag.active = true;
     suppressClick.current = true;
     setIsDragging(drag.preview.id);
@@ -217,7 +188,8 @@ export function DressUpStudio() {
 
   function handlePointerUp(event: PointerEvent<HTMLButtonElement>) {
     const drag = pointerDrag.current;
-    if (drag?.active && isOverStage(event.clientX, event.clientY)) choose(drag.preview.id);
+    if (drag?.active && isOverStage(event.clientX, event.clientY)) choose(drag.preview.id, "drop");
+    else if (drag?.active) playSound("cancel");
     finishDrag();
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
   }
@@ -230,6 +202,7 @@ export function DressUpStudio() {
   }
 
   function activateCategory(nextCategory: Category) {
+    if (nextCategory !== category) playSound("category");
     setCategory(nextCategory);
     setMenuPinned(false);
     setMenuHovered(false);
@@ -248,7 +221,7 @@ export function DressUpStudio() {
       if (held[id] && selected[id]) next[id] = selected[id];
     });
     setSelected(next);
-    setStatus(`Đã phối ${label}. Các món được giữ vẫn ở nguyên vị trí.`);
+    setStatus(`Applied ${label}. Pinned items stayed in place.`);
   }
 
   function shuffle() {
@@ -260,7 +233,8 @@ export function DressUpStudio() {
     next.tops = chooseRandom("tops");
     next.bottoms = chooseRandom("bottoms");
     next.shoes = chooseRandom("shoes");
-    applyLook(next, "một bộ ngẫu nhiên");
+    applyLook(next, "random outfit");
+    playSound("dress");
   }
 
   function removeActive() {
@@ -271,13 +245,15 @@ export function DressUpStudio() {
       return next;
     });
     setHeld((previous) => ({ ...previous, [category]: false }));
-    setStatus(`Đã bỏ ${activeItem?.name.toLocaleLowerCase("vi") || "món đang chọn"}.`);
+    playSound("click");
+    setStatus(`Removed ${activeItem?.name.toLowerCase() || "selected item"}.`);
   }
 
   function clearOutfit() {
     setSelected({});
     setHeld({});
-    setStatus("Đã bỏ toàn bộ trang phục; căn chỉnh riêng của từng món vẫn được lưu.");
+    playSound("click");
+    setStatus("Removed all clothing; item adjustments are preserved.");
   }
 
   function updateFit(key: keyof Fit, value: number) {
@@ -291,7 +267,8 @@ export function DressUpStudio() {
   function resetActiveFit() {
     if (!activeId) return;
     setFits((previous) => ({ ...previous, [activeId]: { ...initialFit } }));
-    setStatus(`Đã đưa ${activeItem?.name.toLocaleLowerCase("vi")} về điểm neo chuẩn.`);
+    playSound("click");
+    setStatus(`Reset ${activeItem?.name.toLowerCase()} to default position.`);
   }
 
   function layerStyle(id: string): CSSProperties {
@@ -301,80 +278,37 @@ export function DressUpStudio() {
     };
   }
 
-  async function exportPng() {
-    setExporting(true);
-    try {
-      const canvas = document.createElement("canvas");
-      canvas.width = STAGE.width;
-      canvas.height = STAGE.height;
-      const context = canvas.getContext("2d");
-      if (!context) throw new Error("Canvas is unavailable.");
-
-      const exportLayers = [
-        { id: selected.shoes === "shoes-brown-boots" ? "model-boots" : "model", fit: initialFit, clipBottomAt: undefined },
-        ...layers.map((item) => ({
-          id: item.id,
-          fit: fits[item.id] || initialFit,
-          clipBottomAt:
-            item.category === "bottoms" &&
-            item.id === "bottom-blue-jeans" &&
-            selected.shoes === "shoes-brown-boots"
-              ? 0.648
-              : undefined,
-        })),
-      ];
-      for (const layer of exportLayers) {
-        const picture = new Image();
-        picture.src = assetUrl(layer.id);
-        await picture.decode();
-        context.save();
-        context.translate(STAGE.width / 2 + layer.fit.x, STAGE.height / 2 + layer.fit.y);
-        context.rotate(layer.fit.angle * Math.PI / 180);
-        context.scale(layer.fit.scaleX, layer.fit.scaleY);
-        if (layer.clipBottomAt) {
-          const clippedHeight = STAGE.height * layer.clipBottomAt;
-          context.drawImage(
-            picture,
-            0,
-            0,
-            STAGE.width,
-            clippedHeight,
-            -STAGE.width / 2,
-            -STAGE.height / 2,
-            STAGE.width,
-            clippedHeight,
-          );
-        } else {
-          context.drawImage(picture, -STAGE.width / 2, -STAGE.height / 2, STAGE.width, STAGE.height);
-        }
-        context.restore();
-      }
-
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob((value) => (value ? resolve(value) : reject(new Error("PNG export failed."))), "image/png");
-      });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "tung-tung-outfit.png";
-      link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
-      setStatus("Đã xuất bộ phối PNG 1024×1536 với nền trong suốt.");
-    } catch {
-      setStatus("Không thể xuất ảnh. Hãy đợi các lớp tải xong rồi thử lại.");
-    } finally {
-      setExporting(false);
-    }
+  function showLook() {
+    try { rememberLook({ selected, fits, held }); } catch { /* The session copy remains available. */ }
+    playSound("showcase");
+    router.push("/photoshoot");
   }
 
   return (
-    <main className="game-shell" lang="vi">
-      <div className="game-canvas dressing-room" aria-label="Phòng thử đồ Tưng Tửng">
+    <main className="game-shell" lang="en">
+      <div className="game-canvas dressing-room" aria-label="Fashion Dress-Up Dressing Room">
         <div className="dressing-room-content">
         {/* Back button on top-left */}
-        <Link className="back-button" href="/" aria-label="Về trang chủ">
+        <Link className="back-button" href="/" aria-label="Back to home" onClick={() => playSound("back")}>
           <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/ui/back.svg`} alt="" draggable={false} />
         </Link>
+
+        {/* Settings gear button on top-right */}
+        <button
+          type="button"
+          className="settings-button"
+          aria-label="Sound settings"
+          title="Sound settings"
+          onClick={() => {
+            playSound("panelOpen");
+            setAudioModalOpen(true);
+          }}
+          data-testid="settings-btn"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+          </svg>
+        </button>
 
         {/* Character stage with ground shadow */}
         <div className="character-stage-wrap">
@@ -383,16 +317,15 @@ export function DressUpStudio() {
           <img className="character-shadow" src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/ui/shadow.svg`} alt="" draggable={false} />
           <div
             ref={stageRef}
-            className={`studio-stage ${isDragOverStage ? "is-drag-over" : ""} ${showcase ? "is-showcasing" : ""}`}
+            className={`studio-stage ${isDragOverStage ? "is-drag-over" : ""}`}
             data-testid="studio-stage"
             data-layer-count={layers.length}
-            onAnimationEnd={(event) => { if (event.target === event.currentTarget) setShowcase(false); }}
           >
             {/* Nude base model */}
             <img
               src={assetUrl(selected.shoes === "shoes-brown-boots" ? "model-boots" : "model")}
               className="studio-layer"
-              alt="Nhân vật 2D cố định đứng thẳng, hai tay xuôi tự nhiên"
+              alt="2D paper doll model standing upright with arms relaxed"
               draggable={false}
               fetchPriority="high"
             />
@@ -402,7 +335,7 @@ export function DressUpStudio() {
               <img
                 key={item.id}
                 src={assetUrl(item.id)}
-                className={`studio-layer ${recentlyWorn === item.id ? "animate-snap" : ""} ${item.id === "bottom-blue-jeans" && selected.shoes === "shoes-brown-boots" ? "is-shortened-for-boots" : ""}`}
+                className={`studio-layer ${recentlyWorn === item.id ? "animate-snap" : ""} ${bootTuckBottomIds.has(item.id) && selected.shoes === "shoes-brown-boots" ? "is-shortened-for-boots" : ""}`}
                 style={{ ...layerStyle(item.id), zIndex: garmentLayer(item) }}
                 alt={item.name}
                 data-garment={item.id}
@@ -411,24 +344,56 @@ export function DressUpStudio() {
               />
             ))}
 
+            <svg className="studio-layer studio-foreground-arms" viewBox={`0 0 ${STAGE.width} ${STAGE.height}`} style={{ zIndex: foregroundArmsOrder }} aria-hidden="true" data-testid="foreground-arms">
+              <defs><clipPath id={armsClipId}><path d={foregroundArmsPath} /></clipPath></defs>
+              <image href={assetUrl("model")} width={STAGE.width} height={STAGE.height} clipPath={`url(#${armsClipId})`} />
+            </svg>
+
+            {/* White magic bling-bling sparkles on dress-up */}
+            <MagicBlingSparkles activeItem={recentlyWorn} category={recentlyWornCategory} />
+
             {/* Drop target prompt on hover/drag */}
             {isDragOverStage && (
               <div className="stage-drop-overlay">
-                <span>Thả trang phục vào đây ✧</span>
+                <span>Drop outfit here ✧</span>
               </div>
             )}
           </div>
         </div>
-        <button className="showcase-button" disabled={!outfitComplete || showcase} onClick={() => { setShowcase(true); setStatus("Bộ đồ đã hoàn thiện — cùng tỏa sáng!"); }}>
-          <span aria-hidden="true">✧</span> {showcase ? "Looking good!" : "Show my look"}
+        <button className="showcase-button" disabled={!hydrated || !outfitComplete} onClick={showLook}>
+          <span aria-hidden="true">✧</span> Show my look
         </button>
+
+        {/* On phones, direct tabs replace the radial wheel so the model and
+            wardrobe remain in separate, predictable regions. */}
+        <nav className="mobile-category-tabs" aria-label="Wardrobe categories">
+          {categories.map((item) => (
+            <button
+              type="button"
+              className={category === item.id ? "is-active" : ""}
+              key={item.id}
+              role="tab"
+              aria-selected={category === item.id}
+              aria-controls="garment-panel"
+              data-testid={`mobile-category-${item.id}`}
+              onClick={() => activateCategory(item.id)}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                {item.id === "tops" && <path d="m8 5 4 2 4-2 4 3-2.4 3.2-1.6-1V20H8v-9.8l-1.6 1L4 8l4-3Z" />}
+                {item.id === "bottoms" && <path d="M7 4h10l2 16h-5l-2-9-2 9H5L7 4Zm0 4h10" />}
+                {item.id === "shoes" && <path d="M4 15c3 0 5-2 6-6l2 5c1 2 3 3 6 3h2v3H4v-5Z" />}
+              </svg>
+              <span>{item.id === "tops" ? "Tops" : item.id === "bottoms" ? "Bottoms" : "Shoes"}</span>
+            </button>
+          ))}
+        </nav>
 
         {/* 3-Sector Radial Arc Selector matching image-6.png */}
         <nav
           className={`studio-radial-nav ${menuOpen ? "is-open" : ""}`}
-          aria-label="Chọn loại trang phục"
-          onMouseEnter={() => setMenuHovered(true)}
-          onMouseLeave={() => setMenuHovered(false)}
+          aria-label="Select garment category"
+          onMouseEnter={() => { if (!menuOpen) playSound("panelOpen"); setMenuHovered(true); }}
+          onMouseLeave={() => { if (!menuPinned) playSound("panelClose"); setMenuHovered(false); }}
         >
           <button
             type="button"
@@ -437,7 +402,7 @@ export function DressUpStudio() {
             aria-expanded={menuOpen}
             aria-controls="category-wheel"
             data-testid="category-launcher"
-            onClick={() => setMenuPinned((current) => !current)}
+            onClick={() => { playSound(menuOpen ? "tap" : "panelOpen"); setMenuPinned((current) => !current); }}
           >
             <svg className="category-launcher-mark" viewBox="0 0 28 20" aria-hidden="true">
               <path d="M14 6.5c0-2.1 3-2.1 3-4.2C17 1 16 0 14.5 0 13.1 0 12 1 12 2.3" />
@@ -453,7 +418,7 @@ export function DressUpStudio() {
             viewBox="0 0 160 320"
             xmlns="http://www.w3.org/2000/svg"
             role="tablist"
-            aria-label="Loại trang phục"
+            aria-label="Garment categories"
             aria-hidden={!menuOpen}
           >
             <defs>
@@ -482,7 +447,7 @@ export function DressUpStudio() {
               aria-controls="garment-panel"
               data-testid="category-tops"
               onClick={() => activateCategory("tops")}
-              onMouseEnter={() => setCategory("tops")}
+              onMouseEnter={() => { if (category !== "tops") playSound("category"); setCategory("tops"); }}
               onKeyDown={(event) => handleSectorKeyDown(event, "tops")}
               tabIndex={menuOpen ? 0 : -1}
             >
@@ -506,7 +471,7 @@ export function DressUpStudio() {
               aria-controls="garment-panel"
               data-testid="category-bottoms"
               onClick={() => activateCategory("bottoms")}
-              onMouseEnter={() => setCategory("bottoms")}
+              onMouseEnter={() => { if (category !== "bottoms") playSound("category"); setCategory("bottoms"); }}
               onKeyDown={(event) => handleSectorKeyDown(event, "bottoms")}
               tabIndex={menuOpen ? 0 : -1}
             >
@@ -530,7 +495,7 @@ export function DressUpStudio() {
               aria-controls="garment-panel"
               data-testid="category-shoes"
               onClick={() => activateCategory("shoes")}
-              onMouseEnter={() => setCategory("shoes")}
+              onMouseEnter={() => { if (category !== "shoes") playSound("category"); setCategory("shoes"); }}
               onKeyDown={(event) => handleSectorKeyDown(event, "shoes")}
               tabIndex={menuOpen ? 0 : -1}
             >
@@ -587,8 +552,12 @@ export function DressUpStudio() {
                   onPointerUp={handlePointerUp}
                   onPointerCancel={finishDrag}
                   onLostPointerCapture={finishDrag}
+                  onDragStart={(e) => {
+                    e.preventDefault();
+                    playSound("pickup");
+                  }}
                   onClick={() => { if (!suppressClick.current) choose(item.id); suppressClick.current = false; }}
-                  aria-label={`Mặc ${item.name}`}
+                  aria-label={`Wear ${item.name}`}
                   data-testid={`garment-${item.id}`}
                 >
                   <div className="outfit-card-thumb">
@@ -625,6 +594,8 @@ export function DressUpStudio() {
           <img src={previewAssetUrl(dragPreview.id)} style={{ padding: dragPreview.padding }} alt="" draggable={false} />
         </div>
       )}
+      <AudioSettingsModal open={audioModalOpen} onClose={() => setAudioModalOpen(false)} />
+      <PlayfulLoading active={loadingActive} onFinish={() => setLoadingActive(false)} />
     </main>
   );
 }

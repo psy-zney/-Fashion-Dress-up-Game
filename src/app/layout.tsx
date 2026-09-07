@@ -1,11 +1,17 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Tưng Tửng · Game phối đồ",
-  description: "Phối từng lớp áo, quần, váy, đầm, áo khoác, tất và giày trên một model 2D cố định.",
+  title: "Tung Tung · Fashion Dress-Up Game",
+  description: "Mix and match tops, bottoms, and shoes on a 2D model with real-time fitting.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="vi"><body>{children}</body></html>;
+  return <html lang="en"><body>{children}</body></html>;
 }

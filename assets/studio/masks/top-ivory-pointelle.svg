@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1536" viewBox="0 0 1024 1536">
+  <!-- Retain the neckline inset that covers the base bandeau, but exclude all
+       source arm/hip contours. Restore continuous knit from the worn source. -->
+  <path fill="white" d="M420 302 L428 302 L435 354 L440 350 L584 350 L591 302 L599 303
+    L592 355 Q611 391 610 431 Q611 455 600 476 L589 543 Q595 553 590 562
+    L613 621 Q513 646 402 621 L423 562 Q419 551 426 542 L417 481
+    Q398 452 405 417 Q408 390 425 354Z"/>
+</svg>

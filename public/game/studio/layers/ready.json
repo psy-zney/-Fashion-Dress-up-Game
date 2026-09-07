@@ -1,77 +1,32 @@
 {
   "version": "studio-2.0",
-  "catalogGarments": 14,
+  "catalogGarments": 5,
   "items": [
     {
-      "id": "top-white-basic",
+      "id": "top-fitted-denim",
       "category": "tops",
-      "name": "Áo hai dây trắng basic"
+      "name": "Áo denim ôm sát"
     },
     {
-      "id": "top-black-tee",
+      "id": "top-modal-grommet",
       "category": "tops",
-      "name": "Áo thun đen"
+      "name": "Áo cotton modal đính khoen"
     },
     {
-      "id": "top-white-lace",
-      "category": "tops",
-      "name": "Áo trắng dài tay viền ren"
-    },
-    {
-      "id": "top-gray-v",
-      "category": "tops",
-      "name": "Áo len xám cổ V"
-    },
-    {
-      "id": "top-ivory-pointelle",
-      "category": "tops",
-      "name": "Áo dệt kim kem"
-    },
-    {
-      "id": "top-red-offshoulder",
-      "category": "tops",
-      "name": "Áo đỏ trễ vai tay loe"
-    },
-    {
-      "id": "bottom-blue-jeans",
+      "id": "bottom-sculpted-jeans",
       "category": "bottoms",
-      "name": "Quần jeans xanh"
+      "name": "Quần jeans balloon ráp mảnh"
     },
     {
-      "id": "bottom-white-shorts",
+      "id": "bottom-denim-sculpted-skirt",
       "category": "bottoms",
-      "name": "Quần short trắng"
-    },
-    {
-      "id": "bottom-black-mini",
-      "category": "bottoms",
-      "name": "Váy ngắn đen"
-    },
-    {
-      "id": "shoes-brown-boots",
-      "category": "shoes",
-      "name": "Boots nâu cao cổ"
-    },
-    {
-      "id": "bottom-white-pleats",
-      "category": "bottoms",
-      "name": "Váy xếp ly trắng viền ren"
+      "name": "Váy denim dài ráp cong"
     },
     {
       "id": "shoes-mary-janes",
       "category": "shoes",
       "name": "Giày Mary Jane đen"
-    },
-    {
-      "id": "bottom-navy-dots",
-      "category": "bottoms",
-      "name": "Váy navy chấm bi"
-    },
-    {
-      "id": "bottom-gray-maxi",
-      "category": "bottoms",
-      "name": "Váy dài xếp ly xám"
     }
   ],
-  "updatedAt": "2026-09-05T08:42:48.901Z"
+  "updatedAt": "2026-09-07T15:53:02.712Z"
 }

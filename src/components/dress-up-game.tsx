@@ -1,8 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { looks, wardrobeCards, type LookScreen, type Screen } from "@/lib/outfits";
+import { playSound } from "@/lib/sound-effects";
+import { SoapBubbles } from "@/components/soap-bubbles";
+import { loadMusicWithProgress, initAudio } from "@/lib/audio-manager";
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const asset = (name: string) => `${basePath}/game/ui/${name}`;
@@ -11,12 +14,12 @@ const unit = (pixels: number) => `${pixels / 14.4}cqw`;
 function Help() {
   const dialog = useRef<HTMLDialogElement>(null);
   return <>
-    <button className="glass-button help-button" aria-label="How to play" onClick={() => dialog.current?.showModal()}>?</button>
-    <dialog ref={dialog} className="help-dialog" aria-labelledby="help-title" onClick={(event) => {
+    <button className="glass-button help-button" aria-label="How to play" onClick={() => { playSound("panelOpen"); dialog.current?.showModal(); }}>?</button>
+    <dialog ref={dialog} className="help-dialog" aria-labelledby="help-title" onClose={() => playSound("panelClose")} onClick={(event) => {
       if (event.target === event.currentTarget) dialog.current?.close();
     }}>
       <div className="help-content">
-        <span className="help-eyebrow">TƯNG TỬNG MINIGAME</span>
+        <span className="help-eyebrow">FASHION DRESS-UP MINIGAME</span>
         <h1 id="help-title">A new look. A new mood.</h1>
         <p>Press PLAY, then choose an outfit to dress your character. Scroll the wardrobe to browse. Use the back arrow to return to the start.</p>
         <form method="dialog"><button className="help-close">Got it, let’s play</button></form>
@@ -44,6 +47,7 @@ function Wardrobe({ screen }: { screen: LookScreen }) {
           className="outfit-card"
           aria-label={`Wear ${looks[card.screen].name}${index > 3 ? " (alternate card)" : ""}`}
           aria-current={card.screen === screen ? "true" : undefined}
+          onClick={() => playSound("dress")}
         >
           <img src={asset(card.asset)} alt="" draggable={false} style={card.crop} />
         </Link>)}
@@ -67,23 +71,77 @@ function DressingRoom({ screen }: { screen: LookScreen }) {
       <img src={asset(look.asset)} alt={`Character wearing ${look.name}`} draggable={false} style={look.crop} />
     </div>
     <Wardrobe screen={screen} />
-    <Link className="back-button" href="/" aria-label="Back to start"><img src={asset("back.svg")} alt="" /></Link>
+    <Link className="back-button" href="/" aria-label="Back to start" onClick={() => playSound("back")}><img src={asset("back.svg")} alt="" /></Link>
     <p className="sr-only" role="status" aria-live="polite">Selected outfit: {look.name}</p>
   </>;
 }
 
 export function DressUpGame({ screen }: { screen: Screen }) {
-  return <main
-    className={`game-shell ${screen === 1 ? "landing-shell" : ""}`}
-    style={{ "--landing-bg": `url('${asset("landing-background.png")}')` } as CSSProperties}
-  >
-    <div className={`game-canvas ${screen === 1 ? "landing" : "dressing-room"}`} data-screen={screen} data-node-id={screen === 1 ? "1:2" : looks[screen].nodeId} aria-label={screen === 1 ? "Tưng Tửng minigame" : "Dress up game"}>
-      {screen === 1 ? <>
-        <img className="landing-art" src={asset("landing-background.png")} alt="Tưng Tửng Minigame — a colorful fashion collage in the city" fetchPriority="high" draggable={false} />
-        <img className="landing-art landing-overlay" src={asset("landing-overlay.png")} alt="" draggable={false} />
-        <Link className="glass-button play-button" href="/play">PLAY</Link>
-        <Help />
-      </> : <DressingRoom screen={screen} />}
-    </div>
-  </main>;
+  const [audioLoading, setAudioLoading] = useState(() => screen === 1);
+  const [audioProgress, setAudioProgress] = useState(0);
+  const [freshlyLoaded, setFreshlyLoaded] = useState(false);
+
+  useEffect(() => {
+    if (screen === 1) {
+      let isMounted = true;
+      void loadMusicWithProgress((pct) => {
+        if (isMounted) setAudioProgress(pct);
+      }).then(() => {
+        if (isMounted) {
+          setAudioLoading(false);
+          setFreshlyLoaded(true);
+        }
+      });
+      return () => {
+        isMounted = false;
+      };
+    } else {
+      initAudio();
+    }
+  }, [screen]);
+
+  return (
+    <main
+      className={`game-shell ${screen === 1 ? "landing-shell" : ""}`}
+      style={{ "--landing-bg": `url('${asset("landing-background.png")}')` } as CSSProperties}
+    >
+      <div className={`game-canvas ${screen === 1 ? "landing" : "dressing-room"}`} data-screen={screen} data-node-id={screen === 1 ? "1:2" : looks[screen].nodeId} aria-label={screen === 1 ? "Fashion Dress-Up minigame" : "Dress up game"}>
+        {screen === 1 ? <>
+          <img
+            className={`landing-art ${audioLoading ? "is-loading-blur" : ""}`}
+            src={asset("landing-background.png")}
+            alt="Fashion Dress-Up Minigame — a colorful fashion collage in the city"
+            fetchPriority="high"
+            draggable={false}
+          />
+          <img
+            className={`landing-art landing-overlay ${audioLoading ? "is-loading-blur" : ""}`}
+            src={asset("landing-overlay.png")}
+            alt=""
+            draggable={false}
+          />
+          <SoapBubbles count={12} />
+          <Link
+            className={`glass-button play-button ${audioLoading ? "is-loading-hidden" : ""} ${freshlyLoaded ? "is-freshly-loaded" : ""}`}
+            href="/play"
+            onClick={() => playSound("play")}
+          >
+            PLAY
+          </Link>
+          <div
+            className={`landing-loading-bar-wrap ${!audioLoading ? "is-hidden" : ""}`}
+            aria-hidden={!audioLoading}
+          >
+            <div className="landing-loading-track">
+              <div className="landing-loading-fill" style={{ width: `${audioProgress}%` }} />
+            </div>
+            <span className="landing-loading-label">
+              {audioProgress < 100 ? `Loading soundtrack ${audioProgress}%` : "Ready to play"}
+            </span>
+          </div>
+          <Help />
+        </> : <DressingRoom screen={screen} />}
+      </div>
+    </main>
+  );
 }

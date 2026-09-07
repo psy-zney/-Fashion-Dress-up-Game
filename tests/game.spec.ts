@@ -7,7 +7,7 @@ test("màn hình mở đầu chỉ dẫn PLAY vào phòng phối đồ tích h�
   await page.goto("/");
   await page.setViewportSize({ width: 1920, height: 1080 });
   await expect(page.locator(".landing-shell")).toHaveCSS("background-color", "rgb(87, 126, 120)");
-  await page.screenshot({ path: "artifacts/studio-qa/landing-background.png", fullPage: true });
+  await page.screenshot({ path: "artifacts/studio/qa/landing-background.png", fullPage: true });
   await expect(page.getByRole("link", { name: "PLAY", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: /STUDIO 2D/i })).toHaveCount(0);
 

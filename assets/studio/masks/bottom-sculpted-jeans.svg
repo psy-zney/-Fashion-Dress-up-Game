@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1536" viewBox="0 0 1024 1536">
+  <!-- Source-aligned fabric silhouette. Excludes the source arms, hands and feet;
+       keeps warm stitching inside the denim instead of treating it as skin. -->
+  <path fill="white" d="M423 568 Q506 591 590 568
+    L600 601 Q631 665 639 721 L646 790 L650 858
+    Q666 924 680 996 L700 1130 Q737 1260 722 1360 L714 1429
+    Q622 1457 522 1434 Q495 1290 509 1120 L510 830 Q506 812 501 825
+    L497 1100 Q473 1298 491 1428 Q399 1459 307 1428
+    Q281 1320 298 1200 L323 1040 Q334 951 352 894 L365 838 L370 740
+    Q375 688 392 643 Q414 589 423 568Z"/>
+</svg>

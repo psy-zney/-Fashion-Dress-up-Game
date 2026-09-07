@@ -1,0 +1,32 @@
+{
+  "version": "studio-2.0",
+  "catalogGarments": 5,
+  "items": [
+    {
+      "id": "top-fitted-denim",
+      "category": "tops",
+      "name": "Áo denim ôm sát"
+    },
+    {
+      "id": "top-modal-grommet",
+      "category": "tops",
+      "name": "Áo cotton modal đính khoen"
+    },
+    {
+      "id": "bottom-sculpted-jeans",
+      "category": "bottoms",
+      "name": "Quần jeans balloon ráp mảnh"
+    },
+    {
+      "id": "bottom-denim-sculpted-skirt",
+      "category": "bottoms",
+      "name": "Váy denim dài ráp cong"
+    },
+    {
+      "id": "shoes-mary-janes",
+      "category": "shoes",
+      "name": "Giày Mary Jane đen"
+    }
+  ],
+  "updatedAt": "2026-09-07T15:24:25.881Z"
+}

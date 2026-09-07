@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --hostname 127.0.0.1",
+    "dev": "next dev --hostname 127.0.0.1 --port 2308",
     "build": "next build",
-    "start": "next start --hostname 127.0.0.1",
+    "start": "next start --hostname 127.0.0.1 --port 2308",
     "prepare:studio": "node scripts/studio/prepare-assets.mjs",
     "prepare:products": "node scripts/studio/prepare-product-previews.mjs",
     "validate:studio": "node scripts/studio/validate-assets.mjs",

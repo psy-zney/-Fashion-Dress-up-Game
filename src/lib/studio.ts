@@ -1,9 +1,11 @@
+import geometry from "./studio-geometry.json";
+
 export const STAGE = { width: 1024, height: 1536 } as const;
 
 export const categories = [
-  { id: "tops", label: "Áo" },
-  { id: "bottoms", label: "Quần & váy" },
-  { id: "shoes", label: "Giày" },
+  { id: "tops", label: "Tops" },
+  { id: "bottoms", label: "Bottoms" },
+  { id: "shoes", label: "Shoes" },
 ] as const;
 
 export type Category = (typeof categories)[number]["id"];
@@ -17,25 +19,36 @@ export type Garment = {
 };
 
 export const garments: Garment[] = [
-  // 6 TOPS
-  { id: "top-white-basic", name: "Áo hai dây trắng basic", category: "tops", source: "worn-top-white-basic" },
-  { id: "top-black-tee", name: "Áo thun đen", category: "tops", source: "worn-top-black-tee" },
-  { id: "top-white-lace", name: "Áo trắng dài tay viền ren", category: "tops", source: "worn-top-white-lace" },
-  { id: "top-gray-v", name: "Áo len xám cổ V", category: "tops", source: "worn-top-gray-v" },
-  { id: "top-ivory-pointelle", name: "Áo dệt kim kem", category: "tops", source: "worn-top-ivory-pointelle" },
-  { id: "top-red-offshoulder", name: "Áo đỏ trễ vai tay loe", category: "tops", source: "worn-top-red-offshoulder" },
+  // A compact, pose-friendly capsule: close silhouettes and no tall boots.
+  { id: "top-fitted-denim", name: "Fitted Denim Top", category: "tops", source: "generated-top-fitted-denim-v2" },
+  { id: "top-modal-grommet", name: "Modal Grommet Top", category: "tops", source: "generated-top-modal-grommet-v3" },
+  { id: "bottom-sculpted-jeans", name: "Sculpted Balloon Jeans", category: "bottoms", source: "generated-bottom-sculpted-jeans-v1" },
+  { id: "bottom-denim-sculpted-skirt", name: "Sculpted Denim Maxi Skirt", category: "bottoms", source: "generated-bottom-denim-sculpted-skirt-v4" },
+  { id: "shoes-mary-janes", name: "Black Mary Janes", category: "shoes", source: "worn-shoes-mary-janes" },
+];
 
-  // 6 BOTTOMS
-  { id: "bottom-blue-jeans", name: "Quần jeans xanh", category: "bottoms", source: "worn-bottom-blue-jeans" },
-  { id: "bottom-white-shorts", name: "Quần short trắng", category: "bottoms", source: "worn-bottom-white-shorts" },
-  { id: "bottom-black-mini", name: "Váy ngắn đen", category: "bottoms", source: "worn-bottom-black-mini" },
-  { id: "bottom-navy-dots", name: "Váy navy chấm bi", category: "bottoms", source: "worn-bottom-navy-dots" },
-  { id: "bottom-white-pleats", name: "Váy xếp ly trắng viền ren", category: "bottoms", source: "worn-bottom-white-pleats" },
-  { id: "bottom-gray-maxi", name: "Váy dài xếp ly xám", category: "bottoms", source: "worn-bottom-gray-maxi" },
+// Export all known garments so saved looks and photoshoot composition preserve
+// legacy/alternative items like top-red-offshoulder, bottom-blue-jeans, etc.
+export const allGarments: Garment[] = [
+  ...garments,
+  // 6 Additional TOPS
+  { id: "top-white-basic", name: "Basic White Cami", category: "tops", source: "worn-top-white-basic" },
+  { id: "top-black-tee", name: "Black T-Shirt", category: "tops", source: "worn-top-black-tee" },
+  { id: "top-white-lace", name: "White Lace Long Sleeve", category: "tops", source: "worn-top-white-lace" },
+  { id: "top-gray-v", name: "Gray V-Neck Knit", category: "tops", source: "worn-top-gray-v" },
+  { id: "top-ivory-pointelle", name: "Cream Pointelle Knit", category: "tops", source: "worn-top-ivory-pointelle" },
+  { id: "top-red-offshoulder", name: "Red Off-Shoulder Top", category: "tops", source: "worn-top-red-offshoulder" },
 
-  // 2 SHOES
-  { id: "shoes-mary-janes", name: "Giày Mary Jane đen", category: "shoes", source: "worn-shoes-mary-janes" },
-  { id: "shoes-brown-boots", name: "Boots nâu cao cổ", category: "shoes", source: "fitted-shoes-brown-boots" },
+  // 6 Additional BOTTOMS
+  { id: "bottom-blue-jeans", name: "Classic Blue Jeans", category: "bottoms", source: "worn-bottom-blue-jeans" },
+  { id: "bottom-white-shorts", name: "White Denim Shorts", category: "bottoms", source: "worn-bottom-white-shorts" },
+  { id: "bottom-black-mini", name: "Black Mini Skirt", category: "bottoms", source: "worn-bottom-black-mini" },
+  { id: "bottom-navy-dots", name: "Navy Polka Dot Skirt", category: "bottoms", source: "worn-bottom-navy-dots" },
+  { id: "bottom-white-pleats", name: "White Pleated Lace Skirt", category: "bottoms", source: "worn-bottom-white-pleats" },
+  { id: "bottom-gray-maxi", name: "Gray Pleated Maxi Skirt", category: "bottoms", source: "worn-bottom-gray-maxi" },
+
+  // 1 Additional SHOES
+  { id: "shoes-brown-boots", name: "Brown Knee-High Boots", category: "shoes", source: "fitted-shoes-brown-boots" },
 ];
 
 export const layerOrder: Record<Category, number> = {
@@ -44,23 +57,26 @@ export const layerOrder: Record<Category, number> = {
   tops: 40,
 };
 
-export const longBottomIds = new Set([
+// Only the forearms/hands: keep the model's real hands in front of every
+// bottom, while sleeves (tops, z40) can still cover the arms naturally.
+export const foregroundArmsOrder = 38;
+export const foregroundArmsPath = geometry.foregroundArmsPath;
+
+export const bootTuckBottomIds = new Set<string>([
   "bottom-blue-jeans",
+  "bottom-sculpted-jeans",
   "bottom-navy-dots",
   "bottom-gray-maxi",
+  "bottom-denim-sculpted-skirt",
 ]);
 
 export const presets: { name: string; selection: Selection }[] = [
-  { name: "Pháp cổ điển", selection: { tops: "top-white-basic", bottoms: "bottom-navy-dots", shoes: "shoes-mary-janes" } },
-  { name: "Ngày thu năng động", selection: { tops: "top-red-offshoulder", bottoms: "bottom-blue-jeans", shoes: "shoes-brown-boots" } },
-  { name: "Xếp ly lãng mạn", selection: { tops: "top-ivory-pointelle", bottoms: "bottom-white-pleats", shoes: "shoes-mary-janes" } },
-  { name: "Mùa hè năng động", selection: { tops: "top-black-tee", bottoms: "bottom-white-shorts", shoes: "shoes-mary-janes" } },
-  { name: "Thanh lịch tối giản", selection: { tops: "top-gray-v", bottoms: "bottom-gray-maxi", shoes: "shoes-brown-boots" } },
-  { name: "Ren đen hiện đại", selection: { tops: "top-white-lace", bottoms: "bottom-black-mini", shoes: "shoes-mary-janes" } },
+  { name: "Denim Sculpture", selection: { tops: "top-fitted-denim", bottoms: "bottom-denim-sculpted-skirt", shoes: "shoes-mary-janes" } },
+  { name: "Soft Contrast", selection: { tops: "top-modal-grommet", bottoms: "bottom-sculpted-jeans", shoes: "shoes-mary-janes" } },
 ];
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 export const assetUrl = (id: string) => `${basePath}/game/studio/layers/${id}.png`;
 // Reviewed product cutouts have real alpha; the card and pointer sticker share
 // this URL. Never substitute body-aligned sprite masks or opaque source renders.
-export const previewAssetUrl = (id: string) => `${basePath}/game/studio/products-v2/${id}.png`;
+export const previewAssetUrl = (id: string) => `${basePath}/game/studio/products/${id}.png`;

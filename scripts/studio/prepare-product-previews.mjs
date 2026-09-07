@@ -30,14 +30,44 @@ function removeExterior(data, width, height) {
   }
 }
 
+// Imagegen product exports may contain a baked checkerboard and therefore no
+// useful source alpha. The flood fill above gives us a reliable silhouette,
+// but a binary edge looks stair-stepped after the catalog scales it down. Keep
+// the transition inside the detected garment so neutral checker pixels never
+// become a light halo on dark UI backgrounds.
+function antialiasInnerEdge(data, width, height) {
+  const alpha = new Uint8Array(width * height);
+  for (let index = 0; index < alpha.length; index++) alpha[index] = data[index * 4 + 3];
+  const weights = [1, 2, 1, 2, 4, 2, 1, 2, 1];
+
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const index = y * width + x;
+      if (alpha[index] === 0) continue;
+      let coverage = 0;
+      let weightIndex = 0;
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (alpha[(y + dy) * width + x + dx] > 0) coverage += weights[weightIndex];
+          weightIndex++;
+        }
+      }
+      data[index * 4 + 3] = Math.round(255 * coverage / 16);
+    }
+  }
+}
+
 await fs.mkdir(PRODUCT_OUTPUT, { recursive: true });
 const report = [];
 const tiles = [];
 for (const [id, config] of Object.entries(PRODUCT_PREVIEWS)) {
-  const source = config.source || `public/studio-v2/generated/${id}.png`;
+  const source = config.source || `assets/studio/sources/products/original/${id}.png`;
   const input = await fs.readFile(source);
   const { data, info: { width, height } } = await sharp(input).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
-  if (config.mode === "exterior") removeExterior(data, width, height);
+  if (config.mode === "exterior") {
+    removeExterior(data, width, height);
+    antialiasInnerEdge(data, width, height);
+  }
   if (config.mode === "silhouette") {
     if (width !== 1024 || height !== 1536) throw new Error(`${id}: silhouette requires original canvas`);
     const mask = await sharp(Buffer.from(`<svg width="1024" height="1536" xmlns="http://www.w3.org/2000/svg"><path fill="white" d="${config.outline}"/></svg>`)).ensureAlpha().raw().toBuffer();
@@ -59,7 +89,7 @@ for (const [id, config] of Object.entries(PRODUCT_PREVIEWS)) {
   report.push({ id, source, output, width, height, mode: config.mode, transparentRatio: transparent / (width * height), sourceSha256: crypto.createHash("sha256").update(input).digest("hex") });
   tiles.push({ input: await sharp(png).resize(240, 300, { fit: "contain", background: "#65d7bb" }).flatten({ background: "#65d7bb" }).png().toBuffer(), left: (tiles.length % 5) * 240, top: Math.floor(tiles.length / 5) * 300 });
 }
-await fs.mkdir("artifacts/studio-qa/products", { recursive: true });
-await fs.writeFile("artifacts/studio-qa/products/report.json", JSON.stringify(report, null, 2));
-await sharp({ create: { width: 1200, height: 900, channels: 4, background: "#65d7bb" } }).composite(tiles).png().toFile("artifacts/studio-qa/products/contact-sheet.png");
+await fs.mkdir("artifacts/studio/qa/products", { recursive: true });
+await fs.writeFile("artifacts/studio/qa/products/report.json", JSON.stringify(report, null, 2));
+await sharp({ create: { width: 1200, height: 900, channels: 4, background: "#65d7bb" } }).composite(tiles).png().toFile("artifacts/studio/qa/products/contact-sheet.png");
 console.log(`Prepared ${report.length} transparent product previews. Model layers and original art unchanged.`);

@@ -1,0 +1,77 @@
+[
+  {
+    "id": "top-fitted-denim",
+    "category": "tops",
+    "name": "Áo denim ôm sát",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 409,
+      "top": 267,
+      "width": 203,
+      "height": 375,
+      "visiblePixels": 63995
+    }
+  },
+  {
+    "id": "top-modal-grommet",
+    "category": "tops",
+    "name": "Áo cotton modal đính khoen",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 396,
+      "top": 294,
+      "width": 224,
+      "height": 355,
+      "visiblePixels": 62224
+    }
+  },
+  {
+    "id": "bottom-sculpted-jeans",
+    "category": "bottoms",
+    "name": "Quần jeans balloon ráp mảnh",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 291,
+      "top": 568,
+      "width": 436,
+      "height": 877,
+      "visiblePixels": 276324
+    }
+  },
+  {
+    "id": "bottom-denim-sculpted-skirt",
+    "category": "bottoms",
+    "name": "Váy denim dài ráp cong",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 311,
+      "top": 566,
+      "width": 399,
+      "height": 679,
+      "visiblePixels": 204129
+    }
+  },
+  {
+    "id": "shoes-mary-janes",
+    "category": "shoes",
+    "name": "Giày Mary Jane đen",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 406,
+      "top": 1340,
+      "width": 198,
+      "height": 135,
+      "visiblePixels": 8754
+    }
+  }
+]

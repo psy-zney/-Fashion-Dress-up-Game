@@ -162,10 +162,10 @@ async function validate() {
   }
 
   const configIds = new Set(Object.keys(CONFIGS));
-  for (const id of [INTERACTIONS.tallBootId, ...INTERACTIONS.longBottomIds]) {
+  for (const id of [INTERACTIONS.tallBootId, ...INTERACTIONS.longBottomIds].filter(Boolean)) {
     if (!configIds.has(id)) fail("interactions", `Unknown compatibility item: ${id}`);
   }
-  if (INTERACTIONS.tallBootClipRatio <= 0 || INTERACTIONS.tallBootClipRatio >= 1) {
+  if (INTERACTIONS.tallBootId && (INTERACTIONS.tallBootClipRatio <= 0 || INTERACTIONS.tallBootClipRatio >= 1)) {
     fail("interactions", "Tall boot clip ratio must be between 0 and 1");
   }
 
@@ -180,7 +180,9 @@ async function validate() {
   }
 
   const studioSource = await fs.readFile("src/lib/studio.ts", "utf8");
-  const appIds = new Set([...studioSource.matchAll(/\{ id: "([^"]+)", name:/g)].map((match) => match[1]));
+  const activeCatalog = studioSource.match(/export const garments: Garment\[\] = \[([\s\S]*?)\n\];/)?.[1];
+  if (!activeCatalog) fail("web-catalog", "Could not locate the active garments catalog");
+  const appIds = new Set([...(activeCatalog || "").matchAll(/\{ id: "([^"]+)", name:/g)].map((match) => match[1]));
   for (const id of configIds) if (!appIds.has(id)) fail("web-catalog", `src/lib/studio.ts is missing ${id}`);
   for (const id of appIds) if (!configIds.has(id)) fail("web-catalog", `Pipeline config is missing ${id}`);
 

@@ -5,8 +5,8 @@ import { DressUpStudio } from "@/components/dress-up-studio";
 import "../studio/studio.css";
 
 export const metadata = {
-  title: "Phòng phối đồ · Tưng Tửng",
-  description: "Phối trang phục trên model đứng thẳng với bộ sprite RGBA đồng nhất.",
+  title: "Dress-Up Studio · Fashion Dress-Up",
+  description: "Style outfits on the model with layered RGBA sprites and instant fitting.",
 };
 
 export default function PlayPage() {
@@ -14,11 +14,11 @@ export default function PlayPage() {
 
   if (!existsSync(readyFile)) {
     return (
-      <main className="studio-pending" lang="vi">
-        <p>TƯNG TỬNG · DRESS-UP PLAY</p>
-        <h1>Bộ trang phục mới đang được chuẩn bị.</h1>
-        <p>Chạy <code>npm run prepare:studio</code> để hoàn thiện model đứng thẳng và 14 lớp trang phục.</p>
-        <Link href="/">Về màn hình mở đầu ↗</Link>
+      <main className="studio-pending" lang="en">
+        <p>FASHION DRESS-UP · PLAY</p>
+        <h1>Your outfit wardrobe is being prepared.</h1>
+        <p>Run <code>npm run prepare:studio</code> to set up the doll model and garment layers.</p>
+        <Link href="/">Back to Home ↗</Link>
       </main>
     );
   }

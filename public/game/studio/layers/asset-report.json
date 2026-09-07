@@ -1,167 +1,62 @@
 [
   {
-    "id": "top-white-basic",
+    "id": "top-fitted-denim",
     "category": "tops",
-    "name": "Áo hai dây trắng basic",
+    "name": "Áo denim ôm sát",
     "width": 1024,
     "height": 1536,
     "hasAlpha": true,
     "bounds": {
-      "left": 350,
-      "top": 230,
-      "width": 321,
-      "height": 431,
-      "visiblePixels": 55931
+      "left": 409,
+      "top": 267,
+      "width": 203,
+      "height": 375,
+      "visiblePixels": 64576
     }
   },
   {
-    "id": "top-black-tee",
+    "id": "top-modal-grommet",
     "category": "tops",
-    "name": "Áo thun đen",
+    "name": "Áo cotton modal đính khoen",
     "width": 1024,
     "height": 1536,
     "hasAlpha": true,
     "bounds": {
-      "left": 337,
-      "top": 205,
-      "width": 344,
-      "height": 471,
-      "visiblePixels": 89235
+      "left": 396,
+      "top": 294,
+      "width": 224,
+      "height": 355,
+      "visiblePixels": 62224
     }
   },
   {
-    "id": "top-white-lace",
-    "category": "tops",
-    "name": "Áo trắng dài tay viền ren",
-    "width": 1024,
-    "height": 1536,
-    "hasAlpha": true,
-    "bounds": {
-      "left": 318,
-      "top": 180,
-      "width": 381,
-      "height": 636,
-      "visiblePixels": 123022
-    }
-  },
-  {
-    "id": "top-gray-v",
-    "category": "tops",
-    "name": "Áo len xám cổ V",
-    "width": 1024,
-    "height": 1536,
-    "hasAlpha": true,
-    "bounds": {
-      "left": 312,
-      "top": 200,
-      "width": 393,
-      "height": 556,
-      "visiblePixels": 151617
-    }
-  },
-  {
-    "id": "top-ivory-pointelle",
-    "category": "tops",
-    "name": "Áo dệt kim kem",
-    "width": 1024,
-    "height": 1536,
-    "hasAlpha": true,
-    "bounds": {
-      "left": 350,
-      "top": 230,
-      "width": 321,
-      "height": 399,
-      "visiblePixels": 58700
-    }
-  },
-  {
-    "id": "top-red-offshoulder",
-    "category": "tops",
-    "name": "Áo đỏ trễ vai tay loe",
-    "width": 1024,
-    "height": 1536,
-    "hasAlpha": true,
-    "bounds": {
-      "left": 316,
-      "top": 275,
-      "width": 382,
-      "height": 590,
-      "visiblePixels": 109623
-    }
-  },
-  {
-    "id": "bottom-blue-jeans",
+    "id": "bottom-sculpted-jeans",
     "category": "bottoms",
-    "name": "Quần jeans xanh",
+    "name": "Quần jeans balloon ráp mảnh",
     "width": 1024,
     "height": 1536,
     "hasAlpha": true,
     "bounds": {
-      "left": 371,
-      "top": 577,
-      "width": 272,
-      "height": 786,
-      "visiblePixels": 158832
+      "left": 291,
+      "top": 568,
+      "width": 436,
+      "height": 877,
+      "visiblePixels": 276324
     }
   },
   {
-    "id": "bottom-white-shorts",
+    "id": "bottom-denim-sculpted-skirt",
     "category": "bottoms",
-    "name": "Quần short trắng",
+    "name": "Váy denim dài ráp cong",
     "width": 1024,
     "height": 1536,
     "hasAlpha": true,
     "bounds": {
-      "left": 368,
-      "top": 610,
-      "width": 279,
-      "height": 250,
-      "visiblePixels": 61771
-    }
-  },
-  {
-    "id": "bottom-black-mini",
-    "category": "bottoms",
-    "name": "Váy ngắn đen",
-    "width": 1024,
-    "height": 1536,
-    "hasAlpha": true,
-    "bounds": {
-      "left": 371,
-      "top": 566,
-      "width": 272,
-      "height": 294,
-      "visiblePixels": 70559
-    }
-  },
-  {
-    "id": "shoes-brown-boots",
-    "category": "shoes",
-    "name": "Boots nâu cao cổ",
-    "width": 1024,
-    "height": 1536,
-    "hasAlpha": true,
-    "bounds": {
-      "left": 384,
-      "top": 975,
-      "width": 234,
-      "height": 516,
-      "visiblePixels": 80424
-    }
-  },
-  {
-    "id": "bottom-white-pleats",
-    "category": "bottoms",
-    "name": "Váy xếp ly trắng viền ren",
-    "width": 1024,
-    "height": 1536,
-    "hasAlpha": true,
-    "bounds": {
-      "left": 320,
-      "top": 560,
-      "width": 376,
-      "height": 319,
-      "visiblePixels": 84471
+      "left": 303,
+      "top": 535,
+      "width": 409,
+      "height": 919,
+      "visiblePixels": 288326
     }
   },
   {
@@ -177,36 +72,6 @@
       "width": 198,
       "height": 135,
       "visiblePixels": 8754
-    }
-  },
-  {
-    "id": "bottom-navy-dots",
-    "category": "bottoms",
-    "name": "Váy navy chấm bi",
-    "width": 1024,
-    "height": 1536,
-    "hasAlpha": true,
-    "bounds": {
-      "left": 307,
-      "top": 550,
-      "width": 405,
-      "height": 662,
-      "visiblePixels": 199312
-    }
-  },
-  {
-    "id": "bottom-gray-maxi",
-    "category": "bottoms",
-    "name": "Váy dài xếp ly xám",
-    "width": 1024,
-    "height": 1536,
-    "hasAlpha": true,
-    "bounds": {
-      "left": 312,
-      "top": 555,
-      "width": 393,
-      "height": 754,
-      "visiblePixels": 226889
     }
   }
 ]

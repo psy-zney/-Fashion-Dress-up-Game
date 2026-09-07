@@ -1,6 +1,6 @@
 // Product art is independent of model-worn sprites. These paths are never used by the stage.
-export const PRODUCT_OUTPUT = "public/game/studio/products-v2";
-export const PRODUCT_PREVIEWS = {
+export const PRODUCT_OUTPUT = "public/game/studio/products";
+const ARCHIVED_PRODUCT_PREVIEWS = {
   "top-white-basic": { mode: "alpha" },
   "top-white-lace": { mode: "alpha" },
   "top-ivory-pointelle": { mode: "alpha" },
@@ -8,6 +8,10 @@ export const PRODUCT_PREVIEWS = {
   "top-gray-v": { mode: "exterior" },
   "top-red-offshoulder": { mode: "exterior" },
   "bottom-blue-jeans": { mode: "exterior" },
+  "bottom-sculpted-jeans": {
+    mode: "exterior",
+    source: "assets/studio/sources/products/edited/bottom-sculpted-jeans-v1.png",
+  },
   "bottom-black-mini": { mode: "exterior" },
   "bottom-navy-dots": { mode: "exterior" },
   "bottom-gray-maxi": { mode: "exterior" },
@@ -21,6 +25,26 @@ export const PRODUCT_PREVIEWS = {
     mode: "silhouette",
     outline: "M334 310 Q512 337 690 310 L713 407 L822 672 Q732 721 624 738 Q563 748 501 746 Q339 748 201 672 L309 407 Z",
   },
-  "shoes-mary-janes": { mode: "exterior", source: "assets/studio/source/product-edits/shoes-mary-janes-v2.png" },
-  "shoes-brown-boots": { mode: "alpha", source: "public/game/studio/previews/shoes-brown-boots.png" },
+  "shoes-mary-janes": { mode: "exterior", source: "assets/studio/sources/products/edited/shoes-mary-janes-v2.png" },
+  "shoes-brown-boots": { mode: "alpha", source: "assets/studio/sources/products/approved/shoes-brown-boots.png" },
+};
+
+export const PRODUCT_PREVIEWS = {
+  "top-fitted-denim": {
+    mode: "exterior",
+    source: "assets/studio/sources/products/approved/top-fitted-denim-v3.png",
+  },
+  "top-modal-grommet": {
+    mode: "exterior",
+    source: "assets/studio/sources/products/approved/top-modal-grommet-v4.png",
+  },
+  "bottom-sculpted-jeans": {
+    mode: "exterior",
+    source: "assets/studio/sources/products/edited/bottom-sculpted-jeans-v2.png",
+  },
+  "bottom-denim-sculpted-skirt": {
+    mode: "exterior",
+    source: "assets/studio/sources/products/approved/bottom-denim-sculpted-skirt-v5.png",
+  },
+  "shoes-mary-janes": ARCHIVED_PRODUCT_PREVIEWS["shoes-mary-janes"],
 };

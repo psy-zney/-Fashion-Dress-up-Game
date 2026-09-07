@@ -9,67 +9,42 @@ const QA_DIR = PATHS.qa;
 
 const LOOKS = [
   {
-    name: "look-french-dots",
-    title: "Pháp cổ điển (Lace + Navy Dots + Mary Janes)",
-    top: "top-white-lace",
-    bottom: "bottom-navy-dots",
+    name: "look-fitted-denim-maxi",
+    title: "Denim ráp khối (Fitted Denim + Sculpted Maxi + Mary Janes)",
+    top: "top-fitted-denim",
+    bottom: "bottom-denim-sculpted-skirt",
     shoes: "shoes-mary-janes",
   },
   {
-    name: "look-autumn-denim",
-    title: "Mùa thu năng động (Red Off-shoulder + Blue Jeans + Brown Boots)",
-    top: "top-red-offshoulder",
-    bottom: "bottom-blue-jeans",
-    shoes: "shoes-brown-boots",
-  },
-  {
-    name: "look-monochrome-gray",
-    title: "Tối giản thanh lịch (Gray V + Gray Maxi + Mary Janes)",
-    top: "top-gray-v",
-    bottom: "bottom-gray-maxi",
+    name: "look-modal-balloon",
+    title: "Tương phản mềm (Modal Grommet + Sculpted Jeans + Mary Janes)",
+    top: "top-modal-grommet",
+    bottom: "bottom-sculpted-jeans",
     shoes: "shoes-mary-janes",
   },
   {
-    name: "look-casual-summer",
-    title: "Mùa hè phóng khoáng (Black Tee + White Shorts + Mary Janes)",
-    top: "top-black-tee",
-    bottom: "bottom-white-shorts",
+    name: "look-fitted-denim-balloon",
+    title: "Denim toàn bộ (Fitted Denim + Sculpted Jeans + Mary Janes)",
+    top: "top-fitted-denim",
+    bottom: "bottom-sculpted-jeans",
     shoes: "shoes-mary-janes",
   },
   {
-    name: "look-romantic-pleats",
-    title: "Ren & Xếp ly (Ivory Pointelle + White Pleats + Brown Boots)",
-    top: "top-ivory-pointelle",
-    bottom: "bottom-white-pleats",
-    shoes: "shoes-brown-boots",
-  },
-  {
-    name: "look-minimalist-chic",
-    title: "Hiện đại quyến rũ (White Basic + Black Mini + Mary Janes)",
-    top: "top-white-basic",
-    bottom: "bottom-black-mini",
+    name: "look-modal-maxi",
+    title: "Modal & denim dài (Modal Grommet + Sculpted Maxi + Mary Janes)",
+    top: "top-modal-grommet",
+    bottom: "bottom-denim-sculpted-skirt",
     shoes: "shoes-mary-janes",
-  },
-  {
-    name: "look-navy-boots",
-    title: "Navy phối boots cao (giữ nguyên gấu váy)",
-    top: "top-white-basic",
-    bottom: "bottom-navy-dots",
-    shoes: "shoes-brown-boots",
-  },
-  {
-    name: "look-gray-boots",
-    title: "Váy xám phối boots cao (giữ nguyên gấu váy)",
-    top: "top-white-lace",
-    bottom: "bottom-gray-maxi",
-    shoes: "shoes-brown-boots",
   },
 ];
 
 async function run() {
   await fs.mkdir(QA_DIR, { recursive: true });
+  const { foregroundArmsPath } = JSON.parse(await fs.readFile("src/lib/studio-geometry.json", "utf8"));
+  const armsMask = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${STAGE.width}" height="${STAGE.height}"><path fill="white" d="${foregroundArmsPath}"/></svg>`);
+  const arms = { input: await sharp(MODEL_PATH).composite([{ input: armsMask, blend: "dest-in" }]).png().toBuffer() };
 
-  // 1. Render acceptance looks, including risky tall-boot combinations.
+  // 1. Render every top/bottom combination in the active capsule.
   for (const look of LOOKS) {
     const shoes = { input: path.join(READY_DIR, `${look.shoes}.png`) };
     let bottom = { input: path.join(READY_DIR, `${look.bottom}.png`) };
@@ -89,8 +64,8 @@ async function run() {
     }
     const top = { input: path.join(READY_DIR, `${look.top}.png`) };
     const layers = shouldShortenForBoots
-      ? [bottom, shoes, top]
-      : [shoes, bottom, top];
+      ? [bottom, shoes, arms, top]
+      : [shoes, bottom, arms, top];
 
     const outPath = path.join(QA_DIR, `${look.name}.png`);
     await sharp(look.shoes === INTERACTIONS.tallBootId ? path.join(READY_DIR, "model-boots.png") : MODEL_PATH)
@@ -143,9 +118,9 @@ async function run() {
   })
     .composite(composites.map(c => ({ input: c.input, left: c.left, top: c.top })))
     .png()
-    .toFile(path.join(QA_DIR, "contact-sheet-14-items.png"));
+    .toFile(path.join(QA_DIR, "contact-sheet-5-items.png"));
 
-  console.log("Rendered contact sheet: artifacts/studio-qa/assets/contact-sheet-14-items.png");
+  console.log("Rendered contact sheet: artifacts/studio/qa/assets/contact-sheet-5-items.png");
 }
 
 run().catch((error) => { console.error(error); process.exitCode = 1; });
