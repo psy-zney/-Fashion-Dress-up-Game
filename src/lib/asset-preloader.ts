@@ -14,18 +14,42 @@ export const CORE_PRELOAD_IMAGES: string[] = [
   // Base doll models
   `${basePath}/game/studio/layers/model.png`,
 
-  // 5 active product preview stickers
+  // 17 active product preview stickers
   `${basePath}/game/studio/products/top-fitted-denim.png`,
   `${basePath}/game/studio/products/top-modal-grommet.png`,
+  `${basePath}/game/studio/products/top-white-basic.png`,
+  `${basePath}/game/studio/products/top-black-tee.png`,
+  `${basePath}/game/studio/products/top-white-lace.png`,
+  `${basePath}/game/studio/products/top-gray-v.png`,
+  `${basePath}/game/studio/products/top-ivory-pointelle.png`,
+  `${basePath}/game/studio/products/top-red-offshoulder.png`,
   `${basePath}/game/studio/products/bottom-sculpted-jeans.png`,
   `${basePath}/game/studio/products/bottom-denim-sculpted-skirt.png`,
+  `${basePath}/game/studio/products/bottom-blue-jeans.png`,
+  `${basePath}/game/studio/products/bottom-white-shorts.png`,
+  `${basePath}/game/studio/products/bottom-black-mini.png`,
+  `${basePath}/game/studio/products/bottom-navy-dots.png`,
+  `${basePath}/game/studio/products/bottom-white-pleats.png`,
+  `${basePath}/game/studio/products/bottom-gray-maxi.png`,
   `${basePath}/game/studio/products/shoes-mary-janes.png`,
 
   // Active runtime layers
   `${basePath}/game/studio/layers/top-fitted-denim.png`,
   `${basePath}/game/studio/layers/top-modal-grommet.png`,
+  `${basePath}/game/studio/layers/top-white-basic.png`,
+  `${basePath}/game/studio/layers/top-black-tee.png`,
+  `${basePath}/game/studio/layers/top-white-lace.png`,
+  `${basePath}/game/studio/layers/top-gray-v.png`,
+  `${basePath}/game/studio/layers/top-ivory-pointelle.png`,
+  `${basePath}/game/studio/layers/top-red-offshoulder.png`,
   `${basePath}/game/studio/layers/bottom-sculpted-jeans.png`,
   `${basePath}/game/studio/layers/bottom-denim-sculpted-skirt.png`,
+  `${basePath}/game/studio/layers/bottom-blue-jeans.png`,
+  `${basePath}/game/studio/layers/bottom-white-shorts.png`,
+  `${basePath}/game/studio/layers/bottom-black-mini.png`,
+  `${basePath}/game/studio/layers/bottom-navy-dots.png`,
+  `${basePath}/game/studio/layers/bottom-white-pleats.png`,
+  `${basePath}/game/studio/layers/bottom-gray-maxi.png`,
   `${basePath}/game/studio/layers/shoes-mary-janes.png`,
 ];
 

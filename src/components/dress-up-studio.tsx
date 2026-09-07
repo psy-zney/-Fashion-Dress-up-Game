@@ -24,6 +24,7 @@ import { initAudio } from "@/lib/audio-manager";
 import { AudioSettingsModal } from "@/components/audio-settings-modal";
 import { HeartLoading } from "@/components/heart-loading";
 import { MagicBlingSparkles } from "@/components/magic-bling";
+import { Fireworks } from "@/components/fireworks";
 
 type DragPreview = {
   id: string;
@@ -60,6 +61,8 @@ export function DressUpStudio() {
   const [status, setStatus] = useState("Select or drag and drop an item to start styling.");
   const [audioModalOpen, setAudioModalOpen] = useState(false);
   const [loadingActive, setLoadingActive] = useState(true);
+  const [isShowcaseMode, setIsShowcaseMode] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
 
   // Drag & drop state
   const [isDragging, setIsDragging] = useState<string | null>(null);
@@ -79,6 +82,9 @@ export function DressUpStudio() {
   useEffect(() => {
     function cancel(event: globalThis.KeyboardEvent) {
       if (event.key === "Escape") {
+        if (isShowcaseMode) {
+          setIsShowcaseMode(false);
+        }
         finishDrag();
         setMenuPinned(false);
         setMenuHovered(false);
@@ -87,7 +93,7 @@ export function DressUpStudio() {
     window.addEventListener("keydown", cancel);
     window.addEventListener("blur", finishDrag);
     return () => { window.removeEventListener("keydown", cancel); window.removeEventListener("blur", finishDrag); };
-  }, []);
+  }, [isShowcaseMode]);
 
   useEffect(() => {
     const saved = readLook();
@@ -278,19 +284,63 @@ export function DressUpStudio() {
   }
 
   function showLook() {
-    try { rememberLook({ selected, fits, held }); } catch { /* The session copy remains available. */ }
+    setIsShowcaseMode(true);
     playSound("showcase");
-    router.push("/photoshoot");
+    setStatus("Showing your look! Click Save to capture your photoshoot polaroid.");
+  }
+
+  function handleSaveLook() {
+    try {
+      rememberLook({ selected, fits, held });
+    } catch {
+      /* The session copy remains available. */
+    }
+    playSound("shutter");
+    setIsCapturing(true);
+    setTimeout(() => {
+      router.push("/photoshoot");
+    }, 850);
+  }
+
+  function handleExitShowcase() {
+    playSound("tap");
+    setIsShowcaseMode(false);
+    setStatus("Continuing outfit styling.");
   }
 
   return (
     <main className="game-shell" lang="en">
       <div className="game-canvas dressing-room" aria-label="Fashion Dress-Up Dressing Room">
-        <div className="dressing-room-content">
-        {/* Back button on top-left */}
-        <Link className="back-button" href="/" aria-label="Back to home" onClick={() => playSound("back")}>
-          <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/ui/back.svg`} alt="" draggable={false} />
-        </Link>
+        <div className={`dressing-room-content ${isShowcaseMode ? "is-showcase-mode" : ""}`}>
+        {/* Photoshoot background layer in showcase mode matching Image 1 */}
+        <img
+          className="showcase-bg-layer"
+          src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/photoshoot/background.png`}
+          alt=""
+          draggable={false}
+          aria-hidden="true"
+        />
+
+        {/* Anime sparkles, dream bokeh, and fireworks celebration */}
+        <Fireworks active={isShowcaseMode} />
+
+        {/* Back button on top-left: exits showcase mode if active, else navigates home */}
+        {isShowcaseMode ? (
+          <button
+            type="button"
+            className="back-button"
+            aria-label="Back to wardrobe"
+            title="Back to wardrobe"
+            onClick={handleExitShowcase}
+            data-testid="showcase-back-btn"
+          >
+            <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/ui/back.svg`} alt="" draggable={false} />
+          </button>
+        ) : (
+          <Link className="back-button" href="/" aria-label="Back to home" onClick={() => playSound("back")}>
+            <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/ui/back.svg`} alt="" draggable={false} />
+          </Link>
+        )}
 
         {/* Settings gear button on top-right */}
         <button
@@ -583,6 +633,81 @@ export function DressUpStudio() {
             {status}
           </p>
         </aside>
+
+        {/* Showcase Action Bar (Save Look & Edit Look) */}
+        {isShowcaseMode && (
+          <div className="showcase-action-bar" role="toolbar" aria-label="Showcase actions">
+            <button
+              type="button"
+              className="showcase-save-btn"
+              onClick={handleSaveLook}
+              disabled={isCapturing}
+              data-testid="showcase-save-btn"
+            >
+              <span aria-hidden="true">📸</span>
+              <span>SAVE LOOK</span>
+              <span aria-hidden="true">✧</span>
+            </button>
+            <button
+              type="button"
+              className="showcase-edit-btn"
+              onClick={handleExitShowcase}
+              disabled={isCapturing}
+              data-testid="showcase-edit-btn"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+              </svg>
+              <span>EDIT OUTFIT</span>
+            </button>
+          </div>
+        )}
+
+        {/* Capture Snapshot Pullout Animation Overlay */}
+        {isCapturing && (
+          <div className="capture-overlay" aria-label="Capturing photo" role="status">
+            <div className="capture-flash" aria-hidden="true" />
+            <div className="capture-polaroid-card">
+              <div className="capture-polaroid-photo">
+                <img
+                  className="capture-polaroid-bg"
+                  src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/photoshoot/background.png`}
+                  alt=""
+                  draggable={false}
+                  aria-hidden="true"
+                />
+                <div className="studio-stage" style={{ transform: "scale(0.92)", position: "relative", zIndex: 2 }}>
+                  <img
+                    src={assetUrl(selected.shoes === "shoes-brown-boots" ? "model-boots" : "model")}
+                    className="studio-layer"
+                    alt=""
+                    draggable={false}
+                  />
+                  {layers.map((item) => (
+                    <img
+                      key={item.id}
+                      src={assetUrl(item.id)}
+                      className="studio-layer"
+                      style={{ ...layerStyle(item.id), zIndex: garmentLayer(item) }}
+                      alt=""
+                      draggable={false}
+                    />
+                  ))}
+                  <svg className="studio-layer studio-foreground-arms" viewBox={`0 0 ${STAGE.width} ${STAGE.height}`} style={{ zIndex: foregroundArmsOrder }} aria-hidden="true">
+                    <defs><clipPath id={`${armsClipId}-snap`}><path d={foregroundArmsPath} /></clipPath></defs>
+                    <image href={assetUrl("model")} width={STAGE.width} height={STAGE.height} clipPath={`url(#${armsClipId}-snap)`} />
+                  </svg>
+                </div>
+              </div>
+              <div className="capture-polaroid-caption">
+                <span aria-hidden="true">✨</span>
+                <span>FASHION LOOKBOOK</span>
+                <span aria-hidden="true">✨</span>
+              </div>
+            </div>
+          </div>
+        )}
         </div>
       </div>
       {dragPreview && (

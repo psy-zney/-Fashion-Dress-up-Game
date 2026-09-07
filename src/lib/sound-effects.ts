@@ -12,6 +12,7 @@ export type SoundEffect =
   | "cancel"
   | "dress"
   | "showcase"
+  | "shutter"
   | "back";
 
 type AudioEngine = {
@@ -253,6 +254,12 @@ function render(effect: SoundEffect, audio: AudioEngine) {
         tone(audio, now + index * 0.075, frequency * 0.96, frequency, 0.3, -22 - index, "triangle");
       });
       break;
+
+    case "shutter":
+      filteredNoise(audio, now, 0.05, 1200, 8000, -14);
+      filteredNoise(audio, now + 0.065, 0.07, 800, 5000, -18);
+      tone(audio, now, 880, 440, 0.04, -20, "sine");
+      break;
   }
 }
 
@@ -283,13 +290,15 @@ export function setSfxVolume(volume: number, enabled: boolean = true, master: nu
   }
 }
 
-export function playBubblePop(pitchMod: number = 1) {
+export function playBubblePop(pitchMod: number = 1, volumeScale: number = 1) {
   if (!sfxEnabled || sfxVolume <= 0 || masterVolume <= 0) return;
   const audio = getEngine();
   if (!audio) return;
   if (audio.context.state === "suspended") {
     void audio.context.resume();
   }
+
+  const safeScale = Math.max(0.1, Math.min(2, volumeScale));
 
   // Play pre-decoded buble.mp3 with zero delay and punchy volume
   if (bubbleBuffer) {
@@ -298,8 +307,8 @@ export function playBubblePop(pitchMod: number = 1) {
       source.buffer = bubbleBuffer;
       source.playbackRate.value = Math.max(0.75, Math.min(1.45, pitchMod));
       const gain = audio.context.createGain();
-      // "soung buble nổ to thêm 1 xíu" -> clear, louder pop
-      gain.gain.value = 1.45;
+      // "soung buble nổ to thêm 1 xíu" -> punchy on click (1.45), softer on boundary collision (1.45 * volumeScale)
+      gain.gain.value = 1.45 * safeScale;
       source.connect(gain).connect(audio.sfxBus);
       source.start(0, bubbleStartOffsetSec);
       return;
@@ -319,7 +328,7 @@ export function playBubblePop(pitchMod: number = 1) {
     osc.frequency.setValueAtTime(startFreq, now);
     osc.frequency.exponentialRampToValueAtTime(110 * pitchMod, now + 0.038);
 
-    const baseGain = dbToGain(-6) * (sfxVolume / 100) * (masterVolume / 100);
+    const baseGain = dbToGain(-6) * (sfxVolume / 100) * (masterVolume / 100) * safeScale;
     gain.gain.setValueAtTime(0.0001, now);
     gain.gain.exponentialRampToValueAtTime(baseGain, now + 0.004);
     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
@@ -328,7 +337,7 @@ export function playBubblePop(pitchMod: number = 1) {
     osc.start(now);
     osc.stop(now + 0.048);
   } catch {
-    // Ignore error
+    // Ignore audio errors
   }
 }
 

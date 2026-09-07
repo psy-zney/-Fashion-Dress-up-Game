@@ -19,19 +19,9 @@ export type Garment = {
 };
 
 export const garments: Garment[] = [
-  // A compact, pose-friendly capsule: close silhouettes and no tall boots.
+  // 8 Tops
   { id: "top-fitted-denim", name: "Fitted Denim Top", category: "tops", source: "generated-top-fitted-denim-v3" },
   { id: "top-modal-grommet", name: "Modal Grommet Top", category: "tops", source: "generated-top-modal-grommet-v3" },
-  { id: "bottom-sculpted-jeans", name: "Sculpted Balloon Jeans", category: "bottoms", source: "generated-bottom-sculpted-jeans-v1" },
-  { id: "bottom-denim-sculpted-skirt", name: "Sculpted Denim Maxi Skirt", category: "bottoms", source: "generated-bottom-denim-sculpted-skirt-v4" },
-  { id: "shoes-mary-janes", name: "Black Mary Janes", category: "shoes", source: "worn-shoes-mary-janes" },
-];
-
-// Export all known garments so saved looks and photoshoot composition preserve
-// legacy/alternative items like top-red-offshoulder, bottom-blue-jeans, etc.
-export const allGarments: Garment[] = [
-  ...garments,
-  // 6 Additional TOPS
   { id: "top-white-basic", name: "Basic White Cami", category: "tops", source: "worn-top-white-basic" },
   { id: "top-black-tee", name: "Black T-Shirt", category: "tops", source: "worn-top-black-tee" },
   { id: "top-white-lace", name: "White Lace Long Sleeve", category: "tops", source: "worn-top-white-lace" },
@@ -39,7 +29,9 @@ export const allGarments: Garment[] = [
   { id: "top-ivory-pointelle", name: "Cream Pointelle Knit", category: "tops", source: "worn-top-ivory-pointelle" },
   { id: "top-red-offshoulder", name: "Red Off-Shoulder Top", category: "tops", source: "worn-top-red-offshoulder" },
 
-  // 6 Additional BOTTOMS
+  // 8 Bottoms
+  { id: "bottom-sculpted-jeans", name: "Sculpted Balloon Jeans", category: "bottoms", source: "generated-bottom-sculpted-jeans-v1" },
+  { id: "bottom-denim-sculpted-skirt", name: "Sculpted Denim Maxi Skirt", category: "bottoms", source: "generated-bottom-denim-sculpted-skirt-v5" },
   { id: "bottom-blue-jeans", name: "Classic Blue Jeans", category: "bottoms", source: "worn-bottom-blue-jeans" },
   { id: "bottom-white-shorts", name: "White Denim Shorts", category: "bottoms", source: "worn-bottom-white-shorts" },
   { id: "bottom-black-mini", name: "Black Mini Skirt", category: "bottoms", source: "worn-bottom-black-mini" },
@@ -47,7 +39,14 @@ export const allGarments: Garment[] = [
   { id: "bottom-white-pleats", name: "White Pleated Lace Skirt", category: "bottoms", source: "worn-bottom-white-pleats" },
   { id: "bottom-gray-maxi", name: "Gray Pleated Maxi Skirt", category: "bottoms", source: "worn-bottom-gray-maxi" },
 
-  // 1 Additional SHOES
+  // 1 Shoes (excluding brown boots as requested)
+  { id: "shoes-mary-janes", name: "Black Mary Janes", category: "shoes", source: "worn-shoes-mary-janes" },
+];
+
+// Export all known garments so saved looks and photoshoot composition preserve
+// legacy/alternative items like shoes-brown-boots.
+export const allGarments: Garment[] = [
+  ...garments,
   { id: "shoes-brown-boots", name: "Brown Knee-High Boots", category: "shoes", source: "fitted-shoes-brown-boots" },
 ];
 
@@ -76,7 +75,7 @@ export const presets: { name: string; selection: Selection }[] = [
 ];
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-export const assetUrl = (id: string) => `${basePath}/game/studio/layers/${id}.png`;
+export const assetUrl = (id: string) => `${basePath}/game/studio/layers/${id}.png?v=2.2`;
 // Reviewed product cutouts have real alpha; the card and pointer sticker share
 // this URL. Never substitute body-aligned sprite masks or opaque source renders.
 export const previewAssetUrl = (id: string) => `${basePath}/game/studio/products/${id}.png`;

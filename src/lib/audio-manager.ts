@@ -58,38 +58,100 @@ function saveSettings(settings: AudioSettings) {
   }
 }
 
-function applyBgmState() {
+function setupUnlockListener() {
+  if (typeof window === "undefined") return;
+
+  const unlock = () => {
+    if (bgmAudio) {
+      if (bgmAudio.error) {
+        try { bgmAudio.load(); } catch { /* ignore */ }
+      }
+      const effectiveVolume = (currentSettings.bgmVolume / 100) * (currentSettings.masterVolume / 100);
+      if (currentSettings.bgmEnabled && effectiveVolume > 0) {
+        bgmAudio.muted = false;
+        bgmAudio.volume = Math.max(0, Math.min(1, effectiveVolume));
+        if (bgmAudio.paused) {
+          bgmAudio.play().catch(() => {});
+        }
+      }
+    }
+    const events = ["pointerdown", "touchstart", "mousedown", "keydown", "click"];
+    events.forEach((evt) => window.removeEventListener(evt, unlock, true));
+    unlockListenerAdded = false;
+  };
+
+  if (!unlockListenerAdded) {
+    unlockListenerAdded = true;
+    const events = ["pointerdown", "touchstart", "mousedown", "keydown", "click"];
+    events.forEach((evt) => window.addEventListener(evt, unlock, { once: true, capture: true }));
+  }
+}
+
+export async function playBgmSafely(): Promise<boolean> {
+  if (!bgmAudio) return false;
+
+  if (bgmAudio.error) {
+    try { bgmAudio.load(); } catch { /* ignore */ }
+  }
+
+  const effectiveVolume = (currentSettings.bgmVolume / 100) * (currentSettings.masterVolume / 100);
+  if (!currentSettings.bgmEnabled || effectiveVolume <= 0) {
+    bgmAudio.pause();
+    return false;
+  }
+
+  const targetVol = Math.max(0, Math.min(1, effectiveVolume));
+
+  // If already playing unmuted, ensure correct volume
+  if (!bgmAudio.paused && !bgmAudio.muted) {
+    bgmAudio.volume = targetVol;
+    return true;
+  }
+
+  // Attempt 1: Direct unmuted play
+  try {
+    bgmAudio.volume = targetVol;
+    bgmAudio.muted = false;
+    await bgmAudio.play();
+    return true;
+  } catch {
+    // Direct unmuted play blocked by browser policy
+  }
+
+  // Attempt 2: Muted play -> unmuted transition
+  try {
+    bgmAudio.muted = true;
+    await bgmAudio.play();
+    bgmAudio.muted = false;
+    bgmAudio.volume = targetVol;
+    if (!bgmAudio.paused) {
+      return true;
+    }
+  } catch {
+    // Blocked by strict policy
+  }
+
+  // Attempt 3: Register global capture listener for earliest user gesture
+  setupUnlockListener();
+  return false;
+}
+
+export function applyBgmState() {
   if (!bgmAudio) return;
 
   const effectiveVolume = (currentSettings.bgmVolume / 100) * (currentSettings.masterVolume / 100);
   if (currentSettings.bgmEnabled && effectiveVolume > 0) {
-    bgmAudio.volume = Math.max(0, Math.min(1, effectiveVolume));
-    if (bgmAudio.paused) {
-      bgmAudio.play().catch(() => {
-        setupUnlockListener();
-      });
-    }
+    void playBgmSafely();
   } else {
     bgmAudio.pause();
   }
 }
 
-function setupUnlockListener() {
-  if (unlockListenerAdded || typeof window === "undefined") return;
-  unlockListenerAdded = true;
-
-  const unlock = () => {
-    const effectiveVolume = (currentSettings.bgmVolume / 100) * (currentSettings.masterVolume / 100);
-    if (bgmAudio && currentSettings.bgmEnabled && effectiveVolume > 0 && bgmAudio.paused) {
-      bgmAudio.play().catch(() => {});
-    }
-    window.removeEventListener("pointerdown", unlock);
-    window.removeEventListener("keydown", unlock);
-    unlockListenerAdded = false;
-  };
-
-  window.addEventListener("pointerdown", unlock, { once: true });
-  window.addEventListener("keydown", unlock, { once: true });
+declare global {
+  interface Window {
+    __GAME_BGM_AUDIO__?: HTMLAudioElement;
+    __GAME_AUDIO_LISTENERS_INITIALIZED__?: boolean;
+  }
 }
 
 export function initAudio(): AudioSettings {
@@ -99,26 +161,50 @@ export function initAudio(): AudioSettings {
     currentSettings = readSavedSettings();
     setSfxVolume(currentSettings.sfxVolume, currentSettings.sfxEnabled, currentSettings.masterVolume);
 
-    bgmAudio = new Audio(`${basePath}/game/Music/BackgroundMusic.mp3`);
-    bgmAudio.loop = true;
-    bgmAudio.preload = "auto";
+    // Prevent duplicate audio objects across Fast Refresh, preview tabs, or multiple calls
+    if (window.__GAME_BGM_AUDIO__) {
+      bgmAudio = window.__GAME_BGM_AUDIO__;
+    } else {
+      bgmAudio = new Audio(`${basePath}/game/Music/BackgroundMusic.mp3`);
+      bgmAudio.loop = true;
+      bgmAudio.preload = "auto";
+      bgmAudio.load();
+      window.__GAME_BGM_AUDIO__ = bgmAudio;
 
-    // Guaranteed loop fallback across all mobile & desktop browsers
-    bgmAudio.addEventListener("ended", () => {
-      const effective = (currentSettings.bgmVolume / 100) * (currentSettings.masterVolume / 100);
-      if (bgmAudio && currentSettings.bgmEnabled && effective > 0) {
-        bgmAudio.currentTime = 0;
-        bgmAudio.play().catch(() => {});
-      }
-    });
+      // Guaranteed loop fallback across all mobile & desktop browsers
+      bgmAudio.addEventListener("ended", () => {
+        const effective = (currentSettings.bgmVolume / 100) * (currentSettings.masterVolume / 100);
+        if (bgmAudio && currentSettings.bgmEnabled && effective > 0) {
+          bgmAudio.currentTime = 0;
+          bgmAudio.play().catch(() => {});
+        }
+      });
+    }
 
-    // Resume BGM loop when user returns to the tab
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible") {
-        applyBgmState();
-      }
-    });
+    if (!window.__GAME_AUDIO_LISTENERS_INITIALIZED__) {
+      window.__GAME_AUDIO_LISTENERS_INITIALIZED__ = true;
 
+      // Pause audio whenever tab is hidden (prevents duplicate audio across preview windows/tabs)
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") {
+          if (bgmAudio) bgmAudio.pause();
+        } else if (document.visibilityState === "visible") {
+          applyBgmState();
+          setupUnlockListener();
+        }
+      });
+
+      window.addEventListener("pagehide", () => {
+        if (bgmAudio) bgmAudio.pause();
+      });
+
+      window.addEventListener("beforeunload", () => {
+        if (bgmAudio) bgmAudio.pause();
+      });
+    }
+
+    // Arm unlock listener immediately so any user gesture unlocks playback
+    setupUnlockListener();
     applyBgmState();
     initialized = true;
   }
@@ -169,16 +255,28 @@ export async function loadMusicWithProgress(onProgress: (percent: number) => voi
     return;
   }
 
-  // Preload sound effects buffers concurrently
+  // Preload sound effects buffers and initialize audio early
   preloadAudio();
+  initAudio();
 
-  // Smooth loading progression that mirrors loading soundtrack
-  const steps = [18, 42, 68, 88, 100];
-  for (const p of steps) {
-    onProgress(p);
-    await new Promise((r) => setTimeout(r, 130));
+  // Extend loading time by +2s as requested: total duration ~2.65s (original 650ms + 2000ms)
+  // Step-by-step realistic and smooth progression:
+  const steps = [
+    { p: 14, delay: 280 },
+    { p: 28, delay: 320 },
+    { p: 45, delay: 350 },
+    { p: 63, delay: 380 },
+    { p: 78, delay: 360 },
+    { p: 89, delay: 340 },
+    { p: 96, delay: 320 },
+    { p: 100, delay: 300 },
+  ];
+
+  for (const step of steps) {
+    onProgress(step.p);
+    await new Promise((r) => setTimeout(r, step.delay));
   }
 
-  initAudio();
-  applyBgmState();
+  // Start background music immediately as loading completes
+  await playBgmSafely();
 }

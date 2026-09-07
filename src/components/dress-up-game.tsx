@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { looks, wardrobeCards, type LookScreen, type Screen } from "@/lib/outfits";
 import { playSound } from "@/lib/sound-effects";
 import { SoapBubbles } from "@/components/soap-bubbles";
-import { loadMusicWithProgress, initAudio } from "@/lib/audio-manager";
+import { loadMusicWithProgress, initAudio, playBgmSafely } from "@/lib/audio-manager";
 import { preloadAllAssets } from "@/lib/asset-preloader";
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
@@ -90,17 +90,30 @@ export function DressUpGame({ screen }: { screen: Screen }) {
       setAudioLoading(true);
       setLoadError(false);
       setAudioProgress(0);
+
+      // Start audio initialization & unlock listeners right away on mount
+      initAudio();
+
       void (async () => {
-        await preloadAllAssets((pct) => {
-          if (isMounted) setAudioProgress(Math.round(pct * .9));
-        });
+        // Run asset preloading in parallel with smooth ~2.65s loading bar progression
+        const preloadPromise = preloadAllAssets().catch(() => {});
+
         await loadMusicWithProgress((pct) => {
-          if (isMounted) setAudioProgress(90 + Math.round(pct * .1));
+          if (isMounted) setAudioProgress(pct);
         });
+
+        await preloadPromise;
+
         if (!isMounted) return;
         setAudioProgress(100);
+
+        // Brief pleasant hold at 100% before revealing PLAY button
+        await new Promise((r) => setTimeout(r, 220));
+        if (!isMounted) return;
+
         setAudioLoading(false);
         setFreshlyLoaded(true);
+        void playBgmSafely();
       })().catch(() => {
         if (!isMounted) return;
         setAudioLoading(false);
@@ -134,7 +147,7 @@ export function DressUpGame({ screen }: { screen: Screen }) {
             alt=""
             draggable={false}
           />
-          <SoapBubbles count={12} />
+          {!audioLoading && <SoapBubbles count={12} />}
           {loadError ? <button
             type="button"
             className="glass-button play-button is-freshly-loaded"
@@ -144,7 +157,10 @@ export function DressUpGame({ screen }: { screen: Screen }) {
           </button> : <Link
             className={`glass-button play-button ${audioLoading ? "is-loading-hidden" : ""} ${freshlyLoaded ? "is-freshly-loaded" : ""}`}
             href="/play"
-            onClick={() => playSound("play")}
+            onClick={() => {
+              playSound("play");
+              void playBgmSafely();
+            }}
           >
             PLAY
           </Link>}

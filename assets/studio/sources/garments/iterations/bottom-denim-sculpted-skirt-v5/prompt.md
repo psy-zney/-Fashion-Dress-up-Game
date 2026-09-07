@@ -1,0 +1,5 @@
+# Sculpted denim maxi skirt — worn layer v5
+
+Built-in Imagegen was used in `identity-preserve` virtual try-on mode. The immutable model master fixed the 1024×1536 canvas, pose and registration; `products/approved/bottom-denim-sculpted-skirt-v5.png` was the authoritative material and finished-product reference; `references/bottom-denim-sculpted-skirt-v1/design.png` was the authoritative construction reference.
+
+Dress the unchanged model in the dark-indigo sculpted maxi skirt while preserving the complete product construction: a separate curved waistband with overlapping centre-front tab, four-hole metal button, short J-shaped fly, both curved riveted hip pockets, coin pocket, realistic diagonal denim twill, restrained wear, thin continuous ochre topstitching and the full flowing panel-seam network. Keep it a closed floor-grazing skirt with a controlled sculptural silhouette, clean antialiased edges and no checker halo. Do not introduce floral, cracked, marbled, embossed, cloudy or plastic texture; do not blur or remove the waistband, pockets, button, fly or seam detail.

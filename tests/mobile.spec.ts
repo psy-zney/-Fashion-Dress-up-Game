@@ -20,6 +20,8 @@ test("touch outfit selection, full character and photoshoot on a phone", async (
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `artifacts/mobile/${testInfo.project.name}-play.png`, scale: "css" });
   await page.getByRole("button", { name: "SHOW YOUR LOOK" }).tap();
+  await expect(page.getByTestId("showcase-save-btn")).toBeVisible();
+  await page.getByTestId("showcase-save-btn").tap();
   await expect(page).toHaveURL(/\/photoshoot/);
   await expect(page.getByTestId("photoshoot-look")).toBeVisible();
   const actor = (await page.getByTestId("photoshoot-look").boundingBox())!;
@@ -37,6 +39,8 @@ test("touch outfit selection, full character and photoshoot on a phone", async (
   await expect(stage).toBeInViewport();
   await expect(page.getByRole("button", { name: "SHOW YOUR LOOK" })).toBeInViewport();
   await page.getByRole("button", { name: "SHOW YOUR LOOK" }).tap();
+  await expect(page.getByTestId("showcase-save-btn")).toBeVisible();
+  await page.getByTestId("showcase-save-btn").tap();
   await expect(page.getByTestId("photoshoot-look")).toBeVisible();
   await expect(page.getByRole("link", { name: "GO BACK" })).toBeInViewport();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

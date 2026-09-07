@@ -3,6 +3,11 @@
   "catalogGarments": 5,
   "items": [
     {
+      "id": "top-fitted-denim",
+      "category": "tops",
+      "name": "Áo denim ôm sát"
+    },
+    {
       "id": "top-modal-grommet",
       "category": "tops",
       "name": "Áo cotton modal đính khoen"
@@ -21,12 +26,7 @@
       "id": "shoes-mary-janes",
       "category": "shoes",
       "name": "Giày Mary Jane đen"
-    },
-    {
-      "id": "top-fitted-denim",
-      "category": "tops",
-      "name": "Áo denim ôm sát"
     }
   ],
-  "updatedAt": "2026-09-07T17:06:08.208Z"
+  "updatedAt": "2026-09-07T18:46:59.016Z"
 }

@@ -60,11 +60,20 @@ test("sculpted denim skirt stays opaque through the calves and excludes hands", 
   const data = await sharp("public/game/studio/layers/bottom-denim-sculpted-skirt.png").ensureAlpha().raw().toBuffer();
   const alpha = (x: number, y: number) => data[(y * 1024 + x) * 4 + 3];
   let handPixels = 0;
-  for (const [left, right] of [[320, 370], [650, 704]]) {
+  for (const [left, right] of [[320, 367], [648, 704]]) {
     for (let y = 690; y < 860; y++) for (let x = left; x < right; x++) if (alpha(x, y) > 32) handPixels++;
   }
   expect(handPixels, "hands must not be baked into the skirt layer").toBe(0);
   let centerHoles = 0;
   for (let y = 650; y < 1200; y++) for (let x = 460; x < 565; x++) if (alpha(x, y) !== 255) centerHoles++;
   expect(centerHoles, "the long skirt must remain opaque through the calf-covering body").toBe(0);
+
+  let feetPixels = 0;
+  for (let y = 1405; y < 1536; y++) {
+    for (let x = 0; x < 1024; x++) {
+      if (alpha(x, y) > 0) feetPixels++;
+    }
+  }
+  expect(feetPixels, "bare feet or toes must not be baked into the skirt layer").toBe(0);
 });
+

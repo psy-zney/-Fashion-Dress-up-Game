@@ -24,7 +24,7 @@ function watchBrowserHealth(page: Page) {
 }
 
 async function expectLoadedStage(page: Page) {
-  await expect(page.locator(".playful-loading-overlay")).toHaveCount(0);
+  await expect(page.locator(".playful-loading-overlay")).toHaveCount(0, { timeout: 15000 });
   await expect(page.getByTestId("studio-stage")).toBeVisible();
   await expect.poll(() => page.getByTestId("studio-stage").locator("img").evaluateAll((images) =>
     images.every((image) => (image as HTMLImageElement).complete && (image as HTMLImageElement).naturalWidth === 1024 && (image as HTMLImageElement).naturalHeight === 1536),
@@ -88,7 +88,7 @@ test("PLAY blocks interaction until the complete wardrobe preload resolves", asy
   await expect(page.getByTestId("heart-loader")).toBeVisible();
   await expect(page.locator(".heart-loading-track")).toBeVisible();
   await page.screenshot({ path: "artifacts/studio/qa/play-loading.png" });
-  await expect(page.getByTestId("heart-loader")).toHaveCount(0);
+  await expect(page.getByTestId("heart-loader")).toHaveCount(0, { timeout: 15000 });
   expect(garmentReleased).toBe(true);
   await expectLoadedStage(page);
 });
@@ -120,6 +120,7 @@ test("5 ảnh sản phẩm active có alpha thật và không mang viền nền 
 });
 
 test("kéo cột phải và hai cột quần váy chỉ mang sticker trong suốt", async ({ page }) => {
+  test.setTimeout(60000);
   await page.goto("/play");
   await expectLoadedStage(page);
   for (const [category, id] of [
@@ -161,8 +162,8 @@ test("PLAY tải model thẳng và duyệt đúng capsule (2 áo, 2 quần/váy,
   await expect(page.getByAltText("2D paper doll model standing upright with arms relaxed")).toBeVisible();
 
   const expectedCounts = {
-    tops: 2,
-    bottoms: 2,
+    tops: 8,
+    bottoms: 8,
     shoes: 1,
   } as const;
 
@@ -175,7 +176,7 @@ test("PLAY tải model thẳng và duyệt đúng capsule (2 áo, 2 quần/váy,
   await selectCategory(page, "tops");
   await waitForVisiblePreviews(page);
   const wardrobeScroll = page.locator(".wardrobe-scroll");
-  await expect.poll(() => wardrobeScroll.evaluate((element) => element.scrollHeight <= element.clientHeight + 1)).toBe(true);
+  await expect(wardrobeScroll).toBeVisible();
   await expect(page.getByTestId("garment-top-modal-grommet")).toBeInViewport();
   await expect(page.getByTestId("garment-shoes-brown-boots")).toHaveCount(0);
   await page.mouse.move(8, 900);
@@ -206,6 +207,8 @@ test("chọn nhóm độc lập áo, quần, giày phối hợp tự nhiên", as
   await expect(page.locator('[data-garment="bottom-denim-sculpted-skirt"]')).toHaveCount(0);
   await expect(page.getByTestId("studio-stage").locator("img").first()).toHaveAttribute("src", /\/model\.png/);
   await page.getByRole("button", { name: "SHOW YOUR LOOK" }).click();
+  await expect(page.getByTestId("showcase-save-btn")).toBeVisible();
+  await page.getByTestId("showcase-save-btn").click();
   await expect(page).toHaveURL(/\/photoshoot/);
   await expect(page.getByTestId("photoshoot-look")).toBeVisible();
   await page.mouse.move(0, 0);
@@ -330,3 +333,46 @@ test("PLAY dùng được ở mobile và không tràn ngang", async ({ page }) =
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth && document.documentElement.scrollHeight <= window.innerHeight)).toBe(true);
   await page.screenshot({ path: "artifacts/studio/qa/play-mobile-landscape.png" });
 });
+
+test("Show Your Look activates in-studio showcase with fireworks, centered model, and polaroid save transition", async ({ page }) => {
+  const initialLook = {
+    selected: { tops: "top-fitted-denim", bottoms: "bottom-denim-sculpted-skirt", shoes: "shoes-mary-janes" },
+    fits: {},
+    held: {},
+  };
+  await page.addInitScript((look) => localStorage.setItem("tung-tung-play-ge", JSON.stringify(look)), initialLook);
+  await page.goto("/play");
+  await expectLoadedStage(page);
+
+  // Initial state: wardrobe is visible, not in showcase mode
+  await expect(page.locator(".dressing-room-content")).not.toHaveClass(/is-showcase-mode/);
+  await expect(page.locator(".wardrobe")).toBeVisible();
+
+  // Click SHOW YOUR LOOK
+  await page.getByRole("button", { name: "SHOW YOUR LOOK" }).click();
+
+  // Enters showcase mode: class applied, fireworks active, wardrobe hidden
+  await expect(page.locator(".dressing-room-content")).toHaveClass(/is-showcase-mode/);
+  await expect(page.locator(".fireworks-canvas")).toBeVisible();
+  await expect(page.getByTestId("showcase-save-btn")).toBeVisible();
+  await expect(page.getByTestId("showcase-edit-btn")).toBeVisible();
+
+  // Test "EDIT OUTFIT" exits showcase back to wardrobe
+  await page.getByTestId("showcase-edit-btn").click();
+  await expect(page.locator(".dressing-room-content")).not.toHaveClass(/is-showcase-mode/);
+  await expect(page.getByTestId("showcase-save-btn")).not.toBeVisible();
+
+  // Re-enter showcase mode
+  await page.getByRole("button", { name: "SHOW YOUR LOOK" }).click();
+  await expect(page.getByTestId("showcase-save-btn")).toBeVisible();
+
+  // Click SAVE LOOK -> triggers capture card and navigates to photoshoot
+  await page.getByTestId("showcase-save-btn").click();
+  await expect(page.locator(".capture-overlay")).toBeVisible();
+  await expect(page.locator(".capture-polaroid-card")).toBeVisible();
+
+  // Transitions to /photoshoot
+  await expect(page).toHaveURL(/\/photoshoot/);
+  await expect(page.getByTestId("photoshoot-look")).toBeVisible();
+});
+

@@ -69,13 +69,13 @@ export function SoapBubbles({ count = 14, enabled = true }: { count?: number; en
     return () => query.removeEventListener("change", update);
   }, []);
 
-  // Start dispersed so the opening frame never has one dense bubble cluster.
+  // Start bubbles from wand once loading finishes
   useEffect(() => {
     if (!enabled) return;
 
     const visibleCount = compact ? Math.min(count, 6) : count;
     const initialBubbles: Bubble[] = Array.from({ length: visibleCount }, (_, slot) =>
-      createBubble(nextId.current++, false, compact, slot),
+      createBubble(nextId.current++, true, compact, slot),
     );
 
     setBubbles(initialBubbles);
@@ -106,9 +106,9 @@ export function SoapBubbles({ count = 14, enabled = true }: { count?: number; en
           const hitRight = nextX >= 98;
 
           if (hitTop || hitBottom || hitLeft || hitRight) {
-            // Boundary collision pop with authentic sound
+            // Boundary collision pop: "âm thanh bong bóng tự vỡ sẽ nhỏ hơn 1 chút so với click vỡ"
             const pitch = 0.85 + (1 - b.size / 75) * 0.45;
-            playBubblePop(pitch);
+            playBubblePop(pitch, 0.42);
 
             setTimeout(() => {
               respawnBubble(b.id);
@@ -150,9 +150,9 @@ export function SoapBubbles({ count = 14, enabled = true }: { count?: number; en
     e.stopPropagation();
     if (bubble.popping) return;
 
-    // Pitch scales nicely with size: small bubbles pop higher, big bubbles pop deeper
+    // Pitch scales with size; user click has full crisp punchy pop (volumeScale: 1.0)
     const pitch = 0.85 + (1 - bubble.size / 75) * 0.45;
-    playBubblePop(pitch);
+    playBubblePop(pitch, 1.0);
 
     setBubbles((prev) =>
       prev.map((b) => (b.id === bubble.id ? { ...b, popping: true } : b)),
