@@ -18,7 +18,7 @@
 | Đường dẫn | Vai trò | Web tải? |
 | --- | --- | --- |
 | `assets/studio/sources/` | Model, nguồn worn và ảnh sản phẩm để tái tạo | Không |
-| `assets/studio/backups/runtime-layers/<timestamp>/` | Runtime trước mỗi lần prepare | Không |
+| `.studio-work/runtime-backups/<timestamp>/` | Snapshot runtime cục bộ trước mỗi lần prepare | Không |
 | `assets/studio/legacy/` | Nguồn lịch sử đã rút khỏi pipeline | Không |
 | `docs/studio/` | Workflow, cấu trúc, intake | Không |
 | `scripts/studio/` | Công cụ chạy thủ công | Không |
@@ -92,12 +92,12 @@ npm.cmd run build
 npm.cmd run test:e2e
 ```
 
-Validator kiểm tra canvas, alpha, vùng hiển thị, số món 2/2/1, mapping catalog, preview padding và metadata. E2E kiểm tra route/Help, duyệt nhóm, chọn/mặc, menu, ghost kéo, mobile không tràn ngang và show-look. Screenshot trong `artifacts/studio/qa/`.
+Validator kiểm tra canvas, alpha, vùng hiển thị, số món 2/2/1, mapping catalog và trực tiếp các product cutout runtime trong `public/game/studio/products/`; không phụ thuộc cache `artifacts/`. E2E kiểm tra route/Help, duyệt nhóm, chọn/mặc, menu, ghost kéo, mobile không tràn ngang và show-look. Screenshot trong `artifacts/studio/qa/`.
 
 Kiểm tra tay tối thiểu ở 390×844, 768×1024, 1440×1024 và màn hình rộng 1920×1080. Một test viewport nhỏ pass không tự chứng minh mọi kích thước đều đẹp. Chuyển động là cả stage cùng nhau, không thay đổi toạ độ sprite.
 
 ## F. Phục hồi
 
-Đọc [manifest backup](../../assets/studio/backups/README.md), chọn đúng timestamp trong `assets/studio/backups/runtime-layers/`, rồi chép từng file cần dùng về runtime. Khi đổi boot cần ghép đúng `model-boots.png`. Backup đầu tiên có thể chưa có model-boots. Ảnh sản phẩm gốc và nguồn worn được giữ độc lập. Không xoá backup/cache hoặc làm rỗng Recycle Bin trong lệnh prepare/validate/render.
+Chọn đúng timestamp trong `.studio-work/runtime-backups/`, rồi chép từng file cần dùng về runtime. Khi đổi boot cần ghép đúng `model-boots.png`. Ảnh sản phẩm gốc và nguồn worn được giữ độc lập. Snapshot chỉ phục vụ rollback cục bộ, bị Git ignore và có thể dọn sau khi runtime đã qua validation.
 
 Giới hạn hiện tại: pipeline là tách ảnh theo heuristic, chưa có mask vẽ tay cho mỗi item; một số source cũ còn viền trắng/khác da ở mức pixel. Các file draft hoặc ảnh gen mới không được tự phát hành. Để có chuyển động tay/chân thật, phải bổ sung rig/pose assets; hiệu ứng stage hiện tại không sinh thông tin mặt sau của trang phục.

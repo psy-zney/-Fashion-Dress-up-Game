@@ -122,7 +122,9 @@ async function validate() {
       }
     }
 
-    const previewFile = path.join(PATHS.previews, `${id}.png`);
+    // Runtime validation must inspect the product cutouts the browser actually
+    // serves, not disposable extraction previews under artifacts/.
+    const previewFile = path.join(PATHS.validationPreviews, `${id}.png`);
     if (!(await exists(previewFile))) {
       fail(`${scope}:preview`, `Missing file: ${previewFile}`);
     } else {
@@ -138,7 +140,9 @@ async function validate() {
         fail(`${scope}:preview`, "Preview is fully transparent");
       } else {
         const occupancy = (previewBounds.width * previewBounds.height) / (preview.info.width * preview.info.height);
-        if (occupancy < QUALITY_LIMITS.previewOccupancyMin || occupancy > QUALITY_LIMITS.previewOccupancyMax) {
+        const occupancyMin = QUALITY_LIMITS.previewOccupancyMinByCategory?.[config.category]
+          ?? QUALITY_LIMITS.previewOccupancyMin;
+        if (occupancy < occupancyMin || occupancy > QUALITY_LIMITS.previewOccupancyMax) {
           warn(`${scope}:preview`, `Occupancy ${occupancy.toFixed(3)} is outside the preferred range`);
         }
         if (

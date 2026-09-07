@@ -40,7 +40,7 @@ Workflow tái sử dụng ảnh: [WORKFLOW.md](docs/studio/WORKFLOW.md). Lệnh,
 | `assets/studio/sources/` | Nguồn chuẩn: model, ảnh model-mặc-đồ và ảnh sản phẩm. |
 | `public/game/studio/layers/` | Model nền trong suốt, 15 sprite runtime, `ready.json` và `asset-report.json`. |
 | `public/game/studio/products/` | 15 ảnh sản phẩm alpha thật, dùng chung cho card và hình kéo. |
-| `assets/studio/backups/runtime-layers/` | Bản sao runtime trước mỗi lần prepare, chỉ dùng để phục hồi. |
+| `.studio-work/runtime-backups/` | Snapshot runtime cục bộ trước mỗi lần prepare; có thể tái tạo và không commit. |
 | `assets/studio/legacy/` | Nguồn lịch sử không còn tham gia pipeline hiện tại. |
 | `public/game/ui/` | Asset UI dùng chung cho landing page và phòng phối đồ. |
 | `scripts/studio/` | Pipeline tạo asset và render ảnh QA. |

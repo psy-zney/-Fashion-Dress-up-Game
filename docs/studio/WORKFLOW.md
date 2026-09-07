@@ -2,7 +2,7 @@
 
 Cập nhật 05/09/2026. Đây là tài liệu cho người làm asset/agent tiếp theo; không được import vào web. `SESSION_HANDOFF.md` là lịch sử, còn cấu hình và code hiện tại mới là nguồn xác định hành vi đang chạy.
 
-**Capsule active:** giao diện hiện chỉ dùng 5 món: 2 áo, balloon jeans, váy denim dài ráp cong và Mary Jane. Boot cao cùng catalog cũ được giữ trong source/backup nhưng không còn hiển thị. Đọc [PRODUCT-PREVIEWS.md](PRODUCT-PREVIEWS.md) trước khi đổi ảnh tủ.
+**Capsule active:** giao diện hiện chỉ dùng 5 món: 2 áo, balloon jeans, váy denim dài ráp cong và Mary Jane. Boot cao cùng catalog cũ được giữ trong source lịch sử nhưng không còn hiển thị. Đọc [PRODUCT-PREVIEWS.md](PRODUCT-PREVIEWS.md) trước khi đổi ảnh tủ.
 
 ## Responsive của phòng phối đồ
 
@@ -95,9 +95,9 @@ Vùng rủi ro: hở eo, đầu tay thừa, da dính trong vải, gấu váy đ�
 
 ## 9. Chốt một phiên bản
 
-Ghi intake, prompt chính xác, tên ảnh đầu vào/đầu ra, lý do chọn, thông số extraction và ảnh QA. Sau khi duyệt, chỉ chép những sprite cần dùng sang runtime. Giữ bản trước ở `assets/studio/backups/runtime-layers/`. Chạy typecheck, build và E2E sau tích hợp.
+Ghi intake, prompt chính xác, tên ảnh đầu vào/đầu ra, lý do chọn, thông số extraction và ảnh QA. Sau khi duyệt, chỉ chép những sprite cần dùng sang runtime. Snapshot bản trước được tạo cục bộ ở `.studio-work/runtime-backups/` và bị Git ignore. Chạy typecheck, build và E2E sau tích hợp.
 
-Không xoá nguồn/backup chỉ vì web không tham chiếu trực tiếp: chúng cần để sinh lại. Nếu dọn project, lập danh sách trước, phân biệt runtime với nguồn và bản thử; dùng archive phục hồi được. Không dọn Recycle Bin trong workflow này.
+Không xoá nguồn thiết kế chỉ vì web không tham chiếu trực tiếp: chúng cần để sinh lại. Snapshot runtime trong `.studio-work/` là cache phục hồi cục bộ và có thể dọn sau khi bản phát hành đã qua validation.
 
 ## 10. Bảng xử lý lỗi nhanh
 

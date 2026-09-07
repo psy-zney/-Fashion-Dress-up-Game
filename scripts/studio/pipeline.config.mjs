@@ -7,6 +7,7 @@ export const PATHS = Object.freeze({
   sourceWorn: "assets/studio/sources/garments/worn",
   runtimeLayers: `${outputRoot}/layers`,
   previews: isRuntimeOutput ? "artifacts/studio/generated-previews" : `${outputRoot}/previews`,
+  validationPreviews: isRuntimeOutput ? `${outputRoot}/products` : `${outputRoot}/previews`,
   qa: "artifacts/studio/qa/assets",
   validationReport: "artifacts/studio/qa/pipeline-validation.json",
 });
@@ -21,6 +22,7 @@ export const QUALITY_LIMITS = Object.freeze({
   minimumVisiblePixels: 1_500,
   minimumPreviewDimension: 40,
   previewOccupancyMin: 0.5,
+  previewOccupancyMinByCategory: { shoes: 0.25 },
   previewOccupancyMax: 0.94,
   expectedCategories: { tops: 2, bottoms: 2, shoes: 1 },
 });

@@ -4,7 +4,7 @@
 
 - `public/game/studio/` chỉ còn runtime web tải: `layers/` và `products/`.
 - Nguồn chuẩn chuyển vào `assets/studio/sources/`: `model/`, `garments/worn/`, `products/original|edited|approved/`.
-- Backup runtime chuyển vào `assets/studio/backups/runtime-layers/<timestamp>/`; không còn lớp thư mục `archive/<timestamp>/layers` dư thừa. Xem manifest trong `assets/studio/backups/README.md`.
+- Snapshot runtime cục bộ chuyển vào `.studio-work/runtime-backups/<timestamp>/`, bị Git ignore và có thể dọn sau khi bản phát hành đã qua validation.
 - Bản thử, intake, preview trung gian và QA gom dưới `artifacts/studio/`. Dữ liệu v2 cũ không còn tham gia pipeline nằm tại `assets/studio/legacy/v2/`.
 - Các đường dẫn lịch sử cũ ở phần bàn giao dài bên dưới chỉ mô tả trạng thái trước đợt tổ chức này; không dùng chúng làm input hiện hành.
 

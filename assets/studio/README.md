@@ -11,7 +11,7 @@ assets/studio/
 │     ├─ original/<item-id>.png       # original product references
 │     ├─ edited/<name>-vN.png          # edited/generated sources + prompt
 │     └─ approved/<item-id>.png        # manually approved cutouts
-├─ backups/runtime-layers/<timestamp>/ # recoverable runtime snapshots
+├─ ../../.studio-work/runtime-backups/  # local, ignored runtime snapshots
 └─ legacy/v2/                          # historical inputs, not in active pipeline
 ```
 

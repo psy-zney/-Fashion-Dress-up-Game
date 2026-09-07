@@ -9,7 +9,7 @@ const SOURCE_WORN = PATHS.sourceWorn;
 const READY_OUT = PATHS.runtimeLayers;
 const PREVIEW_OUT = PATHS.previews;
 const RUNTIME_LAYERS = "public/game/studio/layers";
-const BACKUP_ROOT = "assets/studio/backups/runtime-layers";
+const BACKUP_ROOT = ".studio-work/runtime-backups";
 
 async function imageFingerprint(directory) {
   try {
