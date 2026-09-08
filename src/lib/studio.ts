@@ -30,28 +30,8 @@ export const garments: Garment[] = [
   { id: "shoes-mary-janes", name: "Black Mary Janes", category: "shoes", source: "worn-shoes-mary-janes" },
 ];
 
-const archivedGarments: Garment[] = [
-  { id: "top-white-basic", name: "Basic White Cami", category: "tops", source: "worn-top-white-basic" },
-  { id: "top-black-tee", name: "Black T-Shirt", category: "tops", source: "worn-top-black-tee" },
-  { id: "top-white-lace", name: "White Lace Long Sleeve", category: "tops", source: "worn-top-white-lace" },
-  { id: "top-gray-v", name: "Gray V-Neck Knit", category: "tops", source: "worn-top-gray-v" },
-  { id: "top-ivory-pointelle", name: "Cream Pointelle Knit", category: "tops", source: "worn-top-ivory-pointelle" },
-  { id: "top-red-offshoulder", name: "Red Off-Shoulder Top", category: "tops", source: "worn-top-red-offshoulder" },
-  { id: "bottom-blue-jeans", name: "Classic Blue Jeans", category: "bottoms", source: "worn-bottom-blue-jeans" },
-  { id: "bottom-white-shorts", name: "White Denim Shorts", category: "bottoms", source: "worn-bottom-white-shorts" },
-  { id: "bottom-black-mini", name: "Black Mini Skirt", category: "bottoms", source: "worn-bottom-black-mini" },
-  { id: "bottom-navy-dots", name: "Navy Polka Dot Skirt", category: "bottoms", source: "worn-bottom-navy-dots" },
-  { id: "bottom-white-pleats", name: "White Pleated Lace Skirt", category: "bottoms", source: "worn-bottom-white-pleats" },
-  { id: "bottom-gray-maxi", name: "Gray Pleated Maxi Skirt", category: "bottoms", source: "worn-bottom-gray-maxi" },
-];
-
-// Export all known garments so saved looks and photoshoot composition preserve
-// legacy/alternative items like shoes-brown-boots.
-export const allGarments: Garment[] = [
-  ...garments,
-  ...archivedGarments,
-  { id: "shoes-brown-boots", name: "Brown Knee-High Boots", category: "shoes", source: "fitted-shoes-brown-boots" },
-];
+// Active catalog garments
+export const allGarments: Garment[] = garments;
 
 export const layerOrder: Record<Category, number> = {
   shoes: 20,

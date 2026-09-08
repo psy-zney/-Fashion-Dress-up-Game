@@ -9,19 +9,16 @@ async function main() {
   fs.mkdirSync('public/game/backgrounds', { recursive: true });
   fs.mkdirSync('public/game/ui', { recursive: true });
 
-  console.log('1. Converting composite background to slide-playground.webp & png...');
+  console.log('1. Converting composite background to slide-playground.webp...');
   const compBg = `${artifactsDir}/composite_background.png`;
   await sharp(compBg).webp({ quality: 92 }).toFile('public/game/backgrounds/slide-playground.webp');
-  await sharp(compBg).png().toFile('public/game/backgrounds/slide-playground.png');
 
   console.log('2. Copying wardrobe cabinet...');
   const wardrobeBg = `${figmaDir}/72_220.png`;
-  await sharp(wardrobeBg).png().toFile('public/game/ui/wardrobe-cabinet-glossy.png');
   await sharp(wardrobeBg).webp({ quality: 95 }).toFile('public/game/ui/wardrobe-cabinet-glossy.webp');
 
   console.log('3. Copying category wheel...');
   const wheel = `${figmaDir}/72_223.png`;
-  await sharp(wheel).png().toFile('public/game/ui/category-wheel-pink.png');
   await sharp(wheel).webp({ quality: 95 }).toFile('public/game/ui/category-wheel-pink.webp');
 
   console.log('4. Copying back button...');
