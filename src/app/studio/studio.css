@@ -562,10 +562,10 @@
 /* Character stage wrap & floor shadow */
 .character-stage-wrap {
   position: absolute;
-  left: 2.8cqw;
-  top: 4.5cqw;
-  width: 36cqw;
-  height: 60cqw;
+  left: 12.7cqw;
+  top: 3.5cqw;
+  width: 41cqw;
+  height: 61.5cqw;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1135,6 +1135,10 @@
     aspect-ratio: auto;
     container-type: normal;
     overflow: hidden;
+    background-image: url("/game/backgrounds/slide-playground.webp");
+    background-size: auto 100svh;
+    background-position: 21% top;
+    background-repeat: no-repeat;
   }
 
   .back-button {
@@ -1153,22 +1157,19 @@
     transform: translateX(-50%);
   }
 
-  .character-spotlight {
-    width: 62vw;
-    height: 42svh;
-    bottom: 1.5svh;
-  }
-
-  .character-podium {
-    width: 52vw;
-    height: 11vw;
-    bottom: 0;
+  .dressing-room-content:not(.is-showcase-mode) .character-spotlight,
+  .dressing-room-content:not(.is-showcase-mode) .character-podium {
+    display: none;
   }
 
   .character-shadow {
-    width: 48vw;
-    height: 9vw;
-    bottom: -1vw;
+    width: 26vw;
+    height: 3.5vw;
+    bottom: -0.2vw;
+    opacity: 0.38;
+    background: rgba(30, 45, 20, 0.38);
+    border-radius: 50%;
+    filter: blur(3px);
   }
 
   .studio-stage {
@@ -1480,10 +1481,10 @@
   }
 
   .dressing-room-content:not(.is-showcase-mode) .character-stage-wrap {
-    left: 21.4cqw;
-    top: 6.2cqw;
-    width: 23.6cqw;
-    height: 55.4cqw;
+    left: 12.7cqw;
+    top: 3.5cqw;
+    width: 41cqw;
+    height: 61.5cqw;
     display: flex;
     align-items: flex-end;
     justify-content: center;
@@ -1497,12 +1498,12 @@
   .dressing-room-content:not(.is-showcase-mode) .character-shadow {
     position: absolute;
     left: 50%;
-    bottom: 0;
+    bottom: 0.2cqw;
     transform: translateX(-50%);
-    width: 19cqw;
-    height: 1.5cqw;
+    width: 21cqw;
+    height: 1.8cqw;
     border-radius: 50%;
-    background: rgba(45, 75, 30, 0.32);
+    background: rgba(30, 45, 20, 0.38);
     filter: blur(4px);
     opacity: 1;
   }
@@ -1656,9 +1657,10 @@
   }
 
   .dressing-room-content:not(.is-showcase-mode) .showcase-button {
-    left: 21.4cqw;
-    top: 64cqw;
-    width: 23.6cqw;
+    left: 33.2cqw;
+    transform: translateX(-50%);
+    top: 66.5cqw;
+    width: 22cqw;
     min-height: 38px;
     border: 1.5px solid #000000;
     border-radius: 999px;
@@ -1672,7 +1674,7 @@
   }
 
   .dressing-room-content:not(.is-showcase-mode) .showcase-button:hover:not(:disabled) {
-    transform: translateY(-2px);
+    transform: translateX(-50%) translateY(-2px);
     box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
   }
 }

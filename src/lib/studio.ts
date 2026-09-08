@@ -61,6 +61,14 @@ export const presets: { name: string; selection: Selection }[] = [
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 export const assetUrl = (id: string) => `${basePath}/game/studio/layers/${id}.png?v=2.3`;
+export const hasShowcasePose = (selected: Selection, showcase: boolean) => showcase &&
+  (selected.tops === "top-fitted-denim" || selected.tops === "top-modal-grommet");
+export function modelAssetId(selected: Selection, showcase = false) {
+  const boots = selected.shoes === "shoes-party-platform-boots" || selected.shoes === "shoes-brown-boots";
+  return hasShowcasePose(selected, showcase) ? (boots ? "model-lower-boots" : "model-lower") : (boots ? "model-boots" : "model");
+}
+export const garmentAssetId = (id: string, selected: Selection, showcase = false) =>
+  hasShowcasePose(selected, showcase) && id === selected.tops ? `${id}-pose` : id;
 // Reviewed product cutouts have real alpha; the card and pointer sticker share
 // this URL. Never substitute body-aligned sprite masks or opaque source renders.
 export const previewAssetUrl = (id: string) => `${basePath}/game/studio/products/${id}.png`;

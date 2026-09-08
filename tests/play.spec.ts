@@ -80,7 +80,7 @@ test("mobile landing disperses a small bubble set", async ({ page }) => {
 
 test("PLAY blocks interaction until the complete wardrobe preload resolves", async ({ page }) => {
   let garmentReleased = false;
-  await page.route("**/game/studio/layers/top-fitted-denim.png", async (route) => {
+  await page.route("**/game/studio/layers/top-fitted-denim.png*", async (route) => {
     await new Promise((resolve) => setTimeout(resolve, 450));
     garmentReleased = true;
     await route.continue();
