@@ -52,6 +52,32 @@ function looksLikeBodyArtifact(r, g, b) {
   return r > 68 && r - g > 12 && g - b > 6;
 }
 
+function clearModelSkinArtifacts(rgba, modelRgb, width, height, maximumDistance = 85) {
+  for (let index = 0; index < width * height; index++) {
+    const rgbaOffset = index * 4;
+    if (rgba[rgbaOffset + 3] === 0) continue;
+    const rgbOffset = index * 3;
+    const red = rgba[rgbaOffset];
+    const green = rgba[rgbaOffset + 1];
+    const blue = rgba[rgbaOffset + 2];
+    const modelRed = modelRgb[rgbOffset];
+    const modelGreen = modelRgb[rgbOffset + 1];
+    const modelBlue = modelRgb[rgbOffset + 2];
+    const distance = Math.max(
+      Math.abs(red - modelRed),
+      Math.abs(green - modelGreen),
+      Math.abs(blue - modelBlue),
+    );
+    if (
+      distance < maximumDistance &&
+      looksLikeSkin(red, green, blue) &&
+      looksLikeSkin(modelRed, modelGreen, modelBlue)
+    ) {
+      rgba[rgbaOffset + 3] = 0;
+    }
+  }
+}
+
 function matchesPreviewPalette(palette, r, g, b) {
   const lightness = Math.max(r, g, b);
   const chroma = lightness - Math.min(r, g, b);
@@ -137,8 +163,79 @@ function removeUnsupportedDarkNoise(rgba, width, height) {
   }
 }
 
-function filterToCoolGarment(rgba, width, height, radius = 3) {
+function closeNarrowAlphaGaps(rgba, sourceRgb, width, height, radius = 2, passes = 2) {
+  const directions = [[1, 0], [0, 1], [1, 1], [1, -1]];
+  for (let pass = 0; pass < passes; pass++) {
+    const alpha = new Uint8Array(width * height);
+    for (let index = 0; index < alpha.length; index++) alpha[index] = rgba[index * 4 + 3];
+    for (let y = radius; y < height - radius; y++) {
+      for (let x = radius; x < width - radius; x++) {
+        const index = y * width + x;
+        if (alpha[index] > 0) continue;
+        let enclosed = false;
+        for (const [dx, dy] of directions) {
+          let negative = false;
+          let positive = false;
+          for (let distance = 1; distance <= radius; distance++) {
+            negative ||= alpha[(y - dy * distance) * width + x - dx * distance] > 0;
+            positive ||= alpha[(y + dy * distance) * width + x + dx * distance] > 0;
+          }
+          if (negative && positive) {
+            enclosed = true;
+            break;
+          }
+        }
+        if (!enclosed) continue;
+        const rgbOffset = index * 3;
+        const rgbaOffset = index * 4;
+        rgba[rgbaOffset] = sourceRgb[rgbOffset];
+        rgba[rgbaOffset + 1] = sourceRgb[rgbOffset + 1];
+        rgba[rgbaOffset + 2] = sourceRgb[rgbOffset + 2];
+        rgba[rgbaOffset + 3] = 255;
+      }
+    }
+  }
+}
+
+function antialiasAlphaEdges(rgba, width, height) {
+  const alpha = new Uint8Array(width * height);
+  for (let index = 0; index < alpha.length; index++) alpha[index] = rgba[index * 4 + 3];
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      const index = y * width + x;
+      if (alpha[index] !== 255) continue;
+      let opaqueNeighbors = 0;
+      for (let dy = -1; dy <= 1; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          if (alpha[(y + dy) * width + x + dx] > 0) opaqueNeighbors++;
+        }
+      }
+      if (opaqueNeighbors < 8) rgba[index * 4 + 3] = Math.round(80 + opaqueNeighbors / 8 * 175);
+    }
+  }
+}
+
+function fillOpaqueRegions(rgba, sourceRgb, width, regions) {
+  for (const region of regions) {
+    for (let y = region.minY; y <= region.maxY; y++) {
+      for (let x = region.minX; x <= region.maxX; x++) {
+        const pixel = y * width + x;
+        const rgbaOffset = pixel * 4;
+        if (rgba[rgbaOffset + 3] > 0) continue;
+        const rgbOffset = pixel * 3;
+        rgba[rgbaOffset] = sourceRgb[rgbOffset];
+        rgba[rgbaOffset + 1] = sourceRgb[rgbOffset + 1];
+        rgba[rgbaOffset + 2] = sourceRgb[rgbOffset + 2];
+        rgba[rgbaOffset + 3] = 255;
+      }
+    }
+  }
+}
+
+function filterToGarmentPalette(rgba, width, height, isGarmentColor, radius = 3) {
   const supported = new Uint8Array(width * height);
+  const core = new Uint8Array(width * height);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const index = y * width + x;
@@ -147,7 +244,8 @@ function filterToCoolGarment(rgba, width, height, radius = 3) {
       const red = rgba[offset];
       const green = rgba[offset + 1];
       const blue = rgba[offset + 2];
-      if (blue < red + 5 || blue < green) continue;
+      if (!isGarmentColor(red, green, blue)) continue;
+      core[index] = 1;
       for (let dy = -radius; dy <= radius; dy++) {
         const nextY = y + dy;
         if (nextY < 0 || nextY >= height) continue;
@@ -160,8 +258,41 @@ function filterToCoolGarment(rgba, width, height, radius = 3) {
   }
 
   for (let index = 0; index < supported.length; index++) {
-    if (!supported[index]) rgba[index * 4 + 3] = 0;
+    const offset = index * 4;
+    if (!supported[index]) {
+      rgba[offset + 3] = 0;
+      continue;
+    }
+    if (!core[index]) {
+      const x = index % width;
+      const y = Math.floor(index / width);
+      let coreNeighbors = 0;
+      for (let dy = -radius; dy <= radius; dy++) {
+        const nextY = y + dy;
+        if (nextY < 0 || nextY >= height) continue;
+        for (let dx = -radius; dx <= radius; dx++) {
+          const nextX = x + dx;
+          if (nextX >= 0 && nextX < width && core[nextY * width + nextX]) coreNeighbors++;
+        }
+      }
+      // Keep hardware, stitching, and antialiasing only when surrounded by
+      // garment color. A one-sided edge is a shoulder/hand/foot, not fabric.
+      if (coreNeighbors < 24 || looksLikeSkin(rgba[offset], rgba[offset + 1], rgba[offset + 2])) {
+        rgba[offset + 3] = 0;
+      }
+    }
   }
+}
+
+function filterToCoolGarment(rgba, width, height) {
+  filterToGarmentPalette(rgba, width, height, (red, green, blue) => {
+    const chroma = Math.max(red, green, blue) - Math.min(red, green, blue);
+    return chroma >= 18 && blue >= green && blue >= red + 10;
+  });
+}
+
+function filterToChartreuseGarment(rgba, width, height) {
+  filterToGarmentPalette(rgba, width, height, (red, green, blue) => green >= red + 6 && green >= blue + 30);
 }
 
 function clearModelRegions(rgba, modelRgb, width, height, regions, radius = 2) {
@@ -225,7 +356,7 @@ function trimLightExterior(rgba, width, height) {
     if (visited[index]) return;
     const offset = index * 4;
     const red = rgba[offset], green = rgba[offset + 1], blue = rgba[offset + 2];
-    if (rgba[offset + 3] > 0 && !(Math.min(red, green, blue) > 220 && Math.max(red, green, blue) - Math.min(red, green, blue) < 25)) return;
+    if (rgba[offset + 3] > 0 && !(Math.min(red, green, blue) > 180 && Math.max(red, green, blue) - Math.min(red, green, blue) < 18)) return;
     visited[index] = 1;
     queue[tail++] = index;
   };
@@ -243,81 +374,18 @@ function trimLightExterior(rgba, width, height) {
 
 function removeCheckerboard(rgba, width, height) {
   const pixels = width * height;
-  const period = 32;
-  const sums = new Float64Array(period * period * 3);
-  const counts = new Uint32Array(period * period);
-  const border = 152;
-
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      if (x >= border && x < width - border && y >= border && y < height - border) continue;
-      const offset = (y * width + x) * 4;
-      const red = rgba[offset];
-      const green = rgba[offset + 1];
-      const blue = rgba[offset + 2];
-      if (Math.min(red, green, blue) < 210 || Math.max(red, green, blue) - Math.min(red, green, blue) > 24) continue;
-      const cell = (y % period) * period + (x % period);
-      sums[cell * 3] += red;
-      sums[cell * 3 + 1] += green;
-      sums[cell * 3 + 2] += blue;
-      counts[cell]++;
-    }
-  }
-
-  const template = new Float32Array(period * period * 3);
-  for (let cell = 0; cell < counts.length; cell++) {
-    const count = counts[cell] || 1;
-    template[cell * 3] = sums[cell * 3] / count;
-    template[cell * 3 + 1] = sums[cell * 3 + 1] / count;
-    template[cell * 3 + 2] = sums[cell * 3 + 2] / count;
-  }
-
-  const candidate = new Uint8Array(pixels);
-  const outside = new Uint8Array(pixels);
-  const queue = new Int32Array(pixels);
-  let start = 0;
-  let end = 0;
-
   for (let index = 0; index < pixels; index++) {
     const offset = index * 4;
     const red = rgba[offset];
     const green = rgba[offset + 1];
     const blue = rgba[offset + 2];
-    const x = index % width;
-    const y = Math.floor(index / width);
-    const cell = ((y % period) * period + (x % period)) * 3;
-    const dr = red - template[cell];
-    const dg = green - template[cell + 1];
-    const db = blue - template[cell + 2];
-    const distance = Math.sqrt(dr * dr + dg * dg + db * db);
-    candidate[index] = Math.min(red, green, blue) > 206 && Math.max(red, green, blue) - Math.min(red, green, blue) < 28 && distance < 24 ? 1 : 0;
+    const chroma = Math.max(red, green, blue) - Math.min(red, green, blue);
+    if (Math.min(red, green, blue) > 180 && chroma < 18) rgba[offset + 3] = 0;
   }
-
-  const visit = (index) => {
-    if (index < 0 || index >= pixels || outside[index] || !candidate[index]) return;
-    outside[index] = 1;
-    queue[end++] = index;
-  };
-  for (let x = 0; x < width; x++) {
-    visit(x);
-    visit((height - 1) * width + x);
-  }
-  for (let y = 0; y < height; y++) {
-    visit(y * width);
-    visit(y * width + width - 1);
-  }
-  while (start < end) {
-    const index = queue[start++];
-    const x = index % width;
-    if (x > 0) visit(index - 1);
-    if (x < width - 1) visit(index + 1);
-    if (index >= width) visit(index - width);
-    if (index < pixels - width) visit(index + width);
-  }
-
-  for (let index = 0; index < pixels; index++) {
-    if (outside[index]) rgba[index * 4 + 3] = 0;
-  }
+  // Checker cells contain small non-neutral specks and dark seams. Once the
+  // neutral field is removed those specks are disconnected; retain only the
+  // single full-body component.
+  keepLargestAlphaComponent(rgba, width, height);
   return rgba;
 }
 
@@ -458,6 +526,8 @@ async function run() {
     }
 
     if (cfg.filterToCoolGarment) filterToCoolGarment(rgba, width, height);
+    if (cfg.filterToChartreuseGarment) filterToChartreuseGarment(rgba, width, height);
+    if (cfg.filterModelSkinArtifacts) clearModelSkinArtifacts(rgba, nudeData, width, height);
 
     if (cfg.preserveModelRegions) clearModelRegions(rgba, nudeData, width, height, cfg.preserveModelRegions);
 
@@ -465,6 +535,9 @@ async function run() {
     if (cfg.keepLargestComponent) {
       keepLargestAlphaComponent(rgba, width, height);
     }
+    if (cfg.closeNarrowAlphaGaps) closeNarrowAlphaGaps(rgba, wornData, width, height);
+    if (cfg.filterModelSkinArtifacts) clearModelSkinArtifacts(rgba, nudeData, width, height);
+    if (cfg.opaqueRegions) fillOpaqueRegions(rgba, wornData, width, cfg.opaqueRegions);
     if (cfg.category === "bottoms" && !cfg.preserveContinuousFabric) {
       removeNarrowRowFragments(rgba, width, height, 42);
       removeUnsupportedDarkNoise(rgba, width, height);
@@ -483,6 +556,8 @@ async function run() {
       }
       if (cfg.trimLightExterior) trimLightExterior(rgba, width, height);
     }
+
+    if (cfg.antialiasAlphaEdges) antialiasAlphaEdges(rgba, width, height);
 
     const bounds = computeBounds(rgba, width, height);
     report.push({
@@ -531,6 +606,7 @@ async function run() {
   // Keep the runtime model on the exact master canvas and remove its baked checkerboard.
   const modelRaw = await sharp(MODEL_PATH).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   const transparentModel = removeCheckerboard(Buffer.from(modelRaw.data), modelRaw.info.width, modelRaw.info.height);
+  antialiasAlphaEdges(transparentModel, modelRaw.info.width, modelRaw.info.height);
   await sharp(transparentModel, {
     raw: { width: modelRaw.info.width, height: modelRaw.info.height, channels: 4 },
   }).png().toFile(path.join(READY_OUT, "model.png"));

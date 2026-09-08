@@ -5,7 +5,7 @@
 ```text
 assets/studio/
 ├─ sources/
-│  ├─ model/model-master.png          # canonical 1024×1536 model
+│  ├─ model/model-master-v2.png       # active photoreal 1024×1536 model
 │  ├─ garments/worn/<item-id>.png     # approved full-model worn sources
 │  └─ products/
 │     ├─ original/<item-id>.png       # original product references

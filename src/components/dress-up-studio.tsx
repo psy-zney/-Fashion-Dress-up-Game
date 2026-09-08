@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { initialFit, readLook, rememberLook, type Fit } from "@/lib/studio-look";
-import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type PointerEvent, type KeyboardEvent } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import {
   STAGE,
   assetUrl,
@@ -53,6 +53,16 @@ const fitFields = [
 
 function PinIcon({ active }: { active: boolean }) {
   return <span aria-hidden="true">{active ? "●" : "○"}</span>;
+}
+
+function CategoryIcon({ category }: { category: Category }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      {category === "tops" && <path d="m8 5 4 2 4-2 4 3-2.4 3.2-1.6-1V20H8v-9.8l-1.6 1L4 8l4-3Z" />}
+      {category === "bottoms" && <path d="M7 4h10l2 16h-5l-2-9-2 9H5L7 4Zm0 4h10" />}
+      {category === "shoes" && <path d="M4 15c3 0 5-2 6-6l2 5c1 2 3 3 6 3h2v3H4v-5Z" />}
+    </svg>
+  );
 }
 
 export function DressUpStudio() {
@@ -218,11 +228,16 @@ export function DressUpStudio() {
     setMenuHovered(false);
   }
 
-  function handleSectorKeyDown(event: KeyboardEvent<SVGGElement>, nextCategory: Category) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      activateCategory(nextCategory);
-    }
+  function handleMenuMouseEnter() {
+    setMenuHovered(true);
+  }
+
+  function handleMenuMouseLeave() {
+    setMenuHovered(false);
+  }
+
+  function toggleMenu() {
+    setMenuPinned((previous) => !previous);
   }
 
   function applyLook(proposed: Selection, label: string) {
@@ -317,6 +332,13 @@ export function DressUpStudio() {
     <main className="game-shell" lang="en">
       <div className="game-canvas dressing-room" aria-label="Fashion Dress-Up Dressing Room">
         <div className={`dressing-room-content ${isShowcaseMode ? "is-showcase-mode" : ""}`}>
+        <div className="desktop-6-atmosphere" aria-hidden="true">
+          <span className="ambient-bubble ambient-bubble-a" />
+          <span className="ambient-bubble ambient-bubble-b" />
+          <span className="ambient-bubble ambient-bubble-c" />
+          <span className="ambient-bubble ambient-bubble-d" />
+          <p>Mix · match · magic</p>
+        </div>
         {/* Photoshoot background layer in showcase mode matching Image 1 */}
         <img
           className="showcase-bg-layer"
@@ -339,11 +361,11 @@ export function DressUpStudio() {
             onClick={handleExitShowcase}
             data-testid="showcase-back-btn"
           >
-            <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/ui/back.svg`} alt="" draggable={false} />
+            <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/ui/back-button-glossy.png`} alt="" draggable={false} />
           </button>
         ) : (
           <Link className="back-button" href="/" aria-label="Back to home" onClick={() => playSound("back")}>
-            <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/ui/back.svg`} alt="" draggable={false} />
+            <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/ui/back-button-glossy.png`} alt="" draggable={false} />
           </Link>
         )}
 
@@ -441,163 +463,76 @@ export function DressUpStudio() {
               data-testid={`mobile-category-${item.id}`}
               onClick={() => activateCategory(item.id)}
             >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                {item.id === "tops" && <path d="m8 5 4 2 4-2 4 3-2.4 3.2-1.6-1V20H8v-9.8l-1.6 1L4 8l4-3Z" />}
-                {item.id === "bottoms" && <path d="M7 4h10l2 16h-5l-2-9-2 9H5L7 4Zm0 4h10" />}
-                {item.id === "shoes" && <path d="M4 15c3 0 5-2 6-6l2 5c1 2 3 3 6 3h2v3H4v-5Z" />}
-              </svg>
+              <CategoryIcon category={item.id} />
               <span>{item.id === "tops" ? "Tops" : item.id === "bottoms" ? "Bottoms" : "Shoes"}</span>
             </button>
           ))}
         </nav>
 
-        {/* 3-Sector Radial Arc Selector matching image-6.png */}
-        <nav
-          className={`studio-radial-nav ${menuOpen ? "is-open" : ""}`}
-          aria-label="Select garment category"
-          onMouseEnter={() => { if (!menuOpen) playSound("panelOpen"); setMenuHovered(true); }}
-          onMouseLeave={() => { if (!menuPinned) playSound("panelClose"); setMenuHovered(false); }}
-        >
-          <button
-            type="button"
-            className="category-launcher"
-            aria-label={menuOpen ? "Close wardrobe categories" : "Open wardrobe categories"}
-            aria-expanded={menuOpen}
-            aria-controls="category-wheel"
-            data-testid="category-launcher"
-            onClick={() => { playSound(menuOpen ? "tap" : "panelOpen"); setMenuPinned((current) => !current); }}
-          >
-            <svg className="category-launcher-mark" viewBox="0 0 28 20" aria-hidden="true">
-              <path d="M14 6.5c0-2.1 3-2.1 3-4.2C17 1 16 0 14.5 0 13.1 0 12 1 12 2.3" />
-              <path d="m14 6.5-11 8.2c-1.1.8-.5 2.6.9 2.6h20.2c1.4 0 2-1.8.9-2.6L14 6.5Z" />
-            </svg>
-            <span className="category-launcher-label">Wardrobe</span>
-          </button>
-          <svg
-            id="category-wheel"
-            className="studio-radial-svg"
-            width="160"
-            height="320"
-            viewBox="0 0 160 320"
-            xmlns="http://www.w3.org/2000/svg"
+        {/* Wardrobe cabinet matching Figma Desktop - 6 */}
+        <aside className="wardrobe" aria-label="Wardrobe">
+          {/* Category Wheel attached to the left edge of wardrobe cabinet */}
+          <nav
+            className={`wardrobe-wheel ${menuOpen ? "is-open" : ""}`}
             role="tablist"
             aria-label="Garment categories"
-            aria-hidden={!menuOpen}
+            onMouseEnter={handleMenuMouseEnter}
+            onMouseLeave={handleMenuMouseLeave}
           >
-            <defs>
-              <linearGradient id="wheelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#72f1ba" />
-                <stop offset="100%" stopColor="#3ddab4" />
-              </linearGradient>
-              <linearGradient id="activeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#a6ffe0" />
-                <stop offset="100%" stopColor="#4aeec4" />
-              </linearGradient>
-            </defs>
-
-            {/* Semicircle background base */}
-            <path
-              d="M 160 0 A 160 160 0 0 0 160 320 Z"
-              fill="url(#wheelGrad)"
+            {/* 3D pearl-pink wheel background exported from Figma 72:223 */}
+            <img
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/ui/category-wheel-pink.webp`}
+              alt=""
+              className="wardrobe-wheel-bg"
+              draggable={false}
+              aria-hidden="true"
             />
 
-            {/* Sector 1: Tops */}
-            <g
-              className={`wheel-sector ${category === "tops" ? "is-active" : ""}`}
-              role="tab"
-              id="tab-tops"
-              aria-selected={category === "tops"}
+            {/* Category Launcher button touching wardrobe left edge */}
+            <button
+              type="button"
+              className="category-launcher"
+              aria-expanded={menuOpen}
               aria-controls="garment-panel"
-              data-testid="category-tops"
-              onClick={() => activateCategory("tops")}
-              onMouseEnter={() => { if (category !== "tops") playSound("category"); setCategory("tops"); }}
-              onKeyDown={(event) => handleSectorKeyDown(event, "tops")}
-              tabIndex={menuOpen ? 0 : -1}
+              data-testid="category-launcher"
+              onClick={toggleMenu}
+              onMouseEnter={handleMenuMouseEnter}
+              aria-label="Wardrobe categories"
             >
-              <path
-                d="M 160 0 A 160 160 0 0 0 21.44 80 L 90.72 120 A 80 80 0 0 1 160 80 Z"
-                fill={category === "tops" ? "url(#activeGrad)" : "url(#wheelGrad)"}
-              />
-              {/* Shirt icon */}
-              <g transform="translate(85, 41)" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m6 4 9 3 9-3 6 5-4 5-3-2v11H6V12l-3 2-4-5 7-5Z" />
-                <path d="M11 5c.5 2 1.5 3 4 3s3.5-1 4-3" />
-              </g>
-            </g>
+              <svg className="category-launcher-mark" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M14 6.5c0-2.1 3-2.1 3-4.2C17 1 16 0 14.5 0 13.1 0 12 1 12 2.3" />
+                <path d="m14 6.5-11 8.2c-1.1.8-.5 2.6.9 2.6h20.2c1.4 0 2-1.8.9-2.6L14 6.5Z" />
+              </svg>
+              <span className="category-launcher-label">Wardrobe</span>
+            </button>
 
-            {/* Sector 2: Bottoms */}
-            <g
-              className={`wheel-sector ${category === "bottoms" ? "is-active" : ""}`}
-              role="tab"
-              id="tab-bottoms"
-              aria-selected={category === "bottoms"}
-              aria-controls="garment-panel"
-              data-testid="category-bottoms"
-              onClick={() => activateCategory("bottoms")}
-              onMouseEnter={() => { if (category !== "bottoms") playSound("category"); setCategory("bottoms"); }}
-              onKeyDown={(event) => handleSectorKeyDown(event, "bottoms")}
-              tabIndex={menuOpen ? 0 : -1}
-            >
-              <path
-                d="M 21.44 80 A 160 160 0 0 0 21.44 240 L 90.72 200 A 80 80 0 0 1 90.72 120 Z"
-                fill={category === "bottoms" ? "url(#activeGrad)" : "url(#wheelGrad)"}
-              />
-              {/* Pants icon */}
-              <g transform="translate(25, 145)" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M6 4h18l3 22h-9l-1-14-1 14H3L6 4Z" />
-                <path d="M6 9h18" />
-              </g>
-            </g>
+            {/* Interactive category buttons positioned over the 3 sectors */}
+            {categories.map((item) => (
+              <button
+                type="button"
+                className={`wheel-sector-btn sector-${item.id} ${category === item.id ? "is-active" : ""}`}
+                id={`tab-${item.id}`}
+                key={item.id}
+                role="tab"
+                aria-selected={category === item.id}
+                aria-controls="garment-panel"
+                data-testid={`category-${item.id}`}
+                onClick={() => activateCategory(item.id)}
+                onMouseEnter={() => {
+                  handleMenuMouseEnter();
+                  if (category !== item.id) playSound("category");
+                  setCategory(item.id);
+                }}
+                aria-label={`${item.id === "tops" ? "Tops" : item.id === "bottoms" ? "Bottoms" : "Shoes"} category`}
+              >
+                <span className="wheel-active-indicator" aria-hidden="true" />
+              </button>
+            ))}
+          </nav>
 
-            {/* Sector 3: Shoes */}
-            <g
-              className={`wheel-sector ${category === "shoes" ? "is-active" : ""}`}
-              role="tab"
-              id="tab-shoes"
-              aria-selected={category === "shoes"}
-              aria-controls="garment-panel"
-              data-testid="category-shoes"
-              onClick={() => activateCategory("shoes")}
-              onMouseEnter={() => { if (category !== "shoes") playSound("category"); setCategory("shoes"); }}
-              onKeyDown={(event) => handleSectorKeyDown(event, "shoes")}
-              tabIndex={menuOpen ? 0 : -1}
-            >
-              <path
-                d="M 21.44 240 A 160 160 0 0 0 160 320 L 160 240 A 80 80 0 0 1 90.72 200 Z"
-                fill={category === "shoes" ? "url(#activeGrad)" : "url(#wheelGrad)"}
-              />
-              {/* High-heel Shoe icon */}
-              <g transform="translate(85, 248)" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M 3 19 C 8 19 13 15 16 10 L 18 5 C 19 10 21 16 26 18 L 26 20 L 18 20 L 17 13 L 15 19 Z" />
-              </g>
-            </g>
-
-            {/* Clean dividing lines */}
-            <line x1="21.44" y1="80" x2="90.72" y2="120" stroke="rgba(255,255,255,0.95)" strokeWidth="2.5" />
-            <line x1="21.44" y1="240" x2="90.72" y2="200" stroke="rgba(255,255,255,0.95)" strokeWidth="2.5" />
-
-            {/* Outer and inner curved arc borders (no diameter stroke) */}
-            <path
-              d="M 160 0 A 160 160 0 0 0 160 320"
-              fill="none"
-              stroke="rgba(255,255,255,0.95)"
-              strokeWidth="2.5"
-            />
-            <path
-              d="M 160 80 A 80 80 0 0 0 160 240"
-              fill="none"
-              stroke="rgba(255,255,255,0.95)"
-              strokeWidth="2.5"
-            />
-          </svg>
-        </nav>
-
-
-        {/* Wardrobe card matching Figma image.png */}
-        <aside className="wardrobe" aria-label="Wardrobe">
-          {/* Header pill: Pick an outfit */}
+          {/* Header pill: PICK AN OUTFIT matching Figma Desktop - 6 Frame 18 */}
           <div className="wardrobe-header">
-            <h1 id="wardrobe-title">Pick an outfit</h1>
+            <h1 id="wardrobe-title">PICK AN OUTFIT</h1>
           </div>
 
           {/* Scrollable 2-column cards grid displaying generated/ product shots */}

@@ -162,8 +162,8 @@ test("PLAY tải model thẳng và duyệt đúng capsule (2 áo, 2 quần/váy,
   await expect(page.getByAltText("2D paper doll model standing upright with arms relaxed")).toBeVisible();
 
   const expectedCounts = {
-    tops: 8,
-    bottoms: 8,
+    tops: 2,
+    bottoms: 2,
     shoes: 1,
   } as const;
 

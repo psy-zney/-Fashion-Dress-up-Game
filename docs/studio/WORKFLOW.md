@@ -32,14 +32,14 @@ Lệnh này tạo `prompt.md` và bản sao intake; nó không gọi dịch vụ
 | --- | --- |
 | Canvas sprite/source worn | 1024 × 1536, hướng dọc, gốc tọa độ góc trái trên |
 | Tọa độ mặc mặc định | x=0, y=0, scaleX=1, scaleY=1, rotation=0 |
-| Model | `assets/studio/sources/model/model-master.png` |
+| Model | `assets/studio/sources/model/model-master-v2.png` |
 | Pose | Chính diện, chân đứng thẳng, hai tay xuôi, giữ nguyên camera và silhouette master |
 | Crop sprite | Không trim canvas; vùng alpha có thể nhỏ nhưng file vẫn 1024 × 1536 |
 | Phóng to web | Tất cả layer cùng một hệ số, stage tỷ lệ 2:3; không fit từng món riêng |
 | Preview tủ | Ảnh sản phẩm riêng; được crop/padding, không có tọa độ mặc |
 | Drag | Dùng chính preview, lấy kích thước DOM lúc bắt đầu; không dùng kích thước file 1024 × 1536 |
 
-Các mốc nhìn trên master để kiểm tra (gần đúng, không thay cho mask): đỉnh đầu y≈65, vai y≈310, eo/cạp y≈560–660, bàn tay y≈780–865, cổ boot y≈985–995, đế giày y≈1490. Khi một ảnh sinh mới không còn khớp các mốc này, quay lại bước sinh/căn nguồn. Không dùng CSS kéo rộng vai hoặc bóp boot để che lỗi nguồn.
+Các mốc nhìn trên master chỉ là gợi ý và không thay cho mask. Khi một ảnh sinh mới không còn khớp đầu, vai, eo, bàn tay hoặc bàn chân của master, quay lại bước sinh/căn nguồn. Không dùng CSS kéo rộng vai hoặc bóp giày để che lỗi nguồn.
 
 Hộp minX/maxX/minY/maxY chỉ là phạm vi tìm trang phục; nó không phải hình dạng cuối cùng. Khi đổi kiểu tay áo hoặc độ dài váy, phải cập nhật hộp có chủ đích, không cắt bằng một đường ngang xuyên qua vải.
 
@@ -52,11 +52,11 @@ Mỗi món có hai vai trò ảnh tách biệt:
 
 Ưu tiên ảnh sản phẩm chính diện, đủ cả hai tay/đôi giày, không cắt mất gấu. Nếu chỉ có ảnh góc nghiêng thì ghi rõ phần chưa biết trong intake; không tự phát minh mặt sau để làm sprite mặt trước. Giày phải có đủ cả đôi, cùng phối cảnh với bàn chân master.
 
-Lưu nguồn thử vào thư mục phiên bản, ví dụ `assets/studio/sources/garments/iterations/navy-v2/`. Chỉ trỏ `sourceDir`/`sourceFile` tới nguồn đã xem và chọn. Catalog hiện có 14 nguồn mặc đã duyệt trong `worn/` và một nguồn phiên bản cho quần jeans ráp mảnh trong `iterations/`.
+Lưu nguồn thử vào thư mục phiên bản, ví dụ `assets/studio/sources/garments/iterations/navy-v2/`. Chỉ trỏ `sourceDir`/`sourceFile` tới nguồn đã xem và chọn. Capsule hiện dùng bốn nguồn mặc đã duyệt trong `iterations/`; catalog cũ trong `worn/` chỉ được giữ làm lịch sử.
 
 ## 4. Sinh ảnh với độ thực tế nhất quán
 
-Gen từng món trên master, không gen nhiều bộ đồ chung một ảnh. Chỉ thay trang phục thuộc nhóm đang làm. Yêu cầu bề mặt vải có sợi, độ dày, nếp gấp theo trọng lực, đường may hợp lý; da/ánh sáng giữ nguyên master. Với model minh hoạ hiện tại, độ thực tế cần đồng nhất phong cách. Yêu cầu ảnh người thật hoàn toàn trong một món riêng sẽ gây lệch phong cách dù vải trông chi tiết hơn.
+Gen từng món trên master, không gen nhiều bộ đồ chung một ảnh. Chỉ thay trang phục thuộc nhóm đang làm. Yêu cầu bề mặt vải có sợi, độ dày, nếp gấp theo trọng lực, đường may hợp lý; da/ánh sáng và vẻ người thật của master phải được giữ nguyên.
 
 Trong prompt luôn khoá: identity, pose, camera, framing, canvas, body proportions, hand/foot positions; ghi rõ từng chi tiết bắt buộc. Ví dụ áo ren phải có ren cổ **và hai cổ tay**; váy xếp ly phải giữ đầy đủ gấu; boot phải phủ kín cẳng chân nhưng không sinh thêm chân.
 

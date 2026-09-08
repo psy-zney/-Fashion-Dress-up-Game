@@ -1,65 +1,5 @@
 [
   {
-    "id": "top-fitted-denim",
-    "category": "tops",
-    "name": "Áo denim ôm sát",
-    "width": 1024,
-    "height": 1536,
-    "hasAlpha": true,
-    "bounds": {
-      "left": 400,
-      "top": 274,
-      "width": 212,
-      "height": 371,
-      "visiblePixels": 65558
-    }
-  },
-  {
-    "id": "top-modal-grommet",
-    "category": "tops",
-    "name": "Áo cotton modal đính khoen",
-    "width": 1024,
-    "height": 1536,
-    "hasAlpha": true,
-    "bounds": {
-      "left": 396,
-      "top": 294,
-      "width": 224,
-      "height": 355,
-      "visiblePixels": 62224
-    }
-  },
-  {
-    "id": "bottom-sculpted-jeans",
-    "category": "bottoms",
-    "name": "Quần jeans balloon ráp mảnh",
-    "width": 1024,
-    "height": 1536,
-    "hasAlpha": true,
-    "bounds": {
-      "left": 291,
-      "top": 568,
-      "width": 436,
-      "height": 877,
-      "visiblePixels": 276324
-    }
-  },
-  {
-    "id": "bottom-denim-sculpted-skirt",
-    "category": "bottoms",
-    "name": "Váy denim dài ráp cong",
-    "width": 1024,
-    "height": 1536,
-    "hasAlpha": true,
-    "bounds": {
-      "left": 320,
-      "top": 550,
-      "width": 380,
-      "height": 848,
-      "visiblePixels": 245301
-    }
-  },
-  {
     "id": "shoes-mary-janes",
     "category": "shoes",
     "name": "Giày Mary Jane đen",
@@ -72,6 +12,66 @@
       "width": 198,
       "height": 135,
       "visiblePixels": 8754
+    }
+  },
+  {
+    "id": "top-fitted-denim",
+    "category": "tops",
+    "name": "Áo denim ôm sát",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 402,
+      "top": 250,
+      "width": 242,
+      "height": 395,
+      "visiblePixels": 73101
+    }
+  },
+  {
+    "id": "top-modal-grommet",
+    "category": "tops",
+    "name": "Áo cotton modal đính khoen",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 387,
+      "top": 275,
+      "width": 269,
+      "height": 411,
+      "visiblePixels": 78880
+    }
+  },
+  {
+    "id": "bottom-sculpted-jeans",
+    "category": "bottoms",
+    "name": "Quần jeans balloon ráp mảnh",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 293,
+      "top": 549,
+      "width": 473,
+      "height": 907,
+      "visiblePixels": 304029
+    }
+  },
+  {
+    "id": "bottom-denim-sculpted-skirt",
+    "category": "bottoms",
+    "name": "Váy denim dài ráp cong",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 315,
+      "top": 529,
+      "width": 437,
+      "height": 835,
+      "visiblePixels": 267977
     }
   }
 ]

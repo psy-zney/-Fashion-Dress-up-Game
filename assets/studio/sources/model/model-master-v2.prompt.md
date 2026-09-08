@@ -1,0 +1,5 @@
+# Model master v2 prompt
+
+Built-in image generation mode (`identity-preserve`).
+
+Remake the adult character from the previous canonical model as a photorealistic young adult Asian fashion model. Preserve the exact full-body front-facing neutral pose, silhouette placement, body proportions, straight arms, hand positions, foot positions, scale, crop, and 2:3 canvas geometry. Use the supplied editorial photos only as face and styling references: believable everyday-pretty facial features with subtle natural asymmetry. Dress the model in a modest opaque seamless warm-beige fitted tank unitard with a high neckline and mid-thigh legs. Give her a vivid lime-green blunt bob with fine strands, berry-pink matte lipstick, tasteful pink-and-teal eye makeup, and small colorful hoop earrings. Use soft neutral studio light, visible natural pores and tonal variation at knees and elbows, matte skin, and realistic hair. Avoid illustration, anime, doll-like symmetry, airbrushed or shiny skin, altered pose, cropping, text, logos, and watermarks. Produce a 1024×1536-equivalent full canvas suitable for clean background extraction.

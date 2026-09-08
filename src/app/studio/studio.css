@@ -8,14 +8,8 @@
   width: 100vw;
   display: grid;
   place-items: center;
-  background: radial-gradient(
-    ellipse 118svh 84svh at 50% 48%,
-    #41ffad 6%,
-    #71ead6 26%,
-    #a0d4ff 46%,
-    #d0eaff 70%,
-    #e8f5ff 100%
-  );
+  background-color: #bde6fa;
+  background-image: radial-gradient(circle at 50% 30%, #eef8fe 0%, #bde6fa 100%);
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   margin: 0;
@@ -39,6 +33,10 @@
   container-type: inline-size;
   position: relative;
   overflow: hidden;
+  background-image: url("/game/backgrounds/slide-playground.webp");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* Circular back button in top-left */
@@ -827,72 +825,188 @@
 
 
 /* ==========================================================================
-   FROSTED GLASS WARDROBE PANEL
-   Matches image.png with pure, clean aesthetic (no redundant content).
+   FIGMA DESKTOP - 6 WARDROBE CABINET & ATTACHED WHEEL
+   Matches Figma Desktop - 6 (60:60) with glossy lime cabinet and pearl-pink wheel.
    ========================================================================== */
 
 .game-canvas.dressing-room .wardrobe {
   position: absolute;
-  left: 50cqw;
-  top: 6.042cqw;
-  width: 38.194cqw;
-  height: 62.361cqw;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.38);
-  backdrop-filter: blur(28px) saturate(140%);
-  -webkit-backdrop-filter: blur(28px) saturate(140%);
-  border: 1.5px solid rgba(255, 255, 255, 0.7);
+  left: 62.5cqw;
+  top: 7.5cqw;
+  width: 29.1cqw;
+  height: 56.88cqw;
+  border-radius: 15px;
+  background-color: #edf958;
+  background-image: url("/game/ui/wardrobe-cabinet-glossy.webp");
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
   box-shadow:
-    0 16px 45px rgba(50, 110, 130, 0.14),
-    inset 0 1px 2px rgba(255, 255, 255, 0.85);
+    0 0 25px 8px rgba(255, 255, 255, 0.6),
+    0 16px 45px rgba(160, 190, 40, 0.25);
   display: flex;
   flex-direction: column;
-  padding: 1.8cqw 3.55cqw 1.35cqw;
+  padding: 3.5cqw 2.2cqw 1.8cqw 2.2cqw;
   z-index: 50;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible;
   transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Header pill: "Pick an outfit" */
+/* Category Wheel attached to the left edge of the cabinet */
+.wardrobe-wheel {
+  position: absolute;
+  right: 100%;
+  top: 17cqw;
+  width: 10.74cqw;
+  height: 22.14cqw;
+  z-index: 55;
+  pointer-events: auto;
+}
+
+.wardrobe-wheel-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  pointer-events: none;
+  filter: drop-shadow(-4px 6px 14px rgba(180, 100, 140, 0.25));
+}
+
+.wardrobe-wheel .category-launcher {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 4.2cqw;
+  height: 8.5cqw;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15cqw;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #581838;
+  cursor: pointer;
+  z-index: 10;
+  outline: none;
+  pointer-events: auto;
+  transition: transform 0.18s ease;
+}
+
+.wardrobe-wheel .category-launcher:hover {
+  transform: translateY(-50%) scale(1.08);
+}
+
+.wardrobe-wheel .category-launcher-mark {
+  width: 1.35cqw;
+  height: 1.1cqw;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.wardrobe-wheel .category-launcher-label {
+  font-size: 0.58cqw;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #581838;
+}
+
+.wheel-sector-btn {
+  position: absolute;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 20;
+  padding: 0;
+  outline: none;
+  border-radius: 50%;
+  transition: transform 0.18s ease;
+}
+
+.wheel-sector-btn:hover {
+  transform: scale(1.12);
+}
+
+.wheel-sector-btn.sector-tops {
+  left: 26%;
+  top: 4%;
+  width: 70%;
+  height: 28%;
+}
+
+.wheel-sector-btn.sector-bottoms {
+  left: 2%;
+  top: 34%;
+  width: 54%;
+  height: 32%;
+}
+
+.wheel-sector-btn.sector-shoes {
+  left: 26%;
+  top: 68%;
+  width: 70%;
+  height: 28%;
+}
+
+.wheel-active-indicator {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.wheel-sector-btn.is-active .wheel-active-indicator {
+  border-radius: 50%;
+  box-shadow: 0 0 14px 4px rgba(255, 255, 255, 0.95), inset 0 0 8px rgba(255, 255, 255, 0.8);
+}
+
+/* Header pill: PICK AN OUTFIT matching Figma Desktop - 6 Frame 18 */
 .wardrobe-header {
-  margin: 0 0 1.05cqw;
-  background: #ffffff;
-  border-radius: 12px;
-  height: 3.4cqw;
+  margin: 0 0 0.85cqw;
+  background: #dbf552;
+  border-radius: 6px;
+  height: 3.68cqw;
   display: grid;
   place-items: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .wardrobe-header h1 {
   margin: 0;
-  font-family: inherit;
-  font-size: 1.667cqw;
-  font-weight: 400;
-  color: #1e293b;
-  letter-spacing: -0.2px;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 1.5cqw;
+  font-weight: 700;
+  color: #000000;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
-/* Scrollable cards list */
+/* Scrollable cards list with yellow track and white pill thumb */
 .wardrobe-scroll {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 0.25cqw;
+  padding-right: 0.35cqw;
   min-height: 0;
   overscroll-behavior: contain;
   scroll-behavior: smooth;
   scrollbar-width: thin;
-  scrollbar-color: #ffffff rgba(255, 255, 255, 0.2);
+  scrollbar-color: #ffffff #d9eb42;
 }
 
 .wardrobe-scroll::-webkit-scrollbar {
-  width: 7px;
+  width: 8px;
 }
 
 .wardrobe-scroll::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.25);
+  background: #d9eb42;
   border-radius: 999px;
 }
 
@@ -906,37 +1020,38 @@
 .outfit-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.45cqw 1.875cqw;
-  padding-bottom: 1cqw;
+  gap: 1.2cqw 1cqw;
+  padding-bottom: 1.2cqw;
 }
 
-/* Outfit card displaying clean studio product shot */
+/* Outfit card displaying clean studio product shot with black border */
 .outfit-card {
   position: relative;
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  height: 18.54cqw;
-  border-radius: 1.1cqw;
+  height: 12.5cqw;
+  border-radius: 4px;
   overflow: hidden;
-  border: 2px solid transparent;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  border: 1.5px solid #000000;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   cursor: grab;
   padding: 0;
   text-align: center;
   touch-action: pan-y;
   user-select: none;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, opacity 0.18s ease;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
 .outfit-card:hover {
-  transform: none;
-  box-shadow: 0 8px 22px rgba(60, 140, 120, 0.15);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  border-color: #000000;
+  transform: translateY(-2px);
 }
 
 .outfit-card.is-selected {
-  border-color: #38d39f;
-  box-shadow: 0 0 0 3px rgba(56, 211, 159, 0.35);
+  border-color: #000000;
+  box-shadow: 0 0 0 3px #dbf552, 0 6px 18px rgba(0, 0, 0, 0.15);
 }
 
 .outfit-card.is-dragging {
@@ -978,9 +1093,9 @@
 .outfit-card-thumb {
   position: relative;
   width: 100%;
-  height: 15.05cqw;
-  flex: 0 0 auto;
-  background: #f8fafc;
+  height: 100%;
+  flex: 1 1 auto;
+  background: #ffffff;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -990,10 +1105,10 @@
 .outfit-card-img {
   width: auto;
   height: auto;
-  max-width: 88%;
-  max-height: 88%;
+  max-width: 90%;
+  max-height: 90%;
   object-fit: contain;
-  padding: 0.55cqw;
+  padding: 0.4cqw;
   pointer-events: none;
   transition: transform 0.2s ease;
 }
@@ -1006,28 +1121,20 @@
   position: absolute;
   top: 6px;
   right: 6px;
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background: #38d39f;
-  color: white;
+  background: #dbf552;
+  color: #000000;
   display: grid;
   place-items: center;
-  font-size: 12px;
-  font-weight: bold;
-  box-shadow: 0 2px 6px rgba(56, 211, 159, 0.4);
+  font-size: 11px;
+  font-weight: 900;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .outfit-card-name {
-  padding: 0.55cqw 0.4cqw 0.62cqw;
-  font-size: 0.9cqw;
-  color: #334155;
-  font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: center;
-  display: block;
+  display: none;
 }
 
 .mobile-category-tabs {
@@ -1100,8 +1207,9 @@
     border-radius: 16px;
   }
 
-  .game-canvas.dressing-room .studio-radial-nav {
-    display: none;
+  .game-canvas.dressing-room .studio-radial-nav,
+  .wardrobe-wheel {
+    display: none !important;
   }
 
   .mobile-category-tabs {
@@ -1259,8 +1367,9 @@
   .character-podium { width: 24vw; height: 5vw; bottom: 0; }
   .character-shadow { width: 22vw; height: 4vw; bottom: 0; }
 
-  .game-canvas.dressing-room .studio-radial-nav {
-    display: none;
+  .game-canvas.dressing-room .studio-radial-nav,
+  .wardrobe-wheel {
+    display: none !important;
   }
 
   .mobile-category-tabs {
@@ -1361,6 +1470,242 @@
     min-height: 32px;
     padding: 5px 8px;
     font-size: 10px;
+  }
+}
+
+.desktop-6-atmosphere,
+.wardrobe-kicker,
+.wardrobe-count {
+  display: none;
+}
+
+/* ========================================================================== 
+   FIGMA DESKTOP - 6 · AUTHENTIC THEMED DRESSING ROOM
+   Matches Figma Desktop - 6 (node 60:60):
+   - Background: slide-playground.webp (sky 1 + slide 1 meadow)
+   - Back button: glossy 3D circular button (43:72)
+   - Doll: standing on the yellow slide meadow path (left: 21.4cqw; top: 6.2cqw)
+   - Wardrobe: glossy lime yellow cabinet (72:220)
+   - Category wheel: 3-sector pearl-pink wheel (72:223) attached to left edge
+   - Wardrobe header: bold black "PICK AN OUTFIT" (72:221)
+   - Outfit cards: 140x180 px cards with 1.5px solid black border
+   ========================================================================== */
+@media (min-width: 901px) {
+  .game-shell {
+    background-color: #bde6fa;
+    background-image: radial-gradient(circle at 50% 30%, #eef8fe 0%, #bde6fa 100%);
+  }
+
+  .game-canvas.dressing-room {
+    background: transparent;
+  }
+
+  .dressing-room-content:not(.is-showcase-mode) {
+    background-image: url("/game/backgrounds/slide-playground.webp");
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .desktop-6-atmosphere {
+    display: none;
+  }
+
+  .dressing-room-content:not(.is-showcase-mode) .character-stage-wrap {
+    left: 21.4cqw;
+    top: 6.2cqw;
+    width: 23.6cqw;
+    height: 55.4cqw;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .dressing-room-content:not(.is-showcase-mode) .character-spotlight,
+  .dressing-room-content:not(.is-showcase-mode) .character-podium {
+    display: none;
+  }
+
+  .dressing-room-content:not(.is-showcase-mode) .character-shadow {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 19cqw;
+    height: 1.5cqw;
+    border-radius: 50%;
+    background: rgba(45, 75, 30, 0.32);
+    filter: blur(4px);
+    opacity: 1;
+  }
+
+  .back-button {
+    left: 4.44cqw;
+    top: 2.92cqw;
+    width: 4.58cqw;
+    height: 4.58cqw;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .back-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.18));
+  }
+
+  .dressing-room-content:not(.is-showcase-mode) .wardrobe {
+    left: 62.57cqw;
+    top: 7.5cqw;
+    width: 29.1cqw;
+    height: 56.88cqw;
+    border-radius: 15px;
+    background-color: #edf958;
+    background-image: url("/game/ui/wardrobe-cabinet-glossy.webp");
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-shadow:
+      0 0 25px 8px rgba(255, 255, 255, 0.6),
+      0 16px 45px rgba(160, 190, 40, 0.25);
+    display: flex;
+    flex-direction: column;
+    padding: 3.7cqw 2.5cqw 2cqw 2.5cqw;
+    z-index: 50;
+    box-sizing: border-box;
+    overflow: visible;
+  }
+
+  .wardrobe-wheel {
+    position: absolute;
+    right: 100%;
+    top: 17.01cqw;
+    width: 10.74cqw;
+    height: 22.14cqw;
+    z-index: 55;
+    display: block;
+  }
+
+  .wardrobe-header {
+    margin: 0 0 1.2cqw;
+    height: 3.68cqw;
+    background: #dbf552;
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    border: none;
+  }
+
+  .wardrobe-header h1 {
+    font-family: Inter, system-ui, -apple-system, sans-serif;
+    font-size: 1.45cqw;
+    font-weight: 600;
+    color: #000000;
+    letter-spacing: 0.02em;
+    margin: 0;
+  }
+
+  .dressing-room-content:not(.is-showcase-mode) .wardrobe-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 0.3cqw;
+    scrollbar-width: thin;
+    scrollbar-color: #dbf552 #ffffff;
+  }
+
+  .dressing-room-content:not(.is-showcase-mode) .outfit-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.18cqw;
+    padding: 0.2cqw 0 1cqw;
+  }
+
+  .dressing-room-content:not(.is-showcase-mode) .outfit-card {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 140 / 180;
+    height: auto;
+    background: #ffffff;
+    border: 1.5px solid #000000;
+    border-radius: 12px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  }
+
+  .dressing-room-content:not(.is-showcase-mode) .outfit-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+  }
+
+  .dressing-room-content:not(.is-showcase-mode) .outfit-card.is-selected {
+    border: 2px solid #000000;
+    box-shadow: 0 0 0 2.5px #dbf552, 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+
+  .dressing-room-content:not(.is-showcase-mode) .outfit-card-thumb {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+  }
+
+  .dressing-room-content:not(.is-showcase-mode) .outfit-card-img {
+    max-width: 88%;
+    max-height: 88%;
+    object-fit: contain;
+    padding: 0.3cqw;
+  }
+
+  .dressing-room-content:not(.is-showcase-mode) .outfit-card-check {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #dbf552;
+    color: #000000;
+    display: grid;
+    place-items: center;
+    font-size: 11px;
+    font-weight: 900;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    border: 1px solid #000000;
+  }
+
+  .dressing-room-content:not(.is-showcase-mode) .showcase-button {
+    left: 21.4cqw;
+    top: 64cqw;
+    width: 23.6cqw;
+    min-height: 38px;
+    border: 1.5px solid #000000;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #e8ff42 0%, #b8f54c 100%);
+    color: #000000;
+    font-size: max(12px, 1cqw);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .dressing-room-content:not(.is-showcase-mode) .showcase-button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
   }
 }
 
@@ -1523,6 +1868,7 @@
 }
 
 .dressing-room-content.is-showcase-mode .studio-radial-nav,
+.dressing-room-content.is-showcase-mode .wardrobe-wheel,
 .dressing-room-content.is-showcase-mode .mobile-category-tabs,
 .dressing-room-content.is-showcase-mode .showcase-button {
   opacity: 0;

@@ -3,6 +3,11 @@
   "catalogGarments": 5,
   "items": [
     {
+      "id": "shoes-mary-janes",
+      "category": "shoes",
+      "name": "Giày Mary Jane đen"
+    },
+    {
       "id": "top-fitted-denim",
       "category": "tops",
       "name": "Áo denim ôm sát"
@@ -21,12 +26,7 @@
       "id": "bottom-denim-sculpted-skirt",
       "category": "bottoms",
       "name": "Váy denim dài ráp cong"
-    },
-    {
-      "id": "shoes-mary-janes",
-      "category": "shoes",
-      "name": "Giày Mary Jane đen"
     }
   ],
-  "updatedAt": "2026-09-07T18:46:59.016Z"
+  "updatedAt": "2026-09-08T07:58:03.037Z"
 }

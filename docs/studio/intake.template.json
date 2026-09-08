@@ -2,7 +2,7 @@
   "id": "bottom-navy-dots",
   "revision": "review-01",
   "category": "bottoms",
-  "modelReference": "assets/studio/sources/model/model-master.png",
+  "modelReference": "assets/studio/sources/model/model-master-v2.png",
   "garmentReference": "assets/studio/sources/products/original/bottom-navy-dots.png",
   "description": "Front-facing navy midi skirt with small evenly distributed white polka dots, a fitted waistband and natural continuous folds.",
   "requiredDetails": ["Unbroken hem below the knees", "Continuous fabric and polka dots", "Preserve the reference waistband and length"],

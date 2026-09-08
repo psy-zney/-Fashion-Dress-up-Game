@@ -7,3 +7,4 @@ test-results/
 .env*.local
 .studio-work/
 artifacts/
+output/
