@@ -1,119 +1,67 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import type { CSSProperties } from "react";
 
-interface Sparkle {
-  id: number;
-  x: number; // percentage relative to character stage
-  y: number;
-  size: number; // px
-  type: "star4" | "star8" | "circle" | "sparkle";
-  delay: number; // ms
-  dx: number;
-  dy: number;
-  rotation: number;
-}
-
-interface MagicBlingProps {
+interface ColorBubbleBurstProps {
   activeItem: string | null;
   category?: "tops" | "bottoms" | "shoes" | null;
 }
 
-export function MagicBlingSparkles({ activeItem, category }: MagicBlingProps) {
-  const [sparkles, setSparkles] = useState<Sparkle[]>([]);
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
-  useEffect(() => {
-    if (!activeItem) return;
+const burstBubbles = [
+  { x: "-8.4cqw", y: "-1.2cqw", size: 17, delay: 10, hue: 185 },
+  { x: "8.7cqw", y: "-.8cqw", size: 15, delay: 0, hue: 315 },
+  { x: "-6.8cqw", y: "-5.8cqw", size: 13, delay: 45, hue: 48 },
+  { x: "6.2cqw", y: "-6.4cqw", size: 18, delay: 20, hue: 205 },
+  { x: "-5.1cqw", y: "6.7cqw", size: 19, delay: 65, hue: 330 },
+  { x: "5.8cqw", y: "6.1cqw", size: 12, delay: 35, hue: 62 },
+  { x: "-10.1cqw", y: "3.7cqw", size: 10, delay: 85, hue: 270 },
+  { x: "10.4cqw", y: "3.2cqw", size: 16, delay: 55, hue: 155 },
+  { x: "-2.1cqw", y: "-8.9cqw", size: 11, delay: 95, hue: 345 },
+  { x: "2.5cqw", y: "9.2cqw", size: 15, delay: 75, hue: 195 },
+  { x: "-9.3cqw", y: "-4.8cqw", size: 8, delay: 110, hue: 82 },
+  { x: "9.6cqw", y: "-4.3cqw", size: 10, delay: 90, hue: 292 },
+  { x: "-8.7cqw", y: "7.6cqw", size: 9, delay: 125, hue: 215 },
+  { x: "8.3cqw", y: "7.8cqw", size: 8, delay: 115, hue: 25 },
+  { x: "-3.8cqw", y: "-4.1cqw", size: 24, delay: 0, hue: 172 },
+  { x: "3.9cqw", y: "-3.5cqw", size: 22, delay: 15, hue: 322 },
+  { x: "-3.2cqw", y: "4.3cqw", size: 20, delay: 25, hue: 52 },
+  { x: "3.4cqw", y: "4.1cqw", size: 18, delay: 40, hue: 202 },
+] as const;
 
-    // Define vertical & horizontal center based on worn category
-    let centerY = 50;
-    let spreadY = 44;
-    let spreadX = 34;
-
-    if (category === "tops") {
-      centerY = 35; // Torso, chest, shoulders
-      spreadY = 22;
-      spreadX = 32;
-    } else if (category === "bottoms") {
-      centerY = 60; // Waist, hips, legs
-      spreadY = 24;
-      spreadX = 28;
-    } else if (category === "shoes") {
-      centerY = 88; // Feet, ankles
-      spreadY = 12;
-      spreadX = 24;
-    }
-
-    // Generate 26 glowing white magic sparkles localized to the garment
-    const count = 26;
-    const newSparkles: Sparkle[] = Array.from({ length: count }, (_, i) => {
-      const angle = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.45;
-      const distance = 25 + Math.random() * 65;
-      const types: Array<Sparkle["type"]> = ["star4", "star8", "circle", "sparkle"];
-
-      return {
-        id: Date.now() + i,
-        x: 50 + (Math.random() - 0.5) * spreadX,
-        y: centerY + (Math.random() - 0.5) * spreadY,
-        size: 11 + Math.floor(Math.random() * 20),
-        type: types[Math.floor(Math.random() * types.length)],
-        delay: Math.floor(Math.random() * 180),
-        dx: Math.cos(angle) * distance,
-        dy: Math.sin(angle) * distance - 16, // drift slightly upward
-        rotation: Math.floor(Math.random() * 360),
-      };
-    });
-
-    setSparkles(newSparkles);
-
-    const timer = setTimeout(() => {
-      setSparkles([]);
-    }, 950);
-
-    return () => clearTimeout(timer);
-  }, [activeItem, category]);
-
-  if (sparkles.length === 0) return null;
+export function ColorBubbleBurst({ activeItem, category }: ColorBubbleBurstProps) {
+  if (!activeItem) return null;
 
   return (
-    <div className="magic-bling-container" aria-hidden="true">
-      {sparkles.map((s) => (
-        <div
-          key={s.id}
-          className={`magic-bling-particle bling-type-${s.type}`}
+    <div
+      className={`color-bubble-burst color-bubble-burst-${category || "full"}`}
+      aria-hidden="true"
+      data-testid="color-bubble-burst"
+    >
+      <span className="color-bubble-burst-flash" />
+      <span className="color-bubble-burst-ring color-bubble-burst-ring-outer" />
+      <span className="color-bubble-burst-ring color-bubble-burst-ring-inner" />
+      <img
+        className="color-bubble-burst-art"
+        src={`${basePath}/game/effects/color-bubble-burst.gif`}
+        alt=""
+        draggable={false}
+      />
+      {burstBubbles.map((bubble, index) => (
+        <span
+          key={index}
+          className="color-bubble-burst-particle"
           style={
             {
-              left: `${s.x}%`,
-              top: `${s.y}%`,
-              width: `${s.size}px`,
-              height: `${s.size}px`,
-              animationDelay: `${s.delay}ms`,
-              "--dx": `${s.dx}px`,
-              "--dy": `${s.dy}px`,
-              "--rot": `${s.rotation}deg`,
-            } as React.CSSProperties
+              "--burst-x": bubble.x,
+              "--burst-y": bubble.y,
+              "--bubble-size": `${bubble.size}px`,
+              "--bubble-delay": `${bubble.delay}ms`,
+              "--bubble-hue": bubble.hue,
+            } as CSSProperties
           }
-        >
-          {s.type === "star4" && (
-            <svg viewBox="0 0 24 24" fill="white" className="bling-svg">
-              <path d="M12 0 L14.5 9.5 L24 12 L14.5 14.5 L12 24 L9.5 14.5 L0 12 L9.5 9.5 Z" />
-            </svg>
-          )}
-          {s.type === "star8" && (
-            <svg viewBox="0 0 24 24" fill="white" className="bling-svg">
-              <path d="M12 1 L13.8 8.2 L21 6.4 L15.8 11.6 L23 12 L15.8 12.4 L21 17.6 L13.8 15.8 L12 23 L10.2 15.8 L3 17.6 L8.2 12.4 L1 12 L8.2 11.6 L3 6.4 L10.2 8.2 Z" />
-            </svg>
-          )}
-          {s.type === "circle" && (
-            <div className="bling-bubble-circle" />
-          )}
-          {s.type === "sparkle" && (
-            <svg viewBox="0 0 24 24" fill="white" className="bling-svg">
-              <circle cx="12" cy="12" r="3" fill="#ffffff" />
-              <path d="M12 2 L13 10 L21 12 L13 14 L12 22 L11 14 L3 12 L11 10 Z" fill="#ffffff" />
-            </svg>
-          )}
-        </div>
+        />
       ))}
     </div>
   );

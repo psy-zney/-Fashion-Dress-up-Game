@@ -23,7 +23,7 @@ import { playSound, type SoundEffect } from "@/lib/sound-effects";
 import { initAudio } from "@/lib/audio-manager";
 import { AudioSettingsModal } from "@/components/audio-settings-modal";
 import { HeartLoading } from "@/components/heart-loading";
-import { MagicBlingSparkles } from "@/components/magic-bling";
+import { ColorBubbleBurst } from "@/components/magic-bling";
 import { Fireworks } from "@/components/fireworks";
 
 type DragPreview = {
@@ -35,6 +35,12 @@ type DragPreview = {
   offsetX: number;
   offsetY: number;
   padding: string;
+};
+
+type DressEffect = {
+  id: string;
+  category: Category;
+  sequence: number;
 };
 
 const fitFields = [
@@ -68,8 +74,8 @@ export function DressUpStudio() {
   const [isDragging, setIsDragging] = useState<string | null>(null);
   const [isDragOverStage, setIsDragOverStage] = useState(false);
   const [dragPreview, setDragPreview] = useState<DragPreview | null>(null);
-  const [recentlyWorn, setRecentlyWorn] = useState<string | null>(null);
-  const [recentlyWornCategory, setRecentlyWornCategory] = useState<Category | null>(null);
+  const [dressEffect, setDressEffect] = useState<DressEffect | null>(null);
+  const dressEffectSequence = useRef(0);
   const [menuPinned, setMenuPinned] = useState(false);
   const [menuHovered, setMenuHovered] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -140,14 +146,13 @@ export function DressUpStudio() {
   function choose(id: string, sound: SoundEffect = "dress") {
     const item = allGarments.find((candidate) => candidate.id === id);
     if (!item) return;
+    const sequence = ++dressEffectSequence.current;
     playSound(sound);
     setSelected((previous) => ({ ...previous, [item.category]: id }));
-    setRecentlyWorn(id);
-    setRecentlyWornCategory(item.category);
+    setDressEffect({ id, category: item.category, sequence });
     setTimeout(() => {
-      setRecentlyWorn((current) => (current === id ? null : current));
-      setRecentlyWornCategory((current) => (current === item.category ? null : current));
-    }, 700);
+      setDressEffect((current) => (current?.sequence === sequence ? null : current));
+    }, 1000);
     setStatus(`Wearing ${item.name.toLowerCase()}.`);
   }
 
@@ -384,7 +389,7 @@ export function DressUpStudio() {
               <img
                 key={item.id}
                 src={assetUrl(item.id)}
-                className={`studio-layer ${recentlyWorn === item.id ? "animate-snap" : ""} ${bootTuckBottomIds.has(item.id) && selected.shoes === "shoes-brown-boots" ? "is-shortened-for-boots" : ""}`}
+                className={`studio-layer ${dressEffect?.id === item.id ? "animate-snap" : ""} ${bootTuckBottomIds.has(item.id) && selected.shoes === "shoes-brown-boots" ? "is-shortened-for-boots" : ""}`}
                 style={{ ...layerStyle(item.id), zIndex: garmentLayer(item) }}
                 alt={item.name}
                 data-garment={item.id}
@@ -398,8 +403,12 @@ export function DressUpStudio() {
               <image href={assetUrl("model")} width={STAGE.width} height={STAGE.height} clipPath={`url(#${armsClipId})`} />
             </svg>
 
-            {/* White magic bling-bling sparkles on dress-up */}
-            <MagicBlingSparkles activeItem={recentlyWorn} category={recentlyWornCategory} />
+            {/* One-shot colorful bubble burst on dress-up */}
+            <ColorBubbleBurst
+              key={dressEffect?.sequence || 0}
+              activeItem={dressEffect?.id || null}
+              category={dressEffect?.category}
+            />
 
             {/* Drop target prompt on hover/drag */}
             {isDragOverStage && (

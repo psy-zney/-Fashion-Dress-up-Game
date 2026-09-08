@@ -1744,38 +1744,46 @@
   .dressing-room-content.is-showcase-mode .character-stage-wrap {
     left: 50%;
     transform: translateX(-50%);
-    top: 6svh;
-    width: min(88vw, 360px);
-    height: 68svh;
+    top: max(16px, env(safe-area-inset-top));
+    bottom: calc(max(14px, env(safe-area-inset-bottom)) + 60px);
+    width: auto;
+    max-width: min(84vw, 360px);
+    height: auto;
+    aspect-ratio: 2 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
   }
 
   .dressing-room-content.is-showcase-mode .studio-stage {
-    transform: scale(1.18);
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    transform: none;
+    transform-origin: 50% 50%;
   }
 
-  .dressing-room-content.is-showcase-mode .studio-stage.pose-runway { transform: scale(1.18); }
-  .dressing-room-content.is-showcase-mode .studio-stage.pose-chic { transform: scale(1.18) rotate(-3.2deg) skewY(1.5deg) scaleX(0.98); }
-  .dressing-room-content.is-showcase-mode .studio-stage.pose-playful { transform: scale(1.18) rotate(3.6deg) translateY(-6px) scale(1.02); }
-  .dressing-room-content.is-showcase-mode .studio-stage.pose-angle { transform: scale(1.18) perspective(900px) rotateY(12deg) rotateZ(-1.2deg); }
-
-  .showcase-pose-selector {
-    bottom: 11.5svh;
-    padding: 3px 6px;
-    max-width: 95vw;
+  .dressing-room-content.is-showcase-mode .character-spotlight {
+    width: min(76vw, 300px);
+    height: 48svh;
+    bottom: 2svh;
   }
 
-  .pose-selector-badge {
-    display: none;
+  .dressing-room-content.is-showcase-mode .character-podium {
+    width: min(64vw, 250px);
+    height: 12vw;
+    bottom: 0;
   }
 
-  .pose-pill {
-    padding: 4px 7px;
-    font-size: 11px;
-    gap: 3px;
+  .dressing-room-content.is-showcase-mode .character-shadow {
+    width: min(58vw, 230px);
+    height: 9vw;
+    bottom: -1vw;
   }
 
   .showcase-action-bar {
-    bottom: 4.5svh;
+    bottom: max(14px, env(safe-area-inset-bottom));
     gap: 10px;
     width: 90vw;
     justify-content: center;
@@ -1803,12 +1811,21 @@
     left: 50%;
     transform: translateX(-50%);
     top: 2svh;
-    width: 32vw;
-    height: 76svh;
+    bottom: 48px;
+    width: auto;
+    height: auto;
+    aspect-ratio: 2 / 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
   }
 
   .dressing-room-content.is-showcase-mode .studio-stage {
-    transform: scale(1.1);
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    transform: none;
   }
 
   .showcase-action-bar {

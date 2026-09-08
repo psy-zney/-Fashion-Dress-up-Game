@@ -154,6 +154,8 @@ declare global {
   }
 }
 
+const BGM_SRC = `${basePath}/game/Music/BackgroundMusic.mp3?v=20260908`;
+
 export function initAudio(): AudioSettings {
   if (typeof window === "undefined") return currentSettings;
 
@@ -164,8 +166,12 @@ export function initAudio(): AudioSettings {
     // Prevent duplicate audio objects across Fast Refresh, preview tabs, or multiple calls
     if (window.__GAME_BGM_AUDIO__) {
       bgmAudio = window.__GAME_BGM_AUDIO__;
+      if (!bgmAudio.src.includes("BackgroundMusic.mp3?v=20260908")) {
+        bgmAudio.src = BGM_SRC;
+        bgmAudio.load();
+      }
     } else {
-      bgmAudio = new Audio(`${basePath}/game/Music/BackgroundMusic.mp3`);
+      bgmAudio = new Audio(BGM_SRC);
       bgmAudio.loop = true;
       bgmAudio.preload = "auto";
       bgmAudio.load();
@@ -203,11 +209,12 @@ export function initAudio(): AudioSettings {
       });
     }
 
-    // Arm unlock listener immediately so any user gesture unlocks playback
-    setupUnlockListener();
-    applyBgmState();
     initialized = true;
   }
+
+  // Always re-arm unlock listener and refresh BGM state on each initAudio call
+  setupUnlockListener();
+  applyBgmState();
 
   return currentSettings;
 }

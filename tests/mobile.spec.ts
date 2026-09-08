@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("touch outfit selection, full character and photoshoot on a phone", async ({ page }, testInfo) => {
+  test.setTimeout(60_000);
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await page.goto("/play");
@@ -21,6 +22,10 @@ test("touch outfit selection, full character and photoshoot on a phone", async (
   await page.screenshot({ path: `artifacts/mobile/${testInfo.project.name}-play.png`, scale: "css" });
   await page.getByRole("button", { name: "SHOW YOUR LOOK" }).tap();
   await expect(page.getByTestId("showcase-save-btn")).toBeVisible();
+  const showcaseStage = (await page.getByTestId("studio-stage").boundingBox())!;
+  expect(showcaseStage.y).toBeGreaterThanOrEqual(0);
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: `artifacts/mobile/${testInfo.project.name}-showcase.png`, scale: "css" });
   await page.getByTestId("showcase-save-btn").tap();
   await expect(page).toHaveURL(/\/photoshoot/);
   await expect(page.getByTestId("photoshoot-look")).toBeVisible();

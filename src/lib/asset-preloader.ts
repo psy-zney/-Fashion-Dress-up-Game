@@ -10,6 +10,7 @@ export const CORE_PRELOAD_IMAGES: string[] = [
   `${basePath}/game/ui/shadow.svg`,
   `${basePath}/game/photoshoot/background.png`,
   `${basePath}/game/photoshoot/camera.svg`,
+  `${basePath}/game/effects/color-bubble-burst.gif`,
 
   // Base doll models
   `${basePath}/game/studio/layers/model.png`,
@@ -54,16 +55,16 @@ export const CORE_PRELOAD_IMAGES: string[] = [
 ];
 
 export const CORE_PRELOAD_AUDIO: string[] = [
-  `${basePath}/game/Music/BackgroundMusic.mp3`,
+  `${basePath}/game/Music/BackgroundMusic.mp3?v=20260908`,
   `${basePath}/game/effects/click_btn.mp3`,
   `${basePath}/game/effects/particles_sparkle_small.mp3`,
-  `${basePath}/game/effects/particles_sparkle_small 2.mp3`,
+  `${basePath}/game/effects/particles_sparkle_small 2.mp3?v=20260908-boing`,
   `${basePath}/game/effects/buble.mp3`,
 ];
 
 let isGlobalPreloaded = false;
 let activePreload: Promise<void> | null = null;
-const PRELOAD_STORAGE_KEY = "tung_tung_preloaded_v3";
+const PRELOAD_STORAGE_KEY = "tung_tung_preloaded_v4";
 
 export function isAssetsPreloaded(): boolean {
   if (isGlobalPreloaded) return true;

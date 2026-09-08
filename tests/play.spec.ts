@@ -280,6 +280,12 @@ test("kéo thả món đồ vào khung nhân vật để mặc đồ kèm hiệu
 
   await expect(page.locator('[data-garment="top-modal-grommet"]')).toBeVisible();
   await expect(page.getByTestId("studio-stage")).toHaveAttribute("data-layer-count", "1");
+  const bubbleBurst = page.getByTestId("color-bubble-burst");
+  await expect(bubbleBurst).toBeVisible();
+  await expect(bubbleBurst).toHaveClass(/color-bubble-burst-tops/);
+  await expect(bubbleBurst.locator("img")).toHaveAttribute("src", "/game/effects/color-bubble-burst.gif");
+  await expect(bubbleBurst.locator(".color-bubble-burst-particle")).toHaveCount(18);
+  await expect(bubbleBurst.locator(".color-bubble-burst-particle").first()).toHaveCSS("animation-name", "colorBubbleParticleBurst");
 
   // Hover on bottoms wheel sector to switch category
   await page.getByTestId("category-launcher").hover();
@@ -291,6 +297,8 @@ test("kéo thả món đồ vào khung nhân vật để mặc đồ kèm hiệu
   await page.getByTestId("garment-bottom-denim-sculpted-skirt").dragTo(stage);
   await expect(page.locator('[data-garment="bottom-denim-sculpted-skirt"]')).toBeVisible();
   await expect(page.getByTestId("studio-stage")).toHaveAttribute("data-layer-count", "2");
+  await expect(bubbleBurst).toHaveClass(/color-bubble-burst-bottoms/);
+  await expect(bubbleBurst).toHaveCount(0, { timeout: 1500 });
 });
 
 test("PLAY dùng được ở mobile và không tràn ngang", async ({ page }) => {
@@ -375,4 +383,3 @@ test("Show Your Look activates in-studio showcase with fireworks, centered model
   await expect(page).toHaveURL(/\/photoshoot/);
   await expect(page.getByTestId("photoshoot-look")).toBeVisible();
 });
-

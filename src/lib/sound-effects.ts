@@ -23,7 +23,7 @@ type AudioEngine = {
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 const CLICK_SOUND_URL = `${basePath}/game/effects/click_btn.mp3`;
-const DRESS_SOUND_URL = `${basePath}/game/effects/particles_sparkle_small 2.mp3`;
+const DRESS_SOUND_URL = `${basePath}/game/effects/particles_sparkle_small 2.mp3?v=20260908-boing`;
 const BUBBLE_SOUND_URL = `${basePath}/game/effects/buble.mp3`;
 
 let engine: AudioEngine | null = null;
