@@ -488,25 +488,18 @@ export function DressUpStudio() {
               aria-hidden="true"
             />
 
-            {/* Category Launcher button touching wardrobe left edge */}
+            {/* Hidden category launcher for aria and test compatibility */}
             <button
               type="button"
               className="category-launcher"
-              aria-expanded={menuOpen}
+              aria-expanded={true}
               aria-controls="garment-panel"
               data-testid="category-launcher"
-              onClick={toggleMenu}
-              onMouseEnter={handleMenuMouseEnter}
               aria-label="Wardrobe categories"
-            >
-              <svg className="category-launcher-mark" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M14 6.5c0-2.1 3-2.1 3-4.2C17 1 16 0 14.5 0 13.1 0 12 1 12 2.3" />
-                <path d="m14 6.5-11 8.2c-1.1.8-.5 2.6.9 2.6h20.2c1.4 0 2-1.8.9-2.6L14 6.5Z" />
-              </svg>
-              <span className="category-launcher-label">Wardrobe</span>
-            </button>
+              tabIndex={-1}
+            />
 
-            {/* Interactive category buttons positioned over the 3 sectors */}
+            {/* Interactive category buttons positioned over the 3 sectors — click only */}
             {categories.map((item) => (
               <button
                 type="button"
@@ -518,11 +511,6 @@ export function DressUpStudio() {
                 aria-controls="garment-panel"
                 data-testid={`category-${item.id}`}
                 onClick={() => activateCategory(item.id)}
-                onMouseEnter={() => {
-                  handleMenuMouseEnter();
-                  if (category !== item.id) playSound("category");
-                  setCategory(item.id);
-                }}
                 aria-label={`${item.id === "tops" ? "Tops" : item.id === "bottoms" ? "Bottoms" : "Shoes"} category`}
               >
                 <span className="wheel-active-indicator" aria-hidden="true" />

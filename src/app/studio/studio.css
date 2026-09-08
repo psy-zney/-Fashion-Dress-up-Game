@@ -878,45 +878,13 @@
   position: absolute;
   right: 0;
   top: 50%;
-  width: 4.2cqw;
-  height: 8.5cqw;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.15cqw;
+  width: 0;
+  height: 0;
   padding: 0;
   border: none;
   background: transparent;
-  color: #581838;
-  cursor: pointer;
-  z-index: 10;
-  outline: none;
-  pointer-events: auto;
-  transition: transform 0.18s ease;
-}
-
-.wardrobe-wheel .category-launcher:hover {
-  transform: translateY(-50%) scale(1.08);
-}
-
-.wardrobe-wheel .category-launcher-mark {
-  width: 1.35cqw;
-  height: 1.1cqw;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.wardrobe-wheel .category-launcher-label {
-  font-size: 0.58cqw;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #581838;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .wheel-sector-btn {
@@ -928,31 +896,31 @@
   padding: 0;
   outline: none;
   border-radius: 50%;
-  transition: transform 0.18s ease;
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .wheel-sector-btn:hover {
-  transform: scale(1.12);
+  transform: scale(1.08);
 }
 
 .wheel-sector-btn.sector-tops {
-  left: 26%;
+  left: 20%;
   top: 4%;
-  width: 70%;
+  width: 76%;
   height: 28%;
 }
 
 .wheel-sector-btn.sector-bottoms {
   left: 2%;
   top: 34%;
-  width: 54%;
+  width: 72%;
   height: 32%;
 }
 
 .wheel-sector-btn.sector-shoes {
-  left: 26%;
+  left: 20%;
   top: 68%;
-  width: 70%;
+  width: 76%;
   height: 28%;
 }
 

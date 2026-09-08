@@ -182,7 +182,6 @@ test("PLAY tải model thẳng và duyệt đúng capsule (2 áo, 2 quần/váy,
   await expect(page.getByTestId("garment-top-modal-grommet")).toBeInViewport();
   await expect(page.getByTestId("garment-shoes-brown-boots")).toHaveCount(0);
   await page.mouse.move(8, 900);
-  await expect(page.getByTestId("category-launcher")).toHaveAttribute("aria-expanded", "false");
   await page.screenshot({ path: "artifacts/studio/qa/play-desktop.png", fullPage: true });
   expect(health.consoleErrors).toEqual([]);
   expect(health.pageErrors).toEqual([]);
@@ -225,25 +224,31 @@ test("chọn nhóm độc lập áo, quần, giày phối hợp tự nhiên", as
   await expect(page.locator('[data-garment="top-modal-grommet"]')).toBeVisible();
 });
 
-test("nút tủ đồ mở bánh xe, sau đó đổi danh mục bằng hover và click", async ({ page }) => {
+test("bánh xe danh mục đổi loại đồ bằng click trực tiếp thay vì hover", async ({ page }) => {
   await page.goto("/play");
   await expectLoadedStage(page);
 
-  await expect(page.getByTestId("category-launcher")).toHaveAttribute("aria-expanded", "false");
-  await expect(page.getByTestId("category-launcher")).toContainText("Wardrobe");
-  const launcherBox = (await page.getByTestId("category-launcher").boundingBox())!;
-  const panelBox = (await page.locator(".wardrobe").boundingBox())!;
-  expect(Math.abs(launcherBox.x + launcherBox.width - panelBox.x)).toBeLessThan(2);
-  await page.getByTestId("category-launcher").hover();
-  await expect(page.getByTestId("category-launcher")).toHaveAttribute("aria-expanded", "true");
+  // Initial category is tops
+  await expect(page.getByTestId("category-tops")).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByTestId("garment-top-modal-grommet")).toBeVisible();
 
-  // Hover on bottoms sector switches category after the wheel opens
+  // Hover on bottoms sector does NOT switch category (click required)
   await page.getByTestId("category-bottoms").hover();
+  await expect(page.getByTestId("category-tops")).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByTestId("category-bottoms")).toHaveAttribute("aria-selected", "false");
+
+  // Click on bottoms sector switches category
+  await page.getByTestId("category-bottoms").click();
   await expect(page.getByTestId("category-bottoms")).toHaveAttribute("aria-selected", "true");
   await expect(page.getByTestId("garment-bottom-denim-sculpted-skirt")).toBeVisible();
 
-  // Hover on shoes sector switches category
+  // Hover on shoes sector does NOT switch category
   await page.getByTestId("category-shoes").hover();
+  await expect(page.getByTestId("category-bottoms")).toHaveAttribute("aria-selected", "true");
+  await expect(page.getByTestId("category-shoes")).toHaveAttribute("aria-selected", "false");
+
+  // Click on shoes sector switches category
+  await page.getByTestId("category-shoes").click();
   await expect(page.getByTestId("category-shoes")).toHaveAttribute("aria-selected", "true");
   await expect(page.getByTestId("garment-shoes-mary-janes")).toBeVisible();
 
@@ -289,9 +294,8 @@ test("kéo thả món đồ vào khung nhân vật để mặc đồ kèm hiệu
   await expect(bubbleBurst.locator(".color-bubble-burst-particle")).toHaveCount(18);
   await expect(bubbleBurst.locator(".color-bubble-burst-particle").first()).toHaveCSS("animation-name", "colorBubbleParticleBurst");
 
-  // Hover on bottoms wheel sector to switch category
-  await page.getByTestId("category-launcher").hover();
-  await page.getByTestId("category-bottoms").hover();
+  // Click on bottoms wheel sector to switch category
+  await page.getByTestId("category-bottoms").click();
   await expect(page.getByTestId("category-bottoms")).toHaveAttribute("aria-selected", "true");
   await expect(page.getByTestId("garment-bottom-denim-sculpted-skirt")).toBeVisible();
 
