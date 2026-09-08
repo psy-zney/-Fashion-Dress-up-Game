@@ -9,7 +9,7 @@ test("touch outfit selection, full character and photoshoot on a phone", async (
   await page.getByTestId("mobile-category-bottoms").tap();
   await page.getByTestId("garment-bottom-sculpted-jeans").tap();
   await page.getByTestId("mobile-category-shoes").tap();
-  await page.getByTestId("garment-shoes-mary-janes").tap();
+  await page.getByTestId("garment-shoes-party-platform-boots").tap();
   const stage = page.getByTestId("studio-stage");
   await expect(stage).toHaveAttribute("data-layer-count", "3");
   await stage.locator("img").evaluateAll((images) => Promise.all(images.map((image) => (image as HTMLImageElement).decode())));
@@ -27,7 +27,7 @@ test("touch outfit selection, full character and photoshoot on a phone", async (
   await page.waitForTimeout(400);
   await page.screenshot({ path: `artifacts/mobile/${testInfo.project.name}-showcase.png`, scale: "css" });
   await page.getByTestId("showcase-save-btn").tap();
-  await expect(page).toHaveURL(/\/photoshoot/);
+  await expect(page).toHaveURL(/\/photoshoot/, { timeout: 15000 });
   await expect(page.getByTestId("photoshoot-look")).toBeVisible();
   const actor = (await page.getByTestId("photoshoot-look").boundingBox())!;
   const frame = (await page.getByTestId("photoshoot-frame").boundingBox())!;

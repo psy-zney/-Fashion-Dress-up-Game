@@ -3,16 +3,18 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { initialFit, readLook, rememberLook, type Fit } from "@/lib/studio-look";
-import { useEffect, useId, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import {
   STAGE,
   assetUrl,
+  modelAssetId,
+  garmentAssetId,
+  hasShowcasePose,
   categories,
   garments,
   allGarments,
   layerOrder,
   foregroundArmsOrder,
-  foregroundArmsPath,
   bootTuckBottomIds,
   previewAssetUrl,
   type Category,
@@ -67,7 +69,6 @@ function CategoryIcon({ category }: { category: Category }) {
 
 export function DressUpStudio() {
   const router = useRouter();
-  const armsClipId = useId();
   const [category, setCategory] = useState<Category>("tops");
   const [selected, setSelected] = useState<Selection>({});
   const [held, setHeld] = useState<Partial<Record<Category, boolean>>>({});
@@ -118,7 +119,8 @@ export function DressUpStudio() {
     setHeld(saved.held);
     setHydrated(true);
     initAudio();
-  }, []);
+    router.prefetch("/photoshoot");
+  }, [router]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -297,7 +299,8 @@ export function DressUpStudio() {
   }
 
   function layerStyle(id: string): CSSProperties {
-    const fit = fits[id] || initialFit;
+    // The pose includes the head and arms, so it stays anchored to the body.
+    const fit = hasShowcasePose(selected, isShowcaseMode) && id === selected.tops ? initialFit : fits[id] || initialFit;
     return {
       transform: `translate(${fit.x / STAGE.width * 100}%, ${fit.y / STAGE.height * 100}%) rotate(${fit.angle}deg) scale(${fit.scaleX}, ${fit.scaleY})`,
     };
@@ -399,9 +402,9 @@ export function DressUpStudio() {
           >
             {/* Nude base model */}
             <img
-              src={assetUrl(selected.shoes === "shoes-party-platform-boots" || selected.shoes === "shoes-brown-boots" ? "model-boots" : "model")}
+              src={assetUrl(modelAssetId(selected, isShowcaseMode))}
               className="studio-layer"
-              alt="2D paper doll model standing upright with arms relaxed"
+              alt={hasShowcasePose(selected, isShowcaseMode) ? "Paper doll showing your look" : "2D paper doll model standing upright with arms relaxed"}
               draggable={false}
               fetchPriority="high"
             />
@@ -410,7 +413,7 @@ export function DressUpStudio() {
             {layers.map((item) => (
               <img
                 key={item.id}
-                src={assetUrl(item.id)}
+                src={assetUrl(garmentAssetId(item.id, selected, isShowcaseMode))}
                 className={`studio-layer ${dressEffect?.id === item.id ? "animate-snap" : ""} ${bootTuckBottomIds.has(item.id) && selected.shoes === "shoes-brown-boots" ? "is-shortened-for-boots" : ""}`}
                 style={{ ...layerStyle(item.id), zIndex: garmentLayer(item) }}
                 alt={item.name}
@@ -420,10 +423,17 @@ export function DressUpStudio() {
               />
             ))}
 
-            <svg className="studio-layer studio-foreground-arms" viewBox={`0 0 ${STAGE.width} ${STAGE.height}`} style={{ zIndex: foregroundArmsOrder }} aria-hidden="true" data-testid="foreground-arms">
-              <defs><clipPath id={armsClipId}><path d={foregroundArmsPath} /></clipPath></defs>
-              <image href={assetUrl("model")} width={STAGE.width} height={STAGE.height} clipPath={`url(#${armsClipId})`} />
-            </svg>
+            {!hasShowcasePose(selected, isShowcaseMode) && (
+              <img
+                src={assetUrl("model-arms")}
+                className="studio-layer studio-foreground-arms"
+                style={{ zIndex: foregroundArmsOrder }}
+                alt=""
+                aria-hidden="true"
+                draggable={false}
+                data-testid="foreground-arms"
+              />
+            )}
 
             {/* One-shot colorful bubble burst on dress-up */}
             <ColorBubbleBurst
@@ -611,7 +621,7 @@ export function DressUpStudio() {
                 />
                 <div className="studio-stage" style={{ transform: "scale(0.92)", position: "relative", zIndex: 2 }}>
                   <img
-                    src={assetUrl(selected.shoes === "shoes-party-platform-boots" || selected.shoes === "shoes-brown-boots" ? "model-boots" : "model")}
+                    src={assetUrl(modelAssetId(selected, isShowcaseMode))}
                     className="studio-layer"
                     alt=""
                     draggable={false}
@@ -619,17 +629,23 @@ export function DressUpStudio() {
                   {layers.map((item) => (
                     <img
                       key={item.id}
-                      src={assetUrl(item.id)}
+                      src={assetUrl(garmentAssetId(item.id, selected, isShowcaseMode))}
                       className="studio-layer"
                       style={{ ...layerStyle(item.id), zIndex: garmentLayer(item) }}
                       alt=""
                       draggable={false}
                     />
                   ))}
-                  <svg className="studio-layer studio-foreground-arms" viewBox={`0 0 ${STAGE.width} ${STAGE.height}`} style={{ zIndex: foregroundArmsOrder }} aria-hidden="true">
-                    <defs><clipPath id={`${armsClipId}-snap`}><path d={foregroundArmsPath} /></clipPath></defs>
-                    <image href={assetUrl("model")} width={STAGE.width} height={STAGE.height} clipPath={`url(#${armsClipId}-snap)`} />
-                  </svg>
+                  {!hasShowcasePose(selected, isShowcaseMode) && (
+                    <img
+                      src={assetUrl("model-arms")}
+                      className="studio-layer studio-foreground-arms"
+                      style={{ zIndex: foregroundArmsOrder }}
+                      alt=""
+                      aria-hidden="true"
+                      draggable={false}
+                    />
+                  )}
                 </div>
               </div>
               <div className="capture-polaroid-caption">

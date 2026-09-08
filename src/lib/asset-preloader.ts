@@ -1,5 +1,7 @@
 "use client";
 
+import { allGarments, assetUrl, previewAssetUrl } from './studio';
+
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 export const CORE_PRELOAD_IMAGES: string[] = [
@@ -17,25 +19,9 @@ export const CORE_PRELOAD_IMAGES: string[] = [
   `${basePath}/game/photoshoot/camera.svg`,
   `${basePath}/game/effects/color-bubble-burst.gif`,
 
-  // Base doll models
-  `${basePath}/game/studio/layers/model.png`,
-  `${basePath}/game/studio/layers/model-boots.png`,
-
-  // Active product preview stickers
-  `${basePath}/game/studio/products/top-fitted-denim.png`,
-  `${basePath}/game/studio/products/top-modal-grommet.png`,
-  `${basePath}/game/studio/products/bottom-sculpted-jeans.png`,
-  `${basePath}/game/studio/products/bottom-denim-sculpted-skirt.png`,
-  `${basePath}/game/studio/products/shoes-mary-janes.png`,
-  `${basePath}/game/studio/products/shoes-party-platform-boots.png`,
-
-  // Active runtime layers
-  `${basePath}/game/studio/layers/top-fitted-denim.png`,
-  `${basePath}/game/studio/layers/top-modal-grommet.png`,
-  `${basePath}/game/studio/layers/bottom-sculpted-jeans.png`,
-  `${basePath}/game/studio/layers/bottom-denim-sculpted-skirt.png`,
-  `${basePath}/game/studio/layers/shoes-mary-janes.png`,
-  `${basePath}/game/studio/layers/shoes-party-platform-boots.png`,
+  ...['model', 'model-boots', 'model-arms', 'model-lower', 'model-lower-boots', 'top-fitted-denim-pose', 'top-modal-grommet-pose'].map(assetUrl),
+  ...allGarments.map(({ id }) => previewAssetUrl(id)),
+  ...allGarments.map(({ id }) => assetUrl(id)),
 ];
 
 export const CORE_PRELOAD_AUDIO: string[] = [
@@ -48,7 +34,7 @@ export const CORE_PRELOAD_AUDIO: string[] = [
 
 let isGlobalPreloaded = false;
 let activePreload: Promise<void> | null = null;
-const PRELOAD_STORAGE_KEY = "tung_tung_preloaded_v4";
+const PRELOAD_STORAGE_KEY = "tung_tung_preloaded_production_v2_detail_fix";
 
 export function isAssetsPreloaded(): boolean {
   if (isGlobalPreloaded) return true;
@@ -77,38 +63,28 @@ export function markAssetsPreloaded() {
 }
 
 function preloadSingleImage(url: string): Promise<void> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => {
       if (typeof img.decode === "function") {
-        img.decode().then(resolve).catch(() => reject(new Error(`Unable to decode ${url}`)));
+        img.decode().then(resolve).catch(resolve);
       } else {
         resolve();
       }
     };
-    img.onerror = () => reject(new Error(`Unable to load ${url}`));
+    img.onerror = () => resolve();
     img.src = url;
     if (img.complete && img.naturalWidth > 0) resolve();
   });
 }
 
 async function preloadSingleAudio(url: string): Promise<void> {
-  const response = await fetch(url, { cache: "force-cache" });
-  if (!response.ok) throw new Error(`Unable to load ${url} (${response.status})`);
-  await response.arrayBuffer();
-}
-
-async function withRetry(load: () => Promise<void>, retries = 2): Promise<void> {
-  let lastError: unknown;
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      await load();
-      return;
-    } catch (error) {
-      lastError = error;
-    }
+  try {
+    const response = await fetch(url, { cache: "force-cache" });
+    if (response.ok) await response.arrayBuffer();
+  } catch {
+    // Non-blocking
   }
-  throw lastError;
 }
 
 export async function preloadAllAssets(
@@ -135,7 +111,6 @@ export async function preloadAllAssets(
 }
 
 async function preloadAssets(onProgress?: (progress: number) => void): Promise<void> {
-
   const allItems = [
     ...CORE_PRELOAD_IMAGES.map((url) => ({ type: "image" as const, url })),
     ...CORE_PRELOAD_AUDIO.map((url) => ({ type: "audio" as const, url })),
@@ -144,23 +119,20 @@ async function preloadAssets(onProgress?: (progress: number) => void): Promise<v
   let completed = 0;
   const total = allItems.length;
 
-  // Process in batches of 6 for fast parallel downloading without socket saturation
-  const batchSize = 6;
-  for (let i = 0; i < total; i += batchSize) {
-    const batch = allItems.slice(i, i + batchSize);
-    await Promise.all(
-      batch.map(async (item) => {
-        try {
-          await withRetry(() => item.type === "image"
-            ? preloadSingleImage(item.url)
-            : preloadSingleAudio(item.url));
-        } finally {
-          completed++;
-          onProgress?.(Math.min(100, Math.round((completed / total) * 100)));
+  await Promise.all(
+    allItems.map(async (item) => {
+      try {
+        if (item.type === "image") {
+          await preloadSingleImage(item.url);
+        } else {
+          await preloadSingleAudio(item.url);
         }
-      })
-    );
-  }
+      } finally {
+        completed++;
+        onProgress?.(Math.min(100, Math.round((completed / total) * 100)));
+      }
+    })
+  );
 
   markAssetsPreloaded();
   onProgress?.(100);

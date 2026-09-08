@@ -1,12 +1,7 @@
 {
-  "version": "studio-2.0",
-  "catalogGarments": 6,
+  "version": "production-v2-20260909-detail-fix",
+  "catalogGarments": 4,
   "items": [
-    {
-      "id": "shoes-mary-janes",
-      "category": "shoes",
-      "name": "Giày Mary Jane đen"
-    },
     {
       "id": "shoes-party-platform-boots",
       "category": "shoes",
@@ -26,12 +21,11 @@
       "id": "bottom-sculpted-jeans",
       "category": "bottoms",
       "name": "Quần jeans balloon ráp mảnh"
-    },
-    {
-      "id": "bottom-denim-sculpted-skirt",
-      "category": "bottoms",
-      "name": "Váy denim dài ráp cong"
     }
   ],
-  "updatedAt": "2026-09-08T07:58:03.037Z"
+  "poses": [
+    "top-fitted-denim-pose",
+    "top-modal-grommet-pose"
+  ],
+  "updatedAt": "2026-09-08T18:22:33.473Z"
 }

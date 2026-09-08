@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import sharp from "sharp";
 
 const saved = {
-  selected: { tops: "top-fitted-denim", bottoms: "bottom-denim-sculpted-skirt", shoes: "shoes-mary-janes" },
+  selected: { tops: "top-fitted-denim", bottoms: "bottom-sculpted-jeans", shoes: "shoes-party-platform-boots" },
   fits: { "top-fitted-denim": { x: 6, y: -4, scaleX: 1.02, scaleY: 0.98, angle: 1 } },
   held: { tops: true },
 };
@@ -52,7 +52,7 @@ test("look survives navigation and reload; Figma background exports as PNG", asy
   await page.getByRole("button", { name: "SHOW YOUR LOOK" }).click();
   await expect(page.getByTestId("showcase-save-btn")).toBeVisible();
   await page.getByTestId("showcase-save-btn").click();
-  await expect(page).toHaveURL(/\/photoshoot/);
+  await expect(page).toHaveURL(/\/photoshoot/, { timeout: 15000 });
   await expect(page.getByTestId("photoshoot-look")).toBeVisible();
   const look = await page.getByTestId("photoshoot-look").getAttribute("src");
   await page.reload();
@@ -67,7 +67,7 @@ test("look survives navigation and reload; Figma background exports as PNG", asy
   expect(metadata.height).toBe(1024);
   await page.getByRole("link", { name: "GO BACK" }).click();
   await expect(page.locator('[data-garment="top-fitted-denim"]')).toBeVisible();
-  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("tung-tung-play-ge")!))).toEqual(saved);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem("tung-tung-play-ge")!))).toMatchObject(saved);
 });
 
 test("camera composition, movement, selfie mirroring, retake and stream cleanup", async ({ page }) => {

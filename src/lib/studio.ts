@@ -1,6 +1,5 @@
-import geometry from "./studio-geometry.json";
-
 export const STAGE = { width: 1024, height: 1536 } as const;
+export const STUDIO_ASSET_VERSION = "production-v2-20260909-detail-fix";
 
 export const categories = [
   { id: "tops", label: "Tops" },
@@ -19,16 +18,10 @@ export type Garment = {
 };
 
 export const garments: Garment[] = [
-  // Current reviewed capsule: keep the wardrobe focused on the four remade
-  // garments while their close-up mobile alpha edges are being approved.
-  { id: "top-fitted-denim", name: "Fitted Denim Top", category: "tops", source: "generated-top-fitted-denim-v4" },
-  { id: "top-modal-grommet", name: "Modal Grommet Top", category: "tops", source: "generated-top-modal-grommet-v4" },
-  { id: "bottom-sculpted-jeans", name: "Sculpted Balloon Jeans", category: "bottoms", source: "generated-bottom-sculpted-jeans-v2" },
-  { id: "bottom-denim-sculpted-skirt", name: "Sculpted Denim Maxi Skirt", category: "bottoms", source: "generated-bottom-denim-sculpted-skirt-v6" },
-
-  // Reviewed shoes
-  { id: "shoes-mary-janes", name: "Black Mary Janes", category: "shoes", source: "worn-shoes-mary-janes" },
-  { id: "shoes-party-platform-boots", name: "Party Platform Boots", category: "shoes", source: "generated-shoes-party-platform-boots-v1" },
+  { id: "top-fitted-denim", name: "Fitted Denim Top", category: "tops", source: "production-v2-white" },
+  { id: "top-modal-grommet", name: "Modal Grommet Top", category: "tops", source: "production-v2-red-stitching" },
+  { id: "bottom-sculpted-jeans", name: "Sculpted Balloon Jeans", category: "bottoms", source: "production-v2-white" },
+  { id: "shoes-party-platform-boots", name: "Party Platform Boots", category: "shoes", source: "production-v2-white" },
 ];
 
 // Active catalog garments
@@ -40,27 +33,23 @@ export const layerOrder: Record<Category, number> = {
   tops: 40,
 };
 
-// The reviewed four-item capsule is extracted from worn sources, so its bottom
-// layers already contain exact hand-shaped openings. No broad foreground-arm
-// clip is needed; a broad clip would reveal the neutral base garment at hips.
+// Neutral hands sit above the restored jeans fabric, below the top.
+// Showcase poses provide their own arms and omit this neutral overlay.
 export const foregroundArmsOrder = 38;
-export const foregroundArmsPath = geometry.foregroundArmsPath;
 
 export const bootTuckBottomIds = new Set<string>([
   "bottom-blue-jeans",
-  "bottom-sculpted-jeans",
   "bottom-navy-dots",
   "bottom-gray-maxi",
-  "bottom-denim-sculpted-skirt",
 ]);
 
 export const presets: { name: string; selection: Selection }[] = [
-  { name: "Denim Sculpture", selection: { tops: "top-fitted-denim", bottoms: "bottom-denim-sculpted-skirt", shoes: "shoes-mary-janes" } },
-  { name: "Soft Contrast", selection: { tops: "top-modal-grommet", bottoms: "bottom-sculpted-jeans", shoes: "shoes-mary-janes" } },
+  { name: "Denim Sculpture", selection: { tops: "top-fitted-denim", bottoms: "bottom-sculpted-jeans", shoes: "shoes-party-platform-boots" } },
+  { name: "Soft Contrast", selection: { tops: "top-modal-grommet", bottoms: "bottom-sculpted-jeans", shoes: "shoes-party-platform-boots" } },
 ];
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-export const assetUrl = (id: string) => `${basePath}/game/studio/layers/${id}.png?v=2.3`;
+export const assetUrl = (id: string) => `${basePath}/game/studio/layers/${id}.png?v=${STUDIO_ASSET_VERSION}`;
 export const hasShowcasePose = (selected: Selection, showcase: boolean) => showcase &&
   (selected.tops === "top-fitted-denim" || selected.tops === "top-modal-grommet");
 export function modelAssetId(selected: Selection, showcase = false) {
@@ -71,4 +60,4 @@ export const garmentAssetId = (id: string, selected: Selection, showcase = false
   hasShowcasePose(selected, showcase) && id === selected.tops ? `${id}-pose` : id;
 // Reviewed product cutouts have real alpha; the card and pointer sticker share
 // this URL. Never substitute body-aligned sprite masks or opaque source renders.
-export const previewAssetUrl = (id: string) => `${basePath}/game/studio/products/${id}.png`;
+export const previewAssetUrl = (id: string) => `${basePath}/game/studio/products/${id}.png?v=${STUDIO_ASSET_VERSION}`;

@@ -1,20 +1,5 @@
 [
   {
-    "id": "shoes-mary-janes",
-    "category": "shoes",
-    "name": "Giày Mary Jane đen",
-    "width": 1024,
-    "height": 1536,
-    "hasAlpha": true,
-    "bounds": {
-      "left": 406,
-      "top": 1340,
-      "width": 198,
-      "height": 135,
-      "visiblePixels": 8754
-    }
-  },
-  {
     "id": "shoes-party-platform-boots",
     "category": "shoes",
     "name": "Boots platform sắc màu",
@@ -22,12 +7,13 @@
     "height": 1536,
     "hasAlpha": true,
     "bounds": {
-      "left": 395,
-      "top": 1210,
-      "width": 244,
-      "height": 291,
-      "visiblePixels": 42233
-    }
+      "left": 394,
+      "top": 1236,
+      "width": 246,
+      "height": 268,
+      "visiblePixels": 42240
+    },
+    "antialiasedPixels": 3336
   },
   {
     "id": "top-fitted-denim",
@@ -39,10 +25,11 @@
     "bounds": {
       "left": 402,
       "top": 250,
-      "width": 242,
-      "height": 395,
-      "visiblePixels": 73101
-    }
+      "width": 244,
+      "height": 387,
+      "visiblePixels": 71928
+    },
+    "antialiasedPixels": 2482
   },
   {
     "id": "top-modal-grommet",
@@ -52,12 +39,13 @@
     "height": 1536,
     "hasAlpha": true,
     "bounds": {
-      "left": 387,
-      "top": 275,
-      "width": 269,
-      "height": 411,
-      "visiblePixels": 78880
-    }
+      "left": 397,
+      "top": 274,
+      "width": 254,
+      "height": 383,
+      "visiblePixels": 67693
+    },
+    "antialiasedPixels": 3023
   },
   {
     "id": "bottom-sculpted-jeans",
@@ -67,26 +55,12 @@
     "height": 1536,
     "hasAlpha": true,
     "bounds": {
-      "left": 293,
-      "top": 549,
-      "width": 473,
-      "height": 907,
-      "visiblePixels": 304029
-    }
-  },
-  {
-    "id": "bottom-denim-sculpted-skirt",
-    "category": "bottoms",
-    "name": "Váy denim dài ráp cong",
-    "width": 1024,
-    "height": 1536,
-    "hasAlpha": true,
-    "bounds": {
-      "left": 315,
-      "top": 529,
-      "width": 437,
-      "height": 835,
-      "visiblePixels": 267977
-    }
+      "left": 283,
+      "top": 541,
+      "width": 503,
+      "height": 898,
+      "visiblePixels": 329238
+    },
+    "antialiasedPixels": 8148
   }
 ]

@@ -1,0 +1,100 @@
+import { expect, test } from '@playwright/test';
+import sharp from 'sharp';
+
+const layer = (id: string) => sharp(`public/game/studio/layers/${id}.png`).ensureAlpha().raw().toBuffer();
+const saved = (top: string, bottom = 'bottom-sculpted-jeans') => ({
+  selected: { tops: top, bottoms: bottom, shoes: 'shoes-party-platform-boots' }, fits: {}, held: {},
+});
+
+test('production assets have soft alpha, clean denim edges, and unchanged pose legs', async () => {
+  for (const id of ['model', 'top-fitted-denim', 'top-modal-grommet', 'bottom-sculpted-jeans', 'shoes-party-platform-boots', 'top-fitted-denim-pose', 'top-modal-grommet-pose']) {
+    const data = await layer(id);
+    expect(data.length).toBe(1024 * 1536 * 4);
+    let transparent = 0, soft = 0;
+    for (let p = 3; p < data.length; p += 4) { if (!data[p]) transparent++; else if (data[p] < 255) soft++; }
+    expect(transparent, id).toBeGreaterThan(800000);
+    expect(soft, id).toBeGreaterThan(500);
+  }
+  const base = await layer('model');
+  const lower = await layer('model-lower');
+  expect(lower.subarray(900 * 1024 * 4).equals(base.subarray(900 * 1024 * 4))).toBe(true);
+  const jeans = await layer('bottom-sculpted-jeans');
+  let fringe = 0;
+  for (let y = 920; y < 1180; y++) for (let x = 495; x < 570; x++) {
+    const p = (y * 1024 + x) * 4;
+    if (jeans[p + 3] > 10 && Math.min(jeans[p], jeans[p + 1], jeans[p + 2]) > 180) fringe++;
+  }
+  expect(fringe).toBe(0);
+  const yellow = await layer('top-modal-grommet');
+  let stitches = 0;
+  for (let p = 0; p < yellow.length; p += 4) if (yellow[p + 3] > 128 && yellow[p] > yellow[p + 1] * 1.3 && yellow[p] > yellow[p + 2] * 1.6) stitches++;
+  expect(stitches).toBeGreaterThan(200);
+  const denim = await layer('top-fitted-denim');
+  for (const y of [300, 350, 400, 500, 600]) {
+    expect(denim[(y * 1024 + 520) * 4 + 3], `center zipper at y=${y}`).toBeGreaterThan(240);
+  }
+  for (const [x, y] of [[465, 543], [608, 470], [440, 622]]) {
+    expect(yellow[(y * 1024 + x) * 4 + 3], `transparent grommet hole at ${x},${y}`).toBe(0);
+  }
+
+  const arms = await layer('model-arms');
+  let hipSkinOverlay = 0;
+  for (let y = 620; y < 720; y++) for (let x = 387; x <= 655; x++) {
+    if (arms[(y * 1024 + x) * 4 + 3] > 10) hipSkinOverlay++;
+  }
+  expect(hipSkinOverlay, 'foreground arms must not paint skin over the pants at the hips').toBe(0);
+});
+
+for (const top of ['top-fitted-denim', 'top-modal-grommet']) {
+  test(`${top} poses only in showcase and exports that pose`, async ({ page }) => {
+    const failures: string[] = [];
+    page.on('pageerror', error => failures.push(error.message));
+    page.on('response', response => { if (response.status() >= 400) failures.push(response.url()); });
+    await page.addInitScript(look => localStorage.setItem('tung-tung-play-ge', JSON.stringify(look)), saved(top));
+    await page.goto('/play');
+    await expect(page.getByTestId('heart-loader')).toHaveCount(0, { timeout: 20000 });
+    const stage = page.getByTestId('studio-stage');
+    const garment = stage.locator(`[data-garment="${top}"]`);
+    await expect(garment).toHaveAttribute('src', new RegExp(`${top}\\.png`));
+    const pants = await stage.locator('[data-garment="bottom-sculpted-jeans"]').getAttribute('src');
+    if (top === 'top-fitted-denim') {
+      await stage.locator('img').evaluateAll(async images => { await Promise.all(images.map(image => (image as HTMLImageElement).decode())); });
+      await page.screenshot({ path: 'artifacts/studio/qa/production-v2/neutral-hip-mask-browser.png' });
+    }
+    await page.getByRole('button', { name: 'SHOW YOUR LOOK' }).click();
+    await expect(garment).toHaveAttribute('src', new RegExp(`${top}-pose\\.png`));
+    await expect(stage.locator('img').first()).toHaveAttribute('src', /model-lower-boots/);
+    await expect(stage.locator('[data-garment="bottom-sculpted-jeans"]')).toHaveAttribute('src', pants!);
+    await expect(page.getByTestId('foreground-arms')).toHaveCount(0);
+    await stage.locator('img').evaluateAll(async images => { await Promise.all(images.map(image => (image as HTMLImageElement).decode())); });
+    await page.screenshot({ path: `artifacts/studio/qa/production-v2/${top}-browser.png` });
+    await page.getByTestId('showcase-edit-btn').click();
+    await expect(garment).toHaveAttribute('src', new RegExp(`${top}\\.png`));
+    await expect(page.getByTestId('foreground-arms')).toBeVisible();
+    await page.getByRole('button', { name: 'SHOW YOUR LOOK' }).click();
+    await page.getByTestId('showcase-save-btn').click();
+    await expect(page).toHaveURL(/\/photoshoot/);
+    await expect(page.getByTestId('photoshoot-look')).toBeVisible();
+    const url = await page.getByTestId('photoshoot-look').getAttribute('src');
+    const exported = await sharp(Buffer.from(url!.split(',')[1], 'base64')).ensureAlpha().raw().toBuffer();
+    // Raised elbow exists outside the neutral silhouette in the exported PNG.
+    expect(exported[((top === 'top-fitted-denim' ? 240 : 275) * 1024 + 200) * 4 + 3]).toBeGreaterThan(200);
+    expect(failures).toEqual([]);
+  });
+}
+
+test('withheld skirt and removed Mary Janes are absent from the wardrobe', async ({ page }) => {
+  await page.addInitScript(look => localStorage.setItem('tung-tung-play-ge', JSON.stringify(look)), saved('top-fitted-denim', 'bottom-denim-sculpted-skirt'));
+  await page.goto('/play');
+  await expect(page.getByTestId('heart-loader')).toHaveCount(0, { timeout: 20000 });
+  await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('tung-tung-play-ge') || '{}').selected?.bottoms || null)).toBeNull();
+  await expect(page.getByRole('button', { name: 'SHOW YOUR LOOK' })).toBeDisabled();
+  if (await page.getByTestId('category-launcher').getAttribute('aria-expanded') !== 'true') await page.getByTestId('category-launcher').click();
+  await page.getByTestId('category-bottoms').click();
+  await expect(page.getByTestId('garment-bottom-sculpted-jeans')).toBeVisible();
+  await expect(page.getByTestId('garment-bottom-denim-sculpted-skirt')).toHaveCount(0);
+  await expect(page.locator('[data-garment="bottom-denim-sculpted-skirt"]')).toHaveCount(0);
+  await page.getByTestId('category-shoes').click();
+  await expect(page.getByTestId('garment-shoes-party-platform-boots')).toBeVisible();
+  await expect(page.getByTestId('garment-shoes-mary-janes')).toHaveCount(0);
+});
