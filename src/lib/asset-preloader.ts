@@ -34,7 +34,7 @@ export const CORE_PRELOAD_AUDIO: string[] = [
 
 let isGlobalPreloaded = false;
 let activePreload: Promise<void> | null = null;
-const PRELOAD_STORAGE_KEY = "tung_tung_preloaded_production_v2_detail_fix";
+const PRELOAD_STORAGE_KEY = "tung_tung_preloaded_production_v2_v9_source_recut";
 
 export function isAssetsPreloaded(): boolean {
   if (isGlobalPreloaded) return true;

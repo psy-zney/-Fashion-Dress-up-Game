@@ -26,15 +26,22 @@ test('production assets have soft alpha, clean denim edges, and unchanged pose l
   }
   expect(fringe).toBe(0);
   const yellow = await layer('top-modal-grommet');
-  let stitches = 0;
-  for (let p = 0; p < yellow.length; p += 4) if (yellow[p + 3] > 128 && yellow[p] > yellow[p + 1] * 1.3 && yellow[p] > yellow[p + 2] * 1.6) stitches++;
-  expect(stitches).toBeGreaterThan(200);
+  const yellowSource = await sharp('assets/studio/manual-extraction/production-v2-white/item/02-Modal-Grommet-Top-White-Background.png')
+    .resize(1024, 1536, { fit: 'fill' }).removeAlpha().raw().toBuffer();
+  let opaque = 0, sourceExact = 0;
+  for (let p = 0; p < 1024 * 1536; p++) {
+    if (yellow[p * 4 + 3] !== 255) continue;
+    opaque++;
+    if (yellow[p * 4] === yellowSource[p * 3] && yellow[p * 4 + 1] === yellowSource[p * 3 + 1] && yellow[p * 4 + 2] === yellowSource[p * 3 + 2]) sourceExact++;
+  }
+  expect(sourceExact / opaque, 'opaque shirt pixels must remain faithful to the approved source').toBeGreaterThan(0.985);
   const denim = await layer('top-fitted-denim');
   for (const y of [300, 350, 400, 500, 600]) {
     expect(denim[(y * 1024 + 520) * 4 + 3], `center zipper at y=${y}`).toBeGreaterThan(240);
   }
-  for (const [x, y] of [[465, 543], [608, 470], [440, 622]]) {
+  for (const [x, y, radius] of [[465, 543, 14], [608, 470, 6], [440, 622, 6]]) {
     expect(yellow[(y * 1024 + x) * 4 + 3], `transparent grommet hole at ${x},${y}`).toBe(0);
+    expect(yellow[(y * 1024 + x + radius + 3) * 4 + 3], `metal rim retained at ${x},${y}`).toBeGreaterThan(240);
   }
 
   const arms = await layer('model-arms');

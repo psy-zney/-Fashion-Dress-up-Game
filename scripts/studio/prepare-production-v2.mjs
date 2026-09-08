@@ -171,7 +171,8 @@ const grommetHoles = [
 
 const neutralRgb = await read(source('00-Party-Model-Base'));
 const baseRgb = Buffer.from(neutralRgb);
-const yellowRgb = await read(`${root}/generated/top-modal-red-stitching.png`);
+// Use the approved source directly. Generated variants altered seams and edge pixels.
+const yellowRgb = await read(source('02-Modal-Grommet-Top'));
 for (let p = 0; p < N; p++) if (neckline[p]) {
   const a = neckline[p] / 255;
   for (let c = 0; c < 3; c++) baseRgb[p * 3 + c] = Math.round(baseRgb[p * 3 + c] * (1 - a) + yellowRgb[p * 3 + c] * a);
@@ -206,8 +207,19 @@ const yellowMask = rowSpanMask(
   yellowShape,
   1,
 );
-const yellowRepairedRgb = repairMaskedPixels(yellowRgb, yellowMask, (r, g, b) => isWhite(r, g, b) || (r > 170 && g > 100 && b > 75 && r - g > 25));
-const yellow = punchHoles(await cut(yellowRepairedRgb, () => true, { shape: yellowMask }), grommetHoles);
+const isYellowContaminant = (r, g, b) => isWhite(r, g, b) || (r > 170 && g > 100 && b > 75 && r - g > 25);
+const yellowRepairedRgb = repairMaskedPixels(yellowRgb, yellowMask, isYellowContaminant);
+const yellowCut = await cut(yellowRepairedRgb, () => true, { shape: yellowMask });
+// Preserve every safe opaque source pixel exactly; edge donors are used only for
+// anti-aliased pixels and source pixels identified as background or skin.
+for (let p = 0; p < N; p++) {
+  const sourcePixel = p * 3, outputPixel = p * 4;
+  if (yellowCut[outputPixel + 3] !== 255 || isYellowContaminant(yellowRgb[sourcePixel], yellowRgb[sourcePixel + 1], yellowRgb[sourcePixel + 2])) continue;
+  yellowCut[outputPixel] = yellowRgb[sourcePixel];
+  yellowCut[outputPixel + 1] = yellowRgb[sourcePixel + 1];
+  yellowCut[outputPixel + 2] = yellowRgb[sourcePixel + 2];
+}
+const yellow = punchHoles(yellowCut, grommetHoles);
 await save('top-modal-grommet', yellow, true);
 
 const jeansRgb = await read(`${root}/generated/jeans-uncovered.png`);
@@ -267,7 +279,7 @@ for (const top of ['top-fitted-denim', 'top-modal-grommet']) {
 console.log(`Production v2 layers and dark-background proofs written to ${out} and ${qa}`);
 const previous = JSON.parse(await fs.readFile(`${out}/ready.json`, 'utf8'));
 const items = previous.items.filter(({ id }) => id !== 'bottom-denim-sculpted-skirt' && id !== 'shoes-mary-janes');
-await fs.writeFile(`${out}/ready.json`, JSON.stringify({ version: 'production-v2-20260909-detail-fix', catalogGarments: items.length, items, poses: ['top-fitted-denim-pose', 'top-modal-grommet-pose'], updatedAt: new Date().toISOString() }, null, 2) + '\n');
+await fs.writeFile(`${out}/ready.json`, JSON.stringify({ version: 'production-v2-20260909-v9-source-recut', catalogGarments: items.length, items, poses: ['top-fitted-denim-pose', 'top-modal-grommet-pose'], updatedAt: new Date().toISOString() }, null, 2) + '\n');
 const report = [];
 for (const item of items) {
   const rgba = await sharp(`${out}/${item.id}.png`).ensureAlpha().raw().toBuffer();

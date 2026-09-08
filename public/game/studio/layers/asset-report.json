@@ -39,13 +39,13 @@
     "height": 1536,
     "hasAlpha": true,
     "bounds": {
-      "left": 397,
+      "left": 394,
       "top": 274,
-      "width": 254,
+      "width": 258,
       "height": 383,
-      "visiblePixels": 67693
+      "visiblePixels": 69732
     },
-    "antialiasedPixels": 3023
+    "antialiasedPixels": 2949
   },
   {
     "id": "bottom-sculpted-jeans",

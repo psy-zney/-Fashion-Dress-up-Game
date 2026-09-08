@@ -1,5 +1,5 @@
 export const STAGE = { width: 1024, height: 1536 } as const;
-export const STUDIO_ASSET_VERSION = "production-v2-20260909-v8";
+export const STUDIO_ASSET_VERSION = "production-v2-20260909-v9-source-recut";
 
 export const categories = [
   { id: "tops", label: "Tops" },
