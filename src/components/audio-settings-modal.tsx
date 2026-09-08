@@ -141,6 +141,8 @@ export function AudioSettingsModal({ open, onClose }: AudioSettingsModalProps) {
                 onChange={(e) => {
                   updateAudioSettings({ masterVolume: Number(e.target.value) });
                 }}
+                onPointerUp={() => playSound("tap")}
+                onKeyUp={() => playSound("tap")}
                 className="audio-range-slider master-slider"
                 aria-label="Master volume level"
                 data-testid="master-volume-slider"
@@ -253,6 +255,8 @@ export function AudioSettingsModal({ open, onClose }: AudioSettingsModalProps) {
                 onChange={(e) => {
                   updateAudioSettings({ sfxVolume: Number(e.target.value) });
                 }}
+                onPointerUp={() => playSound("tap")}
+                onKeyUp={() => playSound("tap")}
                 className="audio-range-slider"
                 aria-label="Sound effects volume"
                 data-testid="sfx-volume-slider"

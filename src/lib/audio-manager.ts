@@ -58,20 +58,76 @@ function saveSettings(settings: AudioSettings) {
   }
 }
 
+declare global {
+  interface Window {
+    __GAME_BGM_AUDIO__?: HTMLAudioElement;
+    __GAME_BGM_CTX__?: AudioContext;
+    __GAME_BGM_SOURCE__?: MediaElementAudioSourceNode;
+    __GAME_BGM_GAIN__?: GainNode;
+    __GAME_AUDIO_LISTENERS_INITIALIZED__?: boolean;
+  }
+}
+
+function computePerceptualVolume(fraction: number): number {
+  const clamped = Math.max(0, Math.min(1, fraction));
+  // Quadratic perceptual taper (Weber-Fechner law): gives realistic human loudness perception
+  return Math.pow(clamped, 2);
+}
+
+function getBgmGain(): { gain: GainNode | null; ctx: AudioContext | null } {
+  if (typeof window === "undefined" || !bgmAudio) return { gain: null, ctx: null };
+
+  if (window.__GAME_BGM_GAIN__ && window.__GAME_BGM_CTX__) {
+    return { gain: window.__GAME_BGM_GAIN__, ctx: window.__GAME_BGM_CTX__ };
+  }
+
+  try {
+    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return { gain: null, ctx: null };
+
+    const ctx = window.__GAME_BGM_CTX__ || new AudioContextClass({ latencyHint: "playback" });
+    window.__GAME_BGM_CTX__ = ctx;
+
+    const source = window.__GAME_BGM_SOURCE__ || ctx.createMediaElementSource(bgmAudio);
+    window.__GAME_BGM_SOURCE__ = source;
+
+    const gain = window.__GAME_BGM_GAIN__ || ctx.createGain();
+    window.__GAME_BGM_GAIN__ = gain;
+
+    source.connect(gain).connect(ctx.destination);
+    return { gain, ctx };
+  } catch {
+    return { gain: null, ctx: null };
+  }
+}
+
 function setupUnlockListener() {
   if (typeof window === "undefined") return;
 
   const unlock = () => {
+    const { gain, ctx } = getBgmGain();
+    if (ctx && ctx.state === "suspended") {
+      void ctx.resume();
+    }
     if (bgmAudio) {
       if (bgmAudio.error) {
         try { bgmAudio.load(); } catch { /* ignore */ }
       }
-      const effectiveVolume = (currentSettings.bgmVolume / 100) * (currentSettings.masterVolume / 100);
-      if (currentSettings.bgmEnabled && effectiveVolume > 0) {
+      const fraction = (currentSettings.bgmVolume / 100) * (currentSettings.masterVolume / 100);
+      if (currentSettings.bgmEnabled && fraction > 0) {
         bgmAudio.muted = false;
-        bgmAudio.volume = Math.max(0, Math.min(1, effectiveVolume));
+        const perceptualGain = computePerceptualVolume(fraction);
+        try { bgmAudio.volume = perceptualGain; } catch { /* ignore */ }
+        if (gain && ctx) {
+          gain.gain.setValueAtTime(perceptualGain, ctx.currentTime);
+        }
         if (bgmAudio.paused) {
-          bgmAudio.play().catch(() => {});
+          bgmAudio.play().then(() => {
+            const events = ["pointerdown", "touchstart", "mousedown", "keydown", "click"];
+            events.forEach((evt) => window.removeEventListener(evt, unlock, true));
+            unlockListenerAdded = false;
+          }).catch(() => {});
+          return;
         }
       }
     }
@@ -83,7 +139,7 @@ function setupUnlockListener() {
   if (!unlockListenerAdded) {
     unlockListenerAdded = true;
     const events = ["pointerdown", "touchstart", "mousedown", "keydown", "click"];
-    events.forEach((evt) => window.addEventListener(evt, unlock, { once: true, capture: true }));
+    events.forEach((evt) => window.addEventListener(evt, unlock, { capture: true }));
   }
 }
 
@@ -94,23 +150,35 @@ export async function playBgmSafely(): Promise<boolean> {
     try { bgmAudio.load(); } catch { /* ignore */ }
   }
 
-  const effectiveVolume = (currentSettings.bgmVolume / 100) * (currentSettings.masterVolume / 100);
-  if (!currentSettings.bgmEnabled || effectiveVolume <= 0) {
+  const fraction = (currentSettings.bgmVolume / 100) * (currentSettings.masterVolume / 100);
+  if (!currentSettings.bgmEnabled || fraction <= 0) {
     bgmAudio.pause();
     return false;
   }
 
-  const targetVol = Math.max(0, Math.min(1, effectiveVolume));
+  const perceptualGain = computePerceptualVolume(fraction);
 
-  // If already playing unmuted, ensure correct volume
+  // Set HTMLAudioElement volume (works on Desktop browsers)
+  try {
+    bgmAudio.volume = perceptualGain;
+  } catch { /* ignore */ }
+
+  // Set Web Audio GainNode (works on iOS Safari, Android, and Desktop)
+  const { gain, ctx } = getBgmGain();
+  if (gain && ctx) {
+    if (ctx.state === "suspended") {
+      void ctx.resume();
+    }
+    gain.gain.setValueAtTime(perceptualGain, ctx.currentTime);
+  }
+
+  // If already playing unmuted, volume was updated above
   if (!bgmAudio.paused && !bgmAudio.muted) {
-    bgmAudio.volume = targetVol;
     return true;
   }
 
   // Attempt 1: Direct unmuted play
   try {
-    bgmAudio.volume = targetVol;
     bgmAudio.muted = false;
     await bgmAudio.play();
     return true;
@@ -123,7 +191,6 @@ export async function playBgmSafely(): Promise<boolean> {
     bgmAudio.muted = true;
     await bgmAudio.play();
     bgmAudio.muted = false;
-    bgmAudio.volume = targetVol;
     if (!bgmAudio.paused) {
       return true;
     }
@@ -139,19 +206,31 @@ export async function playBgmSafely(): Promise<boolean> {
 export function applyBgmState() {
   if (!bgmAudio) return;
 
-  const effectiveVolume = (currentSettings.bgmVolume / 100) * (currentSettings.masterVolume / 100);
-  if (currentSettings.bgmEnabled && effectiveVolume > 0) {
-    void playBgmSafely();
-  } else {
+  const fraction = (currentSettings.bgmVolume / 100) * (currentSettings.masterVolume / 100);
+  if (!currentSettings.bgmEnabled || fraction <= 0) {
     bgmAudio.pause();
+    const { gain, ctx } = getBgmGain();
+    if (gain && ctx) {
+      gain.gain.setValueAtTime(0, ctx.currentTime);
+    }
+    return;
   }
-}
 
-declare global {
-  interface Window {
-    __GAME_BGM_AUDIO__?: HTMLAudioElement;
-    __GAME_AUDIO_LISTENERS_INITIALIZED__?: boolean;
+  const perceptualGain = computePerceptualVolume(fraction);
+
+  try {
+    bgmAudio.volume = perceptualGain;
+  } catch { /* ignore */ }
+
+  const { gain, ctx } = getBgmGain();
+  if (gain && ctx) {
+    if (ctx.state === "suspended") {
+      void ctx.resume();
+    }
+    gain.gain.setValueAtTime(perceptualGain, ctx.currentTime);
   }
+
+  void playBgmSafely();
 }
 
 const BGM_SRC = `${basePath}/game/Music/BackgroundMusic.mp3?v=20260908`;

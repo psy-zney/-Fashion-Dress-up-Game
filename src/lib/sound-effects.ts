@@ -105,12 +105,15 @@ function createEngine(): AudioEngine | null {
     const sfxBus = context.createGain();
     const limiter = context.createDynamicsCompressor();
 
-    sfxBus.gain.value = (!sfxEnabled || sfxVolume <= 0) ? 0 : dbToGain(-5) * (sfxVolume / 100);
-    limiter.threshold.value = -8;
-    limiter.knee.value = 4;
-    limiter.ratio.value = 12;
-    limiter.attack.value = 0.003;
-    limiter.release.value = 0.16;
+    const initialFraction = (sfxVolume / 100) * (masterVolume / 100);
+    sfxBus.gain.value = (!sfxEnabled || sfxVolume <= 0 || masterVolume <= 0)
+      ? 0
+      : dbToGain(-2) * Math.pow(Math.max(0, Math.min(1, initialFraction)), 2);
+    limiter.threshold.value = -1.5;
+    limiter.knee.value = 3;
+    limiter.ratio.value = 6;
+    limiter.attack.value = 0.002;
+    limiter.release.value = 0.12;
     sfxBus.connect(limiter).connect(context.destination);
 
     const noise = context.createBuffer(1, context.sampleRate, context.sampleRate);
@@ -283,9 +286,11 @@ export function setSfxVolume(volume: number, enabled: boolean = true, master: nu
   const audio = getEngine();
   if (audio) {
     if (!sfxEnabled || sfxVolume <= 0 || masterVolume <= 0) {
-      audio.sfxBus.gain.value = 0;
+      audio.sfxBus.gain.setValueAtTime(0, audio.context.currentTime);
     } else {
-      audio.sfxBus.gain.value = dbToGain(-5) * (sfxVolume / 100) * (masterVolume / 100);
+      const fraction = (sfxVolume / 100) * (masterVolume / 100);
+      const perceptualGain = Math.pow(Math.max(0, Math.min(1, fraction)), 2);
+      audio.sfxBus.gain.setValueAtTime(dbToGain(-2) * perceptualGain, audio.context.currentTime);
     }
   }
 }
