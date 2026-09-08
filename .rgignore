@@ -1,0 +1,32 @@
+# Archived/demo art is intentionally outside normal search scope. The active
+# production allowlist lives in scripts/studio/pipeline.config.mjs.
+assets/studio/legacy/**
+assets/studio/sources/garments/worn/**
+assets/studio/sources/products/**
+assets/studio/sources/garments/iterations/top-fitted-denim-v1/**
+assets/studio/sources/garments/iterations/top-fitted-denim-v2/**
+assets/studio/sources/garments/iterations/top-fitted-denim-v3/**
+assets/studio/sources/garments/iterations/top-fitted-denim-v4/**
+assets/studio/sources/garments/iterations/top-fitted-denim-v5/**
+assets/studio/sources/garments/iterations/top-modal-grommet-v1/**
+assets/studio/sources/garments/iterations/top-modal-grommet-v2/**
+assets/studio/sources/garments/iterations/top-modal-grommet-v3/**
+assets/studio/sources/garments/iterations/top-modal-grommet-v4/**
+assets/studio/sources/garments/iterations/top-modal-grommet-v5/**
+assets/studio/sources/garments/iterations/bottom-sculpted-jeans-v1/**
+assets/studio/sources/garments/iterations/bottom-sculpted-jeans-v2/**
+assets/studio/sources/garments/iterations/bottom-sculpted-jeans-v3/**
+assets/studio/sources/garments/iterations/bottom-denim-sculpted-skirt-v1/**
+assets/studio/sources/garments/iterations/bottom-denim-sculpted-skirt-v2/**
+assets/studio/sources/garments/iterations/bottom-denim-sculpted-skirt-v3/**
+assets/studio/sources/garments/iterations/bottom-denim-sculpted-skirt-v4/**
+assets/studio/sources/garments/iterations/bottom-denim-sculpted-skirt-v5/**
+assets/studio/sources/garments/iterations/bottom-denim-sculpted-skirt-v6/**
+assets/studio/sources/garments/iterations/bottom-denim-sculpted-skirt-v7/**
+assets/studio/sources/garments/iterations/shoes-party-platform-boots-v1/**
+assets/studio/sources/model/model-master-v3.png
+assets/studio/sources/model/model-master-v3.prompt.md
+assets/studio/sources/model/model-master-v4-key.png
+assets/studio/sources/model/model-master-v4-key.prompt.md
+assets/studio/sources/references/shoes-party-platform-boots-v1/**
+output/**
