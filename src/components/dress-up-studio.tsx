@@ -16,6 +16,7 @@ import {
   layerOrder,
   foregroundArmsOrder,
   bootTuckBottomIds,
+  getGarmentLayerOrder,
   previewAssetUrl,
   type Category,
   type Garment,
@@ -132,13 +133,7 @@ export function DressUpStudio() {
   }, [fits, held, hydrated, selected]);
 
   function garmentLayer(item: Garment) {
-    if (
-      item.id === "shoes-brown-boots" &&
-      selected.bottoms && bootTuckBottomIds.has(selected.bottoms)
-    ) {
-      return 35;
-    }
-    return layerOrder[item.category];
+    return getGarmentLayerOrder(item, selected);
   }
 
   const layers = useMemo(

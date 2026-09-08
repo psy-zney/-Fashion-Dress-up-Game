@@ -17,7 +17,7 @@ const hat = await pathMask('M444 83 C449 67 462 53 479 39 C491 32 508 34 522 34 
 const bodyLower = await pathMask('M435 538 Q431 572 410 613 Q383 677 376 737 Q372 785 381 834 L665 835 Q675 778 668 732 Q661 669 644 620 Q619 567 611 538 Z M370 832H680V1536H370Z');
 const neckline = await pathMask('M466 274 Q478 327 521 373 Q566 336 586 275 Q549 295 526 294 Q493 294 466 274Z');
 const yellowShape = await pathMask('M437 281 Q451 279 465 272 Q478 329 521 375 Q569 338 587 274 Q604 281 616 284 Q613 339 635 404 Q632 457 619 495 Q610 531 618 561 Q633 609 655 654 Q528 677 394 646 Q406 608 424 570 Q435 552 431 538 Q432 501 423 469 Q408 421 413 395 Q443 334 437 281 Z');
-const armsShape = await pathMask('M350 280 L437 280 Q445 340 413 409 L410 484 Q415 525 400 556 L369 721 L381 881 L300 885 L300 699 L333 530 Z M615 280 L697 280 L706 524 L740 759 L740 885 L661 885 L658 746 L633 598 L628 550 Q622 516 630 485 L630 415 Q605 346 615 280 Z');
+const armsShape = await pathMask('M350 280 L437 280 Q445 340 413 409 L410 484 Q415 525 400 556 L369 721 L381 881 L300 885 L300 699 L333 530 Z M615 280 L697 280 L706 524 L740 759 L740 885 L668 885 L675 746 L670 670 L653 620 L647 598 L636 550 Q622 516 630 485 L630 415 Q605 346 615 280 Z');
 const protectedHead = (x, y) => hat[y * W + x] > 0 || (x > 460 && x < 580 && y > 130 && y < 237);
 function rowSpanMask(rgb, predicate, minY, maxY, clip, padding = 0) {
   const mask = Buffer.alloc(N);
@@ -138,8 +138,17 @@ async function save(id, rgba, preview = false) {
   await image.png().toFile(`${out}/${id}.png`);
   await image.clone().trim({ threshold: 0 }).png().toFile(`${root}/cutouts/${id}.png`);
   if (preview) {
-    await image.clone().trim({ threshold: 0 }).resize(480, 640, { fit: 'contain', background: '#00000000' })
-      .extend({ top: 30, bottom: 30, left: 30, right: 30, background: '#00000000' }).png().toFile(`public/game/studio/products/${id}.png`);
+    const previewPath = `public/game/studio/products/${id}.png`;
+    try {
+      await fs.access(previewPath);
+      if (process.env.OVERWRITE_PRODUCTS === 'true') {
+        await image.clone().trim({ threshold: 0 }).resize(480, 640, { fit: 'contain', background: '#00000000' })
+          .extend({ top: 30, bottom: 30, left: 30, right: 30, background: '#00000000' }).png().toFile(previewPath);
+      }
+    } catch {
+      await image.clone().trim({ threshold: 0 }).resize(480, 640, { fit: 'contain', background: '#00000000' })
+        .extend({ top: 30, bottom: 30, left: 30, right: 30, background: '#00000000' }).png().toFile(previewPath);
+    }
   }
   await image.clone().flatten({ background: '#24212e' }).resize(512).png().toFile(`${qa}/${id}-dark.png`);
 }
@@ -173,9 +182,10 @@ const arms = Buffer.from(base);
 for (let p = 0; p < N; p++) {
   const x = p % W, y = Math.floor(p / W);
   let outsideTorso = true;
-  if (y >= 525 && y < 620) outsideTorso = x < 405 || x > 640;
-  else if (y >= 620 && y < 720) outsideTorso = x < 387 || x > 655;
-  else if (y >= 720 && y < 880) outsideTorso = x < 380 || x > 665;
+  if (y >= 525 && y < 620) outsideTorso = x < 405 || x > 647;
+  else if (y >= 620 && y < 670) outsideTorso = x < 387 || x > 670;
+  else if (y >= 670 && y < 720) outsideTorso = x < 380 || x > 673;
+  else if (y >= 720 && y < 880) outsideTorso = x < 375 || x > (y > 760 ? 666 : 672);
   arms[p * 4 + 3] = outsideTorso ? Math.round(arms[p * 4 + 3] * armsShape[p] / 255) : 0;
 }
 await save('model-arms', arms);
@@ -235,16 +245,23 @@ for (const top of ['top-fitted-denim', 'top-modal-grommet']) {
 }
 
 for (const top of ['top-fitted-denim', 'top-modal-grommet']) {
-  const composite = await sharp(`${out}/model-boots.png`).composite([
+  const isTucked = top === 'top-fitted-denim';
+  const compositeLayers = [
     { input: `${out}/shoes-party-platform-boots.png` },
-    { input: `${out}/bottom-sculpted-jeans.png` },
+    ...(isTucked
+      ? [{ input: `${out}/${top}.png` }, { input: `${out}/bottom-sculpted-jeans.png` }]
+      : [{ input: `${out}/bottom-sculpted-jeans.png` }, { input: `${out}/${top}.png` }]),
     { input: `${out}/model-arms.png` },
-    { input: `${out}/${top}.png` },
-  ]).png().toBuffer();
+  ];
+  const composite = await sharp(`${out}/model-boots.png`).composite(compositeLayers).png().toBuffer();
   await sharp(composite).flatten({ background: '#24212e' }).resize(600).png().toFile(`${qa}/${top}-look.png`);
-  const posed = await sharp(`${out}/model-lower-boots.png`).composite([
-    { input: `${out}/shoes-party-platform-boots.png` }, { input: `${out}/bottom-sculpted-jeans.png` }, { input: `${out}/${top}-pose.png` },
-  ]).png().toBuffer();
+  const posedLayers = [
+    { input: `${out}/shoes-party-platform-boots.png` },
+    ...(isTucked
+      ? [{ input: `${out}/${top}-pose.png` }, { input: `${out}/bottom-sculpted-jeans.png` }]
+      : [{ input: `${out}/bottom-sculpted-jeans.png` }, { input: `${out}/${top}-pose.png` }]),
+  ];
+  const posed = await sharp(`${out}/model-lower-boots.png`).composite(posedLayers).png().toBuffer();
   await sharp(posed).flatten({ background: '#24212e' }).resize(600).png().toFile(`${qa}/${top}-posed-look.png`);
 }
 console.log(`Production v2 layers and dark-background proofs written to ${out} and ${qa}`);

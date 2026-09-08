@@ -1,5 +1,5 @@
 export const STAGE = { width: 1024, height: 1536 } as const;
-export const STUDIO_ASSET_VERSION = "production-v2-20260909-detail-fix";
+export const STUDIO_ASSET_VERSION = "production-v2-20260909-v8";
 
 export const categories = [
   { id: "tops", label: "Tops" },
@@ -42,6 +42,23 @@ export const bootTuckBottomIds = new Set<string>([
   "bottom-navy-dots",
   "bottom-gray-maxi",
 ]);
+
+export function getGarmentLayerOrder(
+  item: Garment | { id: string; category: Category },
+  selected: Selection,
+): number {
+  if (
+    item.id === "shoes-brown-boots" &&
+    selected.bottoms && bootTuckBottomIds.has(selected.bottoms)
+  ) {
+    return 35;
+  }
+  // Denim top is tucked into jeans (đóng thùng)
+  if (item.id === "top-fitted-denim" && selected.bottoms === "bottom-sculpted-jeans") {
+    return 28;
+  }
+  return layerOrder[item.category];
+}
 
 export const presets: { name: string; selection: Selection }[] = [
   { name: "Denim Sculpture", selection: { tops: "top-fitted-denim", bottoms: "bottom-sculpted-jeans", shoes: "shoes-party-platform-boots" } },

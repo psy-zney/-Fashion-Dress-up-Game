@@ -1,4 +1,4 @@
-import { STAGE, STUDIO_ASSET_VERSION, assetUrl, modelAssetId, garmentAssetId, hasShowcasePose, bootTuckBottomIds, categories, allGarments, layerOrder, foregroundArmsOrder, type Category, type Selection } from "./studio";
+import { STAGE, STUDIO_ASSET_VERSION, assetUrl, modelAssetId, garmentAssetId, hasShowcasePose, bootTuckBottomIds, categories, allGarments, layerOrder, foregroundArmsOrder, getGarmentLayerOrder, type Category, type Selection } from "./studio";
 
 export type Fit = { x: number; y: number; scaleX: number; scaleY: number; angle: number };
 export type SavedStudio = {
@@ -50,12 +50,15 @@ export async function renderLook({ selected, fits }: SavedStudio, showcase = tru
   const context = canvas.getContext("2d");
   if (!context) throw new Error("Canvas unavailable");
   const boots = selected.shoes === "shoes-party-platform-boots" || selected.shoes === "shoes-brown-boots";
-  const order = (category: Category) => category === "shoes" && boots && bootTuckBottomIds.has(selected.bottoms || "") ? 35 : layerOrder[category];
   const layers = [
     { id: modelAssetId(selected, showcase), fit: initialFit, clip: false, order: 0 },
     ...allGarments.filter((item) => selected[item.category] === item.id)
-      .sort((a, b) => order(a.category) - order(b.category))
-      .map((item) => ({ id: garmentAssetId(item.id, selected, showcase), fit: hasShowcasePose(selected, showcase) && item.category === "tops" ? initialFit : fits[item.id] || initialFit, clip: boots && bootTuckBottomIds.has(item.id), order: order(item.category) })),
+      .map((item) => ({
+        id: garmentAssetId(item.id, selected, showcase),
+        fit: hasShowcasePose(selected, showcase) && item.category === "tops" ? initialFit : fits[item.id] || initialFit,
+        clip: boots && bootTuckBottomIds.has(item.id),
+        order: getGarmentLayerOrder(item, selected),
+      })),
     ...(!hasShowcasePose(selected, showcase) ? [{ id: "model-arms", fit: initialFit, clip: false, order: foregroundArmsOrder }] : []),
   ].sort((a, b) => a.order - b.order);
   const images = await Promise.all(layers.map(async (layer) => {

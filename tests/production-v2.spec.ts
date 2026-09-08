@@ -39,7 +39,7 @@ test('production assets have soft alpha, clean denim edges, and unchanged pose l
 
   const arms = await layer('model-arms');
   let hipSkinOverlay = 0;
-  for (let y = 620; y < 720; y++) for (let x = 387; x <= 655; x++) {
+  for (let y = 620; y < 720; y++) for (let x = 387; x <= 670; x++) {
     if (arms[(y * 1024 + x) * 4 + 3] > 10) hipSkinOverlay++;
   }
   expect(hipSkinOverlay, 'foreground arms must not paint skin over the pants at the hips').toBe(0);
