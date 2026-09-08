@@ -56,6 +56,7 @@ const activeProductIds = [
   "bottom-sculpted-jeans",
   "bottom-denim-sculpted-skirt",
   "shoes-mary-janes",
+  "shoes-party-platform-boots",
 ] as const;
 
 const regeneratedProductIds = new Set([
@@ -129,6 +130,7 @@ test("kéo cột phải và hai cột quần váy chỉ mang sticker trong suố
     ["bottoms", "bottom-sculpted-jeans"],
     ["bottoms", "bottom-denim-sculpted-skirt"],
     ["shoes", "shoes-mary-janes"],
+    ["shoes", "shoes-party-platform-boots"],
   ] as const) {
     await selectCategory(page, category);
     const card = page.getByTestId(`garment-${id}`);
@@ -154,7 +156,7 @@ test("kéo cột phải và hai cột quần váy chỉ mang sticker trong suố
   }
 });
 
-test("PLAY tải model thẳng và duyệt đúng capsule (2 áo, 2 quần/váy, 1 giày)", async ({ page }) => {
+test("PLAY tải model thẳng và duyệt đúng capsule (2 áo, 2 quần/váy, 2 giày)", async ({ page }) => {
   const health = watchBrowserHealth(page);
   await page.goto("/play");
   await expectLoadedStage(page);
@@ -164,7 +166,7 @@ test("PLAY tải model thẳng và duyệt đúng capsule (2 áo, 2 quần/váy,
   const expectedCounts = {
     tops: 2,
     bottoms: 2,
-    shoes: 1,
+    shoes: 2,
   } as const;
 
   for (const [category, count] of Object.entries(expectedCounts)) {

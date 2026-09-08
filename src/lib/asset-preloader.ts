@@ -27,6 +27,7 @@ export const CORE_PRELOAD_IMAGES: string[] = [
   `${basePath}/game/studio/products/bottom-sculpted-jeans.png`,
   `${basePath}/game/studio/products/bottom-denim-sculpted-skirt.png`,
   `${basePath}/game/studio/products/shoes-mary-janes.png`,
+  `${basePath}/game/studio/products/shoes-party-platform-boots.png`,
 
   // Active runtime layers
   `${basePath}/game/studio/layers/top-fitted-denim.png`,
@@ -34,6 +35,7 @@ export const CORE_PRELOAD_IMAGES: string[] = [
   `${basePath}/game/studio/layers/bottom-sculpted-jeans.png`,
   `${basePath}/game/studio/layers/bottom-denim-sculpted-skirt.png`,
   `${basePath}/game/studio/layers/shoes-mary-janes.png`,
+  `${basePath}/game/studio/layers/shoes-party-platform-boots.png`,
 ];
 
 export const CORE_PRELOAD_AUDIO: string[] = [

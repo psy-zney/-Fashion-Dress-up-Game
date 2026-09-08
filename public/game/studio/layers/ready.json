@@ -1,11 +1,16 @@
 {
   "version": "studio-2.0",
-  "catalogGarments": 5,
+  "catalogGarments": 6,
   "items": [
     {
       "id": "shoes-mary-janes",
       "category": "shoes",
       "name": "Giày Mary Jane đen"
+    },
+    {
+      "id": "shoes-party-platform-boots",
+      "category": "shoes",
+      "name": "Boots platform sắc màu"
     },
     {
       "id": "top-fitted-denim",

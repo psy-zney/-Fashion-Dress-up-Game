@@ -15,6 +15,21 @@
     }
   },
   {
+    "id": "shoes-party-platform-boots",
+    "category": "shoes",
+    "name": "Boots platform sắc màu",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 395,
+      "top": 1210,
+      "width": 244,
+      "height": 291,
+      "visiblePixels": 42233
+    }
+  },
+  {
     "id": "top-fitted-denim",
     "category": "tops",
     "name": "Áo denim ôm sát",

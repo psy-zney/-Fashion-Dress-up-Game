@@ -399,7 +399,7 @@ export function DressUpStudio() {
           >
             {/* Nude base model */}
             <img
-              src={assetUrl(selected.shoes === "shoes-brown-boots" ? "model-boots" : "model")}
+              src={assetUrl(selected.shoes === "shoes-party-platform-boots" || selected.shoes === "shoes-brown-boots" ? "model-boots" : "model")}
               className="studio-layer"
               alt="2D paper doll model standing upright with arms relaxed"
               draggable={false}
@@ -623,7 +623,7 @@ export function DressUpStudio() {
                 />
                 <div className="studio-stage" style={{ transform: "scale(0.92)", position: "relative", zIndex: 2 }}>
                   <img
-                    src={assetUrl(selected.shoes === "shoes-brown-boots" ? "model-boots" : "model")}
+                    src={assetUrl(selected.shoes === "shoes-party-platform-boots" || selected.shoes === "shoes-brown-boots" ? "model-boots" : "model")}
                     className="studio-layer"
                     alt=""
                     draggable={false}

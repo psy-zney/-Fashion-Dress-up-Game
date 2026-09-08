@@ -26,8 +26,9 @@ export const garments: Garment[] = [
   { id: "bottom-sculpted-jeans", name: "Sculpted Balloon Jeans", category: "bottoms", source: "generated-bottom-sculpted-jeans-v2" },
   { id: "bottom-denim-sculpted-skirt", name: "Sculpted Denim Maxi Skirt", category: "bottoms", source: "generated-bottom-denim-sculpted-skirt-v6" },
 
-  // One reviewed shoe remains available to complete and photograph a look.
+  // Reviewed shoes
   { id: "shoes-mary-janes", name: "Black Mary Janes", category: "shoes", source: "worn-shoes-mary-janes" },
+  { id: "shoes-party-platform-boots", name: "Party Platform Boots", category: "shoes", source: "generated-shoes-party-platform-boots-v1" },
 ];
 
 // Active catalog garments

@@ -46,7 +46,7 @@ export async function renderLook({ selected, fits }: SavedStudio): Promise<HTMLC
   canvas.height = STAGE.height;
   const context = canvas.getContext("2d");
   if (!context) throw new Error("Canvas unavailable");
-  const boots = selected.shoes === "shoes-brown-boots";
+  const boots = selected.shoes === "shoes-party-platform-boots" || selected.shoes === "shoes-brown-boots";
   const order = (category: Category) => category === "shoes" && boots && bootTuckBottomIds.has(selected.bottoms || "") ? 35 : layerOrder[category];
   const layers = [
     { id: boots ? "model-boots" : "model", fit: initialFit, clip: false, order: 0, arms: false },
