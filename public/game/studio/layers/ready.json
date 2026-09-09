@@ -1,5 +1,5 @@
 {
-  "version": "production-v2-20260909-v10-yellow-over-jeans",
+  "version": "production-v2-20260909-v11-yellow-tucked",
   "catalogGarments": 4,
   "items": [
     {
@@ -27,8 +27,5 @@
     "top-fitted-denim-pose",
     "top-modal-grommet-pose"
   ],
-  "variants": [
-    "bottom-sculpted-jeans-under-yellow"
-  ],
-  "updatedAt": "2026-09-09T06:11:32.474Z"
+  "updatedAt": "2026-09-09T06:32:13.176Z"
 }
