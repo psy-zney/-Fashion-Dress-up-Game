@@ -19,7 +19,7 @@ export const CORE_PRELOAD_IMAGES: string[] = [
   `${basePath}/game/photoshoot/camera.svg`,
   `${basePath}/game/effects/color-bubble-burst.gif`,
 
-  ...['model', 'model-boots', 'model-arms', 'model-lower', 'model-lower-boots', 'top-fitted-denim-pose', 'top-modal-grommet-pose'].map(assetUrl),
+  ...['model', 'model-boots', 'model-arms', 'model-lower', 'model-lower-boots', 'top-fitted-denim-pose', 'top-modal-grommet-pose', 'bottom-sculpted-jeans-under-yellow'].map(assetUrl),
   ...allGarments.map(({ id }) => previewAssetUrl(id)),
   ...allGarments.map(({ id }) => assetUrl(id)),
 ];
@@ -34,7 +34,7 @@ export const CORE_PRELOAD_AUDIO: string[] = [
 
 let isGlobalPreloaded = false;
 let activePreload: Promise<void> | null = null;
-const PRELOAD_STORAGE_KEY = "tung_tung_preloaded_production_v2_v9_source_recut";
+const PRELOAD_STORAGE_KEY = "tung_tung_preloaded_production_v2_v10_yellow_over_jeans";
 
 export function isAssetsPreloaded(): boolean {
   if (isGlobalPreloaded) return true;

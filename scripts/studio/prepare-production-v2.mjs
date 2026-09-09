@@ -225,6 +225,32 @@ await save('top-modal-grommet', yellow, true);
 const jeansRgb = await read(`${root}/generated/jeans-uncovered.png`);
 const jeans = await cut(jeansRgb, (r, g, b, x, y) => x > 278 && x < 792 && y > 540 && y < 1444 && !isWhite(r, g, b), { fill: false });
 await save('bottom-sculpted-jeans', jeans, true);
+// The modal top is worn outside the jeans. Crop the jeans to the actual curved
+// hem so its waistband and hip wedges cannot rise beside or through the shirt.
+const yellowHem = new Int16Array(W).fill(-1);
+for (let x = 0; x < W; x++) for (let y = 500; y < 700; y++) {
+  if (yellow[(y * W + x) * 4 + 3] > 32) yellowHem[x] = y;
+}
+const firstHemX = yellowHem.findIndex(y => y >= 0);
+let lastHemX = W - 1;
+while (lastHemX >= 0 && yellowHem[lastHemX] < 0) lastHemX--;
+for (let x = 0; x < W; x++) {
+  if (yellowHem[x] >= 0) continue;
+  if (x < firstHemX) yellowHem[x] = yellowHem[firstHemX];
+  else if (x > lastHemX) yellowHem[x] = yellowHem[lastHemX];
+  else {
+    let left = x - 1, right = x + 1;
+    while (left >= firstHemX && yellowHem[left] < 0) left--;
+    while (right <= lastHemX && yellowHem[right] < 0) right++;
+    yellowHem[x] = Math.round((yellowHem[left] + yellowHem[right]) / 2);
+  }
+}
+const jeansUnderYellow = Buffer.from(jeans);
+for (let p = 0; p < N; p++) {
+  const x = p % W, y = Math.floor(p / W);
+  if (y < yellowHem[x]) jeansUnderYellow[p * 4 + 3] = 0;
+}
+await save('bottom-sculpted-jeans-under-yellow', jeansUnderYellow);
 const bootsRgb = await read(source('05-Colorblock-Party-Platform-Boots'));
 const boots = await cut(bootsRgb, (r, g, b, x, y) => {
   const top = x < 520 ? 1245 - (x - 407) * 8 / 72 : 1237 + (x - 558) * 8 / 70;
@@ -262,7 +288,7 @@ for (const top of ['top-fitted-denim', 'top-modal-grommet']) {
     { input: `${out}/shoes-party-platform-boots.png` },
     ...(isTucked
       ? [{ input: `${out}/${top}.png` }, { input: `${out}/bottom-sculpted-jeans.png` }]
-      : [{ input: `${out}/bottom-sculpted-jeans.png` }, { input: `${out}/${top}.png` }]),
+      : [{ input: `${out}/bottom-sculpted-jeans-under-yellow.png` }, { input: `${out}/${top}.png` }]),
     { input: `${out}/model-arms.png` },
   ];
   const composite = await sharp(`${out}/model-boots.png`).composite(compositeLayers).png().toBuffer();
@@ -271,7 +297,7 @@ for (const top of ['top-fitted-denim', 'top-modal-grommet']) {
     { input: `${out}/shoes-party-platform-boots.png` },
     ...(isTucked
       ? [{ input: `${out}/${top}-pose.png` }, { input: `${out}/bottom-sculpted-jeans.png` }]
-      : [{ input: `${out}/bottom-sculpted-jeans.png` }, { input: `${out}/${top}-pose.png` }]),
+      : [{ input: `${out}/bottom-sculpted-jeans-under-yellow.png` }, { input: `${out}/${top}-pose.png` }]),
   ];
   const posed = await sharp(`${out}/model-lower-boots.png`).composite(posedLayers).png().toBuffer();
   await sharp(posed).flatten({ background: '#24212e' }).resize(600).png().toFile(`${qa}/${top}-posed-look.png`);
@@ -279,7 +305,7 @@ for (const top of ['top-fitted-denim', 'top-modal-grommet']) {
 console.log(`Production v2 layers and dark-background proofs written to ${out} and ${qa}`);
 const previous = JSON.parse(await fs.readFile(`${out}/ready.json`, 'utf8'));
 const items = previous.items.filter(({ id }) => id !== 'bottom-denim-sculpted-skirt' && id !== 'shoes-mary-janes');
-await fs.writeFile(`${out}/ready.json`, JSON.stringify({ version: 'production-v2-20260909-v9-source-recut', catalogGarments: items.length, items, poses: ['top-fitted-denim-pose', 'top-modal-grommet-pose'], updatedAt: new Date().toISOString() }, null, 2) + '\n');
+await fs.writeFile(`${out}/ready.json`, JSON.stringify({ version: 'production-v2-20260909-v10-yellow-over-jeans', catalogGarments: items.length, items, poses: ['top-fitted-denim-pose', 'top-modal-grommet-pose'], variants: ['bottom-sculpted-jeans-under-yellow'], updatedAt: new Date().toISOString() }, null, 2) + '\n');
 const report = [];
 for (const item of items) {
   const rgba = await sharp(`${out}/${item.id}.png`).ensureAlpha().raw().toBuffer();

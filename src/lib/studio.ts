@@ -1,5 +1,5 @@
 export const STAGE = { width: 1024, height: 1536 } as const;
-export const STUDIO_ASSET_VERSION = "production-v2-20260909-v9-source-recut";
+export const STUDIO_ASSET_VERSION = "production-v2-20260909-v10-yellow-over-jeans";
 
 export const categories = [
   { id: "tops", label: "Tops" },
@@ -73,8 +73,12 @@ export function modelAssetId(selected: Selection, showcase = false) {
   const boots = selected.shoes === "shoes-party-platform-boots" || selected.shoes === "shoes-brown-boots";
   return hasShowcasePose(selected, showcase) ? (boots ? "model-lower-boots" : "model-lower") : (boots ? "model-boots" : "model");
 }
-export const garmentAssetId = (id: string, selected: Selection, showcase = false) =>
-  hasShowcasePose(selected, showcase) && id === selected.tops ? `${id}-pose` : id;
+export function garmentAssetId(id: string, selected: Selection, showcase = false) {
+  if (id === "bottom-sculpted-jeans" && selected.tops === "top-modal-grommet") {
+    return "bottom-sculpted-jeans-under-yellow";
+  }
+  return hasShowcasePose(selected, showcase) && id === selected.tops ? `${id}-pose` : id;
+}
 // Reviewed product cutouts have real alpha; the card and pointer sticker share
 // this URL. Never substitute body-aligned sprite masks or opaque source renders.
 export const previewAssetUrl = (id: string) => `${basePath}/game/studio/products/${id}.png?v=${STUDIO_ASSET_VERSION}`;
