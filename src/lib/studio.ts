@@ -1,5 +1,5 @@
 export const STAGE = { width: 1024, height: 1536 } as const;
-export const STUDIO_ASSET_VERSION = "production-v2-20260909-v11-yellow-tucked";
+export const STUDIO_ASSET_VERSION = "production-v2-20260909-v12-yellow-over-waistband";
 
 export const categories = [
   { id: "tops", label: "Tops" },
@@ -53,8 +53,8 @@ export function getGarmentLayerOrder(
   ) {
     return 35;
   }
-  // Both production tops are tucked into the sculpted jeans.
-  if (item.category === "tops" && selected.bottoms === "bottom-sculpted-jeans") {
+  // Denim top is tucked into jeans (đóng thùng)
+  if (item.id === "top-fitted-denim" && selected.bottoms === "bottom-sculpted-jeans") {
     return 28;
   }
   return layerOrder[item.category];
@@ -74,6 +74,9 @@ export function modelAssetId(selected: Selection, showcase = false) {
   return hasShowcasePose(selected, showcase) ? (boots ? "model-lower-boots" : "model-lower") : (boots ? "model-boots" : "model");
 }
 export function garmentAssetId(id: string, selected: Selection, showcase = false) {
+  if (id === "bottom-sculpted-jeans" && selected.tops === "top-modal-grommet") {
+    return "bottom-sculpted-jeans-under-yellow";
+  }
   return hasShowcasePose(selected, showcase) && id === selected.tops ? `${id}-pose` : id;
 }
 // Reviewed product cutouts have real alpha; the card and pointer sticker share

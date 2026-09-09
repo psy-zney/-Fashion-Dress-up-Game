@@ -1,5 +1,5 @@
 {
-  "version": "production-v2-20260909-v11-yellow-tucked",
+  "version": "production-v2-20260909-v12-yellow-over-waistband",
   "catalogGarments": 4,
   "items": [
     {
@@ -27,5 +27,8 @@
     "top-fitted-denim-pose",
     "top-modal-grommet-pose"
   ],
-  "updatedAt": "2026-09-09T06:32:13.176Z"
+  "variants": [
+    "bottom-sculpted-jeans-under-yellow"
+  ],
+  "updatedAt": "2026-09-09T07:07:42.041Z"
 }

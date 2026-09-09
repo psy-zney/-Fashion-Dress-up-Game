@@ -7,7 +7,7 @@ const saved = (top: string, bottom = 'bottom-sculpted-jeans') => ({
 });
 
 test('production assets have soft alpha, clean denim edges, and unchanged pose legs', async () => {
-  for (const id of ['model', 'top-fitted-denim', 'top-modal-grommet', 'bottom-sculpted-jeans', 'shoes-party-platform-boots', 'top-fitted-denim-pose', 'top-modal-grommet-pose']) {
+  for (const id of ['model', 'top-fitted-denim', 'top-modal-grommet', 'bottom-sculpted-jeans', 'bottom-sculpted-jeans-under-yellow', 'shoes-party-platform-boots', 'top-fitted-denim-pose', 'top-modal-grommet-pose']) {
     const data = await layer(id);
     expect(data.length).toBe(1024 * 1536 * 4);
     let transparent = 0, soft = 0;
@@ -43,6 +43,12 @@ test('production assets have soft alpha, clean denim edges, and unchanged pose l
     expect(yellow[(y * 1024 + x) * 4 + 3], `transparent grommet hole at ${x},${y}`).toBe(0);
     expect(yellow[(y * 1024 + x + radius + 3) * 4 + 3], `metal rim retained at ${x},${y}`).toBeGreaterThan(240);
   }
+  const jeansUnderYellow = await layer('bottom-sculpted-jeans-under-yellow');
+  for (const [x, y] of [[400, 620], [645, 620], [520, 650]]) {
+    expect(jeans[(y * 1024 + x) * 4 + 3], `base jeans exist at ${x},${y}`).toBeGreaterThan(200);
+    expect(jeansUnderYellow[(y * 1024 + x) * 4 + 3], `jeans must stay below the yellow hem at ${x},${y}`).toBe(0);
+  }
+  expect(jeansUnderYellow[(656 * 1024 + 520) * 4 + 3], 'jeans resume immediately below the yellow hem').toBeGreaterThan(200);
 
   const arms = await layer('model-arms');
   let hipSkinOverlay = 0;
@@ -64,9 +70,10 @@ for (const top of ['top-fitted-denim', 'top-modal-grommet']) {
     const garment = stage.locator(`[data-garment="${top}"]`);
     await expect(garment).toHaveAttribute('src', new RegExp(`${top}\\.png`));
     const pants = await stage.locator('[data-garment="bottom-sculpted-jeans"]').getAttribute('src');
-    await expect(stage.locator('[data-garment="bottom-sculpted-jeans"]')).toHaveAttribute('src', /bottom-sculpted-jeans\.png/);
-    await expect(garment).toHaveAttribute('data-layer-order', '28');
-    await expect(stage.locator('[data-garment="bottom-sculpted-jeans"]')).toHaveAttribute('data-layer-order', '30');
+    await expect(stage.locator('[data-garment="bottom-sculpted-jeans"]')).toHaveAttribute(
+      'src',
+      top === 'top-modal-grommet' ? /bottom-sculpted-jeans-under-yellow\.png/ : /bottom-sculpted-jeans\.png/,
+    );
     if (top === 'top-fitted-denim') {
       await stage.locator('img').evaluateAll(async images => { await Promise.all(images.map(image => (image as HTMLImageElement).decode())); });
       await page.screenshot({ path: 'artifacts/studio/qa/production-v2/neutral-hip-mask-browser.png' });
