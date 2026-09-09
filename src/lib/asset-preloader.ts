@@ -1,6 +1,6 @@
 "use client";
 
-import { allGarments, assetUrl, previewAssetUrl } from './studio';
+import { allGarments, assetUrl, previewAssetUrl, STUDIO_ASSET_VERSION, STUDIO_PRODUCT_VERSION } from './studio';
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
@@ -34,7 +34,7 @@ export const CORE_PRELOAD_AUDIO: string[] = [
 
 let isGlobalPreloaded = false;
 let activePreload: Promise<void> | null = null;
-const PRELOAD_STORAGE_KEY = "tung_tung_preloaded_production_v2_v13_narrow_waistband";
+const PRELOAD_STORAGE_KEY = `tung_tung_preloaded_${STUDIO_ASSET_VERSION}_${STUDIO_PRODUCT_VERSION}`;
 
 export function isAssetsPreloaded(): boolean {
   if (isGlobalPreloaded) return true;

@@ -1,5 +1,7 @@
 export const STAGE = { width: 1024, height: 1536 } as const;
 export const STUDIO_ASSET_VERSION = "production-v2-20260909-v13-narrow-waistband";
+// Product art is independently approved and must not change with layer releases.
+export const STUDIO_PRODUCT_VERSION = "production-v2-20260909-v13-narrow-waistband";
 
 export const categories = [
   { id: "tops", label: "Tops" },
@@ -81,4 +83,4 @@ export function garmentAssetId(id: string, selected: Selection, showcase = false
 }
 // Reviewed product cutouts have real alpha; the card and pointer sticker share
 // this URL. Never substitute body-aligned sprite masks or opaque source renders.
-export const previewAssetUrl = (id: string) => `${basePath}/game/studio/products/${id}.png?v=${STUDIO_ASSET_VERSION}`;
+export const previewAssetUrl = (id: string) => `${basePath}/game/studio/products/${id}.png?v=${STUDIO_PRODUCT_VERSION}`;

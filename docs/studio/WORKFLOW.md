@@ -1,5 +1,7 @@
 # Workflow ảnh và trang phục — Dress Up
 
+> **Tài liệu lịch sử, không còn là quy trình chạy hiện tại.** Quy định mới ngày 09/09/2026 nằm trong [PIPELINE.md](PIPELINE.md) và [REPAIR-PLAN-2026-09-09.md](REPAIR-PLAN-2026-09-09.md). Product hiện có 4 ảnh bị khóa; bộ cắt cũ đã ngừng hoạt động. Các lệnh và số lượng catalog bên dưới được giữ làm lịch sử, không dùng để phát hành asset.
+
 Cập nhật 05/09/2026. Đây là tài liệu cho người làm asset/agent tiếp theo; không được import vào web. `SESSION_HANDOFF.md` là lịch sử, còn cấu hình và code hiện tại mới là nguồn xác định hành vi đang chạy.
 
 **Capsule active:** giao diện hiện chỉ dùng 5 món: 2 áo, balloon jeans, váy denim dài ráp cong và Mary Jane. Boot cao cùng catalog cũ được giữ trong source lịch sử nhưng không còn hiển thị. Đọc [PRODUCT-PREVIEWS.md](PRODUCT-PREVIEWS.md) trước khi đổi ảnh tủ.

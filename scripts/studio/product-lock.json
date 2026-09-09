@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "reason": "User-approved wardrobe artwork (top denim v3, top modal v4, bottom jeans v1, boots kept).",
+  "files": {
+    "bottom-sculpted-jeans.png": "362154a998da8541e8dc911cef77ee06a4d6d79a7f3fdc4a4bbbb1bf2d4bda9c",
+    "shoes-party-platform-boots.png": "3535dbb45f48d00aa96e8cf8765af36bfd8910dcd04f6f8023e871849be7936e",
+    "top-fitted-denim.png": "406eccbfa041c50e538b27e55831a2dec8bccb2253aefce3cfd822f2698db131",
+    "top-modal-grommet.png": "bf0238c155ea3d4a686ce5f38aeef9c73656444c88f7aac6889e8d986c40369f"
+  }
+}

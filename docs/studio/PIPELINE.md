@@ -1,103 +1,70 @@
-# Pipeline thực thi và cấu trúc file
+# Pipeline layer hiện hành — 09/09/2026
 
-**Capsule active:** web dùng 5 ảnh trong `public/game/studio/products/`; tạo bằng `npm.cmd run prepare:products`. Nguồn nằm trong `assets/studio/sources/products/`, còn preview tự sinh nằm trong `artifacts/studio/generated-previews/`; web không tải hai thư mục này. Xem [PRODUCT-PREVIEWS.md](PRODUCT-PREVIEWS.md).
+Kế hoạch sửa từng lỗi và tiêu chí hoàn tất: [REPAIR-PLAN-2026-09-09.md](REPAIR-PLAN-2026-09-09.md). Tài liệu này thay thế các lệnh pipeline cũ.
 
-## Bản đồ dữ liệu
+## Luồng bắt buộc
 
 ```text
-Ảnh model master + ảnh tham chiếu món đồ
-  → intake + prompt (docs/artifacts, không được web tải)
-  → công cụ sinh ảnh → nguồn worn phiên bản mới (assets)
-  → prepare-assets.mjs → layers 1024×1536 + previews crop
-  → validate-assets.mjs → báo cáo cấu trúc
-  → render-qa.mjs → 4 phối chéo + contact sheet
-  → duyệt bằng mắt → chép đúng asset đã chọn vào public
-  → typecheck + build + E2E → kiểm tra web và bàn giao
+Product đã cấp riêng → kiểm tra SHA-256 → giữ nguyên byte và URL
+
+Model đúng tọa độ + thiết kế có đủ chỉ đỏ
+  → gen/chỉnh nguồn từng phiên bản → lưu ảnh uncut + prompt
+  → kiểm tra thiết kế, da nền và pose
+  → matte theo đúng hash nguồn + xử lý màu viền trong nguồn được duyệt
+  → build vào artifacts/studio/candidates/<release>/
+  → QA ghép model: khoen/da, cổ/nách, gấu áo–quần, chỉ đỏ, zoom
+  → tích hợp riêng các layer đạt + version/cache/fit migration
+  → kiểm tra play/showcase/export và hash product → bàn giao
 ```
 
-| Đường dẫn | Vai trò | Web tải? |
+**Build draft không có nghĩa hình ảnh đã đạt.** Pipeline không tự sinh mask, đoán đường biên bằng màu da, làm mịn hàng pixel, tô bù vải hoặc tự chép sang product/runtime.
+
+## Lệnh đang hoạt động
+
+```powershell
+npm.cmd run studio:audit
+npm.cmd run test:studio-pipeline
+npm.cmd run studio:build -- assets/studio/<version>/manifest.json
+```
+
+- `studio:audit`: kiểm tra đúng danh sách và SHA-256 của 4 product, đọc version runtime hiện tại. Chỉ đọc file.
+- `studio:build`: chỉ nhận các nguồn đã được kiểm tra và mask của chính nguồn đó, xuất layer draft + ảnh trên nền trắng/tối/mint + manifest/hash/report. Không ghi `public/`, không đổi version, không cập nhật ảnh chưa cắt. Thư mục release phải mới, không ghi đè bản thử trước.
+- `prepare:production-v2` và `node scripts/studio/run-pipeline.mjs` hiện chuyển tới cùng pipeline; không tham số = audit, không còn cắt và ghi runtime.
+- `prepare-assets.mjs` và `prepare-product-previews.mjs` cũ bị chặn ngay từ đầu. Biến môi trường `OVERWRITE_PRODUCTS` không mở lại được đường ghi.
+
+## Manifest và mask
+
+Sao chép [layer-manifest.template.json](layer-manifest.template.json) vào archive của bản đang sửa. Template cố ý chưa chạy được: nguồn áo vàng hiện chưa đạt chỉ đỏ, chưa có bộ mask/da sửa đầy đủ.
+
+Mỗi entry gồm `id`, `status: source-reviewed`, `source.path`, `source.sha256` và `mask.path`, `mask.sha256`. Trạng thái này chỉ xác nhận nguồn đúng thiết kế/tọa độ; không tự xác nhận layer ghép đạt. Không đổi trạng thái cho qua khi chưa xem ảnh.
+
+Nguồn/mask phải nằm trong `assets/studio/`. Tất cả có canvas 1024 × 1536. Mask PNG/SVG dùng **alpha để biểu diễn độ phủ**: ngoài trong suốt, trong đặc, biên chống răng cưa. Không dùng ảnh trắng/đen opaque làm alpha mask. Một cutout RGBA đã xử lý viền được duyệt có thể làm source mà không cần mask thứ hai.
+
+Lấy hash:
+
+```powershell
+Get-FileHash -Algorithm SHA256 -LiteralPath assets/studio/<version>/uncut/<item>.png
+```
+
+Ghi hash chữ thường vào manifest. Build từ chối hash sai, source chưa được kiểm tra, id lạ/trùng, kích thước sai hoặc layer không có alpha phù hợp. Không resize/trim tự động. RGB phần vải được giữ nguyên; chỉ alpha thay theo mask. Nếu nguồn còn trắng dính biên, phải sửa màu viền có kiểm soát trong bản nguồn/cutout mới và kiểm tra lại, không coi mask đơn thuần là đủ.
+
+## Dữ liệu và quyền ghi
+
+| Thư mục | Vai trò | Pipeline build được ghi? |
 | --- | --- | --- |
-| `assets/studio/sources/` | Model, nguồn worn và ảnh sản phẩm để tái tạo | Không |
-| `.studio-work/runtime-backups/<timestamp>/` | Snapshot runtime cục bộ trước mỗi lần prepare | Không |
-| `assets/studio/legacy/` | Nguồn lịch sử đã rút khỏi pipeline | Không |
-| `docs/studio/` | Workflow, cấu trúc, intake | Không |
-| `scripts/studio/` | Công cụ chạy thủ công | Không |
-| `artifacts/studio/candidates/` | Đầu ra thử nghiệm nếu chọn chế độ draft | Không |
-| `artifacts/studio/qa/` | Contact sheet, look, screenshot, báo cáo | Không |
-| `artifacts/studio/generated-previews/` | Preview trung gian của pipeline sprite | Không |
-| `public/game/studio/layers/` | Model và 5 sprite active; file cũ có thể còn để phục hồi | Có |
-| `public/game/studio/products/` | 5 ảnh card/drag active; file cũ không nằm trong catalog | Có |
-| `src/lib/studio.ts` | Catalog, URL và layer order | Có |
+| `public/game/studio/products/` | 4 ảnh card/drag hiện có | Không |
+| `public/game/studio/layers/` | Bộ đang chạy | Không |
+| `assets/studio/<version>/uncut/` | Nguồn chưa cắt, giữ nguyên | Không |
+| `assets/studio/<version>/masks/` | Mask chỉnh sửa được, gắn với nguồn | Không |
+| `artifacts/studio/candidates/<release>/layers/` | Layer draft cùng tọa độ model | Có |
+| `artifacts/studio/candidates/<release>/qa/` | Nền sáng/tối/mint để xem viền | Có |
 
-## A. Chạy draft hoàn toàn tách khỏi web
+## QA và tích hợp
 
-Từ thư mục gốc project, dùng PowerShell:
+Report build luôn mang trạng thái `draft-needs-composite-and-zoom-review`, không có trường pass chất lượng giả. Ảnh QA layer riêng do build tạo **chưa bao gồm** QA outfit, browser pinch zoom, showcase hay export. Các bước này phải được thực hiện theo kế hoạch sửa trước khi tích hợp.
 
-```powershell
-$env:STUDIO_OUTPUT_ROOT = 'artifacts/studio/candidates/review-01'
-npm.cmd run pipeline:studio
-Remove-Item Env:STUDIO_OUTPUT_ROOT
-```
+Lòng khoen của ảnh ghép cuối phải opaque và hiện da; cả neutral lẫn showcase/export. Áo nền màu da chỉ giữ khi chưa mặc áo; mặc đồ dùng nền đã phục hồi vùng da cần thấy. Cạp quần phải theo gấu thực, không bóp theo hàng. Giữ đỏ ở cổ/nách/gấu; không viền trắng tại mobile zoom 400%.
 
-Lệnh cuối chỉ bỏ biến môi trường của terminal, không xoá file. Bản đầu tiên ở một output root mới phải chạy toàn catalog để có đủ model, sprites và báo cáo. Nếu lệnh lỗi, vẫn bỏ biến môi trường trước khi tiếp tục thao tác runtime.
+Pipeline hiện không có lệnh publish tự động. Sau khi sửa xong nguồn/model/mask và kiểm tra đủ ma trận, bước tích hợp có chủ đích chỉ sao chép các layer đạt và metadata tương ứng, có snapshot để khôi phục. Đây là thao tác thực hiện trong công việc sửa layer đã được người dùng yêu cầu, không phải yêu cầu người dùng duyệt lại từng thao tác kỹ thuật. Không đưa draft hiện có lên game.
 
-Pipeline chạy prepare → validate → render theo thứ tự và dừng khi một bước trả exit code khác 0. Mỗi script dùng chung PATHS từ config. Báo cáo QA vẫn nằm trong `artifacts/studio/qa/`; xem timestamp để biết đang đánh giá bản draft hay runtime. Không chạy hai pipeline đồng thời vào cùng output root/QA directory.
-
-## B. Chạy sửa chọn lọc trên runtime
-
-Chỉ dùng sau khi đã duyệt nguồn và thông số. Lệnh này **có đổi web**:
-
-```powershell
-node scripts/studio/prepare-assets.mjs bottom-navy-dots bottom-gray-maxi shoes-brown-boots
-npm.cmd run validate:studio
-npm.cmd run render:studio:qa
-```
-
-Prepare sao lưu thư mục layers hiện có trước khi ghi. Backup chỉ chạy với output runtime thật; draft không tạo backup. Nếu fingerprint của toàn bộ PNG giống snapshot mới nhất thì bỏ qua để không sinh thư mục trùng chỉ vì metadata đổi. Với ID chọn lọc, pipeline giữ report của các món còn lại và tạo lại model/model-boots. Nguồn sản phẩm trong `assets/studio/sources/products/` không bị ghi đè. Khi chạy không có ID, toàn bộ 5 lớp active được xử lý lại.
-
-## C. Thông số extraction
-
-Mỗi item trong CONFIGS gồm category/name, min/max X/Y, threshold và các tuỳ chọn. Đơn vị là pixel trên canvas gốc, không phải CSS pixel.
-
-- `threshold`: độ chênh kênh màu tối đa giữa master và worn để coi là khác. Không bù được sai pose.
-- `neckMinY/neckX`: tránh lấy cổ/da ở cổ áo mở.
-- `waistMaxY/waistX`: giới hạn thân áo nhưng vẫn giữ tay dài hai bên.
-- `filterSkin`: lọc màu da mạnh, cần xem lại trên đồ kem/hồng/nâu.
-- `filterBodyArtifacts`: lọc màu ấm mạnh hơn, có thể làm mất bóng vải; không bật mặc định cho mọi món.
-- `onlyNeutral`: loại màu quá bão hoà/tối ngoài phạm vi của đồ trắng.
-- `onlyDark`: dùng cho boot; giữ highlight đến mức sáng 235. Ngưỡng 178 cũ từng khoét thủng mũi giày.
-- `keepLargestComponent`: loại mảnh rời; không áp dụng mù quáng cho đôi giày hoặc nhiều phần ren rời.
-- `fillBetweenEdges`: bổ sung pixel nguồn giữa biên vải từng hàng; chỉ phù hợp vùng vải liên tục đã kiểm duyệt, không áp dụng cho khoảng trống giữa hai chân/ống tay.
-- `preserveContinuousFabric`: bỏ lọc đoạn ngắn theo hàng và dark-noise trên váy để tránh vệt đứt.
-- `trimLightExterior`: chỉ bỏ vùng sáng nối thông với phần ngoài sprite; dùng cho váy navy/xám để dọn nền trắng dưới gấu, vẫn giữ chấm trắng nằm bên trong vải.
-- `previewPalette`: bộ lọc thử cho preview crop; không đảm bảo giữ đủ ren/vải trắng. Preview cần duyệt riêng.
-
-Nguồn RGB/RGBA được chuẩn hoá về RGB trước phép so sánh; tránh lỗi dùng stride 3 cho ảnh 4 kênh. Sprite output luôn RGBA. Model dùng tách nền kết nối từ ngoài; không xoá trắng bên trong quần áo.
-
-## D. Duyệt và đưa draft vào runtime
-
-1. Mở contact sheet và 8 look, đặc biệt navy/gray/white + boots. Xem cả pixel biên và silhouette.
-2. Ghi trạng thái từng item vào intake. Không dùng “pass tự động” thay phần quan sát.
-3. Giữ nguồn được chọn và cấu hình đi kèm. Nếu đổi boot, luôn chuyển cả boot sprite **và** model-boots cùng phiên bản.
-4. Sao lưu runtime rồi chép các file đã chọn. Không xoá cả public để triển khai một món.
-5. Cập nhật catalog/URL chỉ khi thêm món thật. Khi chỉ thay sprite có cùng ID, URL không đổi; kiểm tra reload và cache.
-6. Nếu chưa duyệt preview crop, tiếp tục dùng preview sản phẩm gốc.
-
-## E. Xác minh sau tích hợp
-
-```powershell
-npm.cmd run validate:studio
-npm.cmd run typecheck
-npm.cmd run build
-npm.cmd run test:e2e
-```
-
-Validator kiểm tra canvas, alpha, vùng hiển thị, số món 2/2/1, mapping catalog và trực tiếp các product cutout runtime trong `public/game/studio/products/`; không phụ thuộc cache `artifacts/`. E2E kiểm tra route/Help, duyệt nhóm, chọn/mặc, menu, ghost kéo, mobile không tràn ngang và show-look. Screenshot trong `artifacts/studio/qa/`.
-
-Kiểm tra tay tối thiểu ở 390×844, 768×1024, 1440×1024 và màn hình rộng 1920×1080. Một test viewport nhỏ pass không tự chứng minh mọi kích thước đều đẹp. Chuyển động là cả stage cùng nhau, không thay đổi toạ độ sprite.
-
-## F. Phục hồi
-
-Chọn đúng timestamp trong `.studio-work/runtime-backups/`, rồi chép từng file cần dùng về runtime. Khi đổi boot cần ghép đúng `model-boots.png`. Ảnh sản phẩm gốc và nguồn worn được giữ độc lập. Snapshot chỉ phục vụ rollback cục bộ, bị Git ignore và có thể dọn sau khi runtime đã qua validation.
-
-Giới hạn hiện tại: pipeline là tách ảnh theo heuristic, chưa có mask vẽ tay cho mỗi item; một số source cũ còn viền trắng/khác da ở mức pixel. Các file draft hoặc ảnh gen mới không được tự phát hành. Để có chuyển động tay/chân thật, phải bổ sung rig/pose assets; hiệu ứng stage hiện tại không sinh thông tin mặt sau của trang phục.
+Version product độc lập với layer; session preload bám theo hai version. Khi phát hành thay đổi hình học phải xử lý fit cũ/không version và kiểm tra hash ảnh tải thực tế. Version layer hiện vẫn là bản cũ vì chưa phát hành ảnh sửa.

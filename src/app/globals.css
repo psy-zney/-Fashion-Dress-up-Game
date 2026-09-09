@@ -531,3 +531,385 @@ img { display: block; max-width: none; user-select: none; }
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* ==========================================================================
+   Figma 112:147 ("Loading page") - Bauhaus Bubble & 3D Cyan Pearl
+   ========================================================================== */
+
+.figma-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  opacity: 1;
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+
+.figma-loading-overlay.is-exiting {
+  opacity: 0;
+  transform: scale(1.04);
+  pointer-events: none;
+}
+
+.figma-loading-stage {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.figma-loading-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+.figma-loading-tap-hint {
+  position: absolute;
+  top: min(36px, 4vh);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  font-family: var(--font-outfit, system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #52525b;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 6px 18px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  pointer-events: none;
+  animation: tapHintPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes tapHintPulse {
+  0%, 100% {
+    opacity: 0.65;
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    opacity: 0.95;
+    transform: translateX(-50%) translateY(-3px);
+  }
+}
+
+/* 23 Circles Vector Canvas */
+.figma-loading-circles-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.figma-bubble {
+  transform-origin: center;
+  animation-duration: 4s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.figma-bubble-0 {
+  animation-name: figmaBubbleFloat1;
+}
+
+.figma-bubble-1 {
+  animation-name: figmaBubbleFloat2;
+}
+
+.figma-bubble-2 {
+  animation-name: figmaBubbleFloat3;
+}
+
+.figma-bubble-3 {
+  animation-name: figmaBubbleFloat4;
+}
+
+@keyframes figmaBubbleFloat1 {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.02);
+  }
+}
+
+@keyframes figmaBubbleFloat2 {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(10px) scale(0.98);
+  }
+}
+
+@keyframes figmaBubbleFloat3 {
+  0%, 100% {
+    transform: translateX(0) translateY(0) scale(1);
+  }
+  50% {
+    transform: translateX(6px) translateY(-6px) scale(1.03);
+  }
+}
+
+@keyframes figmaBubbleFloat4 {
+  0%, 100% {
+    transform: translateX(0) translateY(0) scale(1);
+  }
+  50% {
+    transform: translateX(-6px) translateY(8px) scale(0.97);
+  }
+}
+
+/* Loading Bar & 3D Cyan Pearl (Figma: 880x29 at bottom, centered) */
+.figma-loading-bar-container {
+  position: relative;
+  z-index: 10;
+  width: min(880px, 86vw);
+  margin-bottom: min(120px, 12vh);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.figma-loading-track {
+  position: relative;
+  width: 100%;
+  height: 28px;
+  background: rgba(200, 200, 200, 0.35);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9);
+  overflow: visible;
+}
+
+.figma-loading-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #6AFEFF 0%, #30dfdc 64.4%, #006766 100%);
+  box-shadow: 0 0 14px rgba(106, 254, 255, 0.6);
+  transition: width 0.05s linear;
+}
+
+/* 3D Pearl indicator gliding along progress */
+.figma-loading-pearl-wrap {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(76px, 14vw);
+  height: min(76px, 14vw);
+  pointer-events: none;
+  transition: left 0.05s linear;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+}
+
+.figma-loading-pearl-halo {
+  position: absolute;
+  inset: -12%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, rgba(106, 254, 255, 0.4) 40%, transparent 70%);
+  filter: blur(4px);
+  animation: pearlHaloPulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes pearlHaloPulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+.figma-loading-pearl-img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.95)) drop-shadow(0 6px 16px rgba(0, 103, 102, 0.3));
+  transform: rotate(var(--pearl-rot, 0deg));
+  transition: transform 0.08s linear;
+}
+
+.figma-loading-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0 8px;
+}
+
+.figma-loading-text {
+  font-family: var(--font-outfit, system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #3f3f46;
+  text-transform: uppercase;
+}
+
+.figma-loading-percent {
+  font-family: var(--font-outfit, system-ui, sans-serif);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0d9488;
+}
+
+.figma-loading-error-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.figma-loading-error-text {
+  font-size: 12px;
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.figma-loading-retry-btn {
+  padding: 6px 16px;
+  border-radius: 9999px;
+  background: #0d9488;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.figma-loading-retry-btn:hover {
+  background: #0f766e;
+  transform: scale(1.04);
+}
+
+/* Mobile Responsiveness & Phone Adaptations */
+@media (max-width: 768px) {
+  .figma-loading-stage {
+    justify-content: flex-end;
+    padding-bottom: max(32px, env(safe-area-inset-bottom, 24px) + 24px);
+  }
+
+  .figma-loading-tap-hint {
+    top: max(16px, env(safe-area-inset-top, 16px) + 8px);
+    font-size: 11.5px;
+    padding: 5px 14px;
+    letter-spacing: 0.04em;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
+  }
+
+  .figma-loading-bar-container {
+    width: min(340px, calc(100vw - 36px));
+    margin-bottom: 0;
+    gap: 12px;
+  }
+
+  .figma-loading-track {
+    height: 22px;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 
+      0 3px 14px rgba(0, 0, 0, 0.08),
+      inset 0 1px 2px rgba(255, 255, 255, 0.95);
+  }
+
+  .figma-loading-fill {
+    box-shadow: 0 0 10px rgba(106, 254, 255, 0.7);
+  }
+
+  .figma-loading-pearl-wrap {
+    width: 46px;
+    height: 46px;
+  }
+
+  .figma-loading-pearl-halo {
+    inset: -8%;
+    filter: blur(3px);
+  }
+
+  .figma-loading-meta {
+    padding: 0 4px;
+  }
+
+  .figma-loading-text {
+    font-size: clamp(10.5px, 3.2vw, 12px);
+    letter-spacing: 0.05em;
+    max-width: 72%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .figma-loading-percent {
+    font-size: clamp(13px, 3.8vw, 15px);
+    font-weight: 800;
+  }
+}
+
+@media (max-width: 380px) {
+  .figma-loading-bar-container {
+    width: calc(100vw - 28px);
+    gap: 10px;
+  }
+
+  .figma-loading-track {
+    height: 20px;
+  }
+
+  .figma-loading-pearl-wrap {
+    width: 42px;
+    height: 42px;
+  }
+
+  .figma-loading-text {
+    font-size: 10px;
+  }
+
+  .figma-loading-percent {
+    font-size: 13px;
+  }
+}
+

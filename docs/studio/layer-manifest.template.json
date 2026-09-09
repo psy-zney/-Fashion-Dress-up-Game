@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "release": "fit-v3-draft-01",
+  "layers": [
+    {
+      "id": "top-modal-grommet",
+      "status": "pending-source-review",
+      "source": {
+        "path": "assets/studio/regenerated/fit-v3-reviewed/uncut/top-modal-grommet.png",
+        "sha256": "REPLACE_WITH_REVIEWED_SOURCE_SHA256"
+      },
+      "mask": {
+        "path": "assets/studio/regenerated/fit-v3-reviewed/masks/top-modal-grommet.png",
+        "sha256": "REPLACE_WITH_MATCHING_ALPHA_MASK_SHA256"
+      }
+    }
+  ]
+}

@@ -1,35 +1,11 @@
-# Ảnh sản phẩm và sticker kéo
+# Product: ảnh tủ đồ và sticker kéo
 
-## Đường dẫn active
+Quy định người dùng ngày 09/09/2026: giữ nguyên bốn PNG đang có trong `public/game/studio/products/` (hai áo, jeans, boots). Đây là artwork được cấp riêng. Công việc sửa layer mặc lên model không được thay chúng bằng ảnh cắt từ model.
 
-`previewAssetUrl(id)` trong `src/lib/studio.ts` trả `/game/studio/products/<id>.png` cho **5 món active**. Card và ghost dùng chung hàm này. Asset catalog cũ không còn được UI tham chiếu.
+- Card và drag cùng dùng `previewAssetUrl()`; version product độc lập với version layer.
+- Không sửa crop, padding, kích thước, màu, alpha hay đường dẫn ảnh product trong pipeline layer.
+- `scripts/studio/product-lock.json` lưu SHA-256 từng ảnh. `npm.cmd run studio:audit` kiểm tra cả danh sách và nội dung.
+- Script tạo product cũ đã bị chặn. Không tự phục hồi ảnh thiếu, không cập nhật lock để che một thay đổi ngoài yêu cầu.
+- Lỗ khoen trong product được giữ theo artwork hiện có. Quy tắc khoen hiện da áp dụng cho layer mặc/ảnh ghép trên model, không phải product.
 
-Nguồn ở `assets/studio/sources/products/original/` được giữ nguyên. Ba áo trắng/kem cột trái đã có alpha thật. Các áo cột phải và sáu bottom có nền caro in vào RGB; CSS opacity=1 hoặc draggable=false không thể loại nền này. Mary Jane cũ dùng sprite đã lọc màu da nên quai bị rời, không đủ hình sản phẩm.
-
-## Tạo lại
-
-```powershell
-npm.cmd run prepare:products
-```
-
-Cấu hình: `scripts/studio/product-preview.config.mjs`. Script: `scripts/studio/prepare-product-previews.mjs`. Chỉ ghi `public/game/studio/products/` và `artifacts/studio/qa/products/`; không ghi layer mặc/model hay ảnh gốc. Không chạy prepare:studio để sửa ảnh tủ.
-
-Các chế độ:
-
-- `alpha`: giữ kênh alpha đã có, không lọc lại ren hay màu vải. Dùng cho ba áo cột trái và preview boot.
-- `exterior`: flood-fill từ ngoài, loại nền sáng trung tính nối thông với ngoài. Chấm bi/highlight sáng bên trong được bao bởi vải tối nên giữ lại. Dùng cho ba áo cột phải, bốn bottom tối và Mary Jane.
-- `silhouette`: mask đường viền đã đối chiếu trên nguồn 1024×1536, dùng riêng short trắng và váy xếp ly trắng. Giữ nguyên pixel vải bên trong. Không dùng ngưỡng màu trắng toàn ảnh vì sẽ làm thủng vải. Khi đổi nguồn phải duyệt/căn mask lại, không tái sử dụng outline một cách mù quáng.
-
-Mary Jane dùng nguồn mới `assets/studio/sources/products/edited/shoes-mary-janes-v2.png`, tạo bằng Imagegen để có đôi giày đầy đủ, lòng giày và quai liên tục, không có chân người. Prompt chính xác được giữ cạnh ảnh. Kết quả gen vẫn có nền caro in vào ảnh nên cần bước exterior; không coi hình caro nhìn thấy là bằng chứng của alpha thật.
-
-Sau các chế độ trên, xoá alpha của dải bảo vệ 4px sát mép canvas để loại vài pixel rác ở góc ảnh xuất. Nguồn mới phải được kiểm tra điều kiện này trước khi dùng.
-
-## Kiểm tra trước khi dùng
-
-Script kiểm tra ít nhất 20% pixel trong suốt, ghi SHA-256 nguồn, kích thước và tỷ lệ alpha vào `artifacts/studio/qa/products/report.json`. Contact sheet nền mint ở cùng thư mục giúp phát hiện khung trắng và vải bị khoét.
-
-Chạy `npm.cmd run test:e2e`: test asset kiểm tra đủ 5 PNG active, có alpha thật, viền 4px ngoài hoàn toàn trong suốt. Test kéo cả capsule và kiểm tra cùng URL, cùng kích thước DOM, opacity=1, thả vào stage mặc được. Screenshot giữ chuột nằm ở `artifacts/studio/qa/products/drag-<id>.png`.
-
-Không trim/resize riêng ghost: kích thước và padding lấy từ ảnh DOM khi nhấn. Không thêm nền vào `.garment-drag-preview`. Các nguồn quần áo giữ nguyên canvas/framing để không thay kích thước tương đối đã được duyệt; Mary Jane có bố cục sản phẩm riêng.
-
-Chỉ cập nhật `public/game/studio/products/` sau khi xem contact sheet và ảnh kéo trên nền mint. Để phục hồi, chọn lại nguồn/cấu hình cũ; không xoá ảnh gốc hoặc cache gen. Ảnh source và outline của bản này được lưu cùng project nên lần sau không cần dựng lại từ đầu.
+Quy trình đang dùng: [PIPELINE.md](PIPELINE.md). Kế hoạch sửa bảy lỗi: [REPAIR-PLAN-2026-09-09.md](REPAIR-PLAN-2026-09-09.md).

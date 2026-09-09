@@ -25,7 +25,7 @@ import {
 import { playSound, type SoundEffect } from "@/lib/sound-effects";
 import { initAudio } from "@/lib/audio-manager";
 import { AudioSettingsModal } from "@/components/audio-settings-modal";
-import { HeartLoading } from "@/components/heart-loading";
+import { BubblePearlLoading } from "@/components/bubble-pearl-loading";
 import { ColorBubbleBurst } from "@/components/magic-bling";
 import { Fireworks } from "@/components/fireworks";
 
@@ -667,9 +667,9 @@ export function DressUpStudio() {
         </div>
       )}
       <AudioSettingsModal open={audioModalOpen} onClose={() => setAudioModalOpen(false)} />
-      <HeartLoading
+      <BubblePearlLoading
         active={loadingActive}
-        minDurationMs={650}
+        minDurationMs={2600}
         title="LOADING YOUR WARDROBE…"
         onFinish={() => setLoadingActive(false)}
       />
