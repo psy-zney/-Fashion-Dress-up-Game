@@ -44,11 +44,18 @@ test('production assets have soft alpha, clean denim edges, and unchanged pose l
     expect(yellow[(y * 1024 + x + radius + 3) * 4 + 3], `metal rim retained at ${x},${y}`).toBeGreaterThan(240);
   }
   const jeansUnderYellow = await layer('bottom-sculpted-jeans-under-yellow');
-  for (const [x, y] of [[400, 620], [645, 620], [520, 650]]) {
-    expect(jeans[(y * 1024 + x) * 4 + 3], `base jeans exist at ${x},${y}`).toBeGreaterThan(200);
-    expect(jeansUnderYellow[(y * 1024 + x) * 4 + 3], `jeans must stay below the yellow hem at ${x},${y}`).toBe(0);
+  const span = (rgba: Buffer, y: number) => {
+    let left = 1024, right = -1;
+    for (let x = 0; x < 1024; x++) if (rgba[(y * 1024 + x) * 4 + 3] > 32) { left = Math.min(left, x); right = x; }
+    return { left, right, width: right - left + 1 };
+  };
+  for (const y of [620, 640]) {
+    const baseSpan = span(jeans, y), fittedSpan = span(jeansUnderYellow, y), shirtSpan = span(yellow, y);
+    expect(fittedSpan.width, `narrowed waistband at y=${y}`).toBeLessThan(baseSpan.width);
+    expect(fittedSpan.left, `left waistband hidden at y=${y}`).toBeGreaterThanOrEqual(shirtSpan.left);
+    expect(fittedSpan.right, `right waistband hidden at y=${y}`).toBeLessThanOrEqual(shirtSpan.right);
   }
-  expect(jeansUnderYellow[(656 * 1024 + 520) * 4 + 3], 'jeans resume immediately below the yellow hem').toBeGreaterThan(200);
+  expect(jeansUnderYellow.subarray(700 * 1024 * 4, 701 * 1024 * 4).equals(jeans.subarray(700 * 1024 * 4, 701 * 1024 * 4)), 'pants return to full width below the shirt').toBe(true);
 
   const arms = await layer('model-arms');
   let hipSkinOverlay = 0;
