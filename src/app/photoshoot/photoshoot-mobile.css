@@ -1,0 +1,57 @@
+/* Keep portrait controls compact so the styled model remains the focal point. */
+@media (max-width: 600px) and (orientation: portrait) {
+  .photoshoot-frame {
+    width: min(100%, 34svh);
+  }
+
+  .photoshoot-panel {
+    min-height: 250px;
+    padding: 14px 14px 12px;
+  }
+
+  .photoshoot-sticker {
+    padding: 3px 10px;
+  }
+
+  .photoshoot-sticker p {
+    font-size: 13px;
+  }
+
+  .photoshoot-panel h1 {
+    margin: 8px 0 3px;
+    font-size: clamp(22px, 6vw, 30px);
+  }
+
+  .photoshoot-shutter {
+    width: 56px;
+    height: 56px;
+    margin-top: 3px;
+  }
+
+  .photoshoot-shutter-label {
+    margin: 1px 0 3px;
+  }
+
+  .photoshoot-menu {
+    margin-top: 4px;
+    gap: 4px 12px;
+  }
+
+  .photoshoot-menu a,
+  .photoshoot-menu button {
+    min-height: 36px;
+    gap: 5px;
+    font-size: 14px;
+  }
+
+  .photoshoot-caret {
+    width: 14px;
+    height: 14px;
+  }
+
+  .photoshoot-status {
+    margin-top: 3px;
+    font-size: 11px;
+    line-height: 1.25;
+  }
+}

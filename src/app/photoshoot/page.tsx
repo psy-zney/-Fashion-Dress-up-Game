@@ -1,5 +1,6 @@
 import { Photoshoot } from "@/components/photoshoot";
 import "./photoshoot.css";
+import "./photoshoot-mobile.css";
 
 export const metadata = {
   title: "Photoshoot · Fashion Dress-Up",
