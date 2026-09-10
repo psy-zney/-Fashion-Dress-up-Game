@@ -59,16 +59,6 @@ function PinIcon({ active }: { active: boolean }) {
   return <span aria-hidden="true">{active ? "●" : "○"}</span>;
 }
 
-function CategoryIcon({ category }: { category: Category }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      {category === "tops" && <path d="m8 5 4 2 4-2 4 3-2.4 3.2-1.6-1V20H8v-9.8l-1.6 1L4 8l4-3Z" />}
-      {category === "bottoms" && <path d="M7 4h10l2 16h-5l-2-9-2 9H5L7 4Zm0 4h10" />}
-      {category === "shoes" && <path d="M4 15c3 0 5-2 6-6l2 5c1 2 3 3 6 3h2v3H4v-5Z" />}
-    </svg>
-  );
-}
-
 export function DressUpStudio() {
   const router = useRouter();
   const [category, setCategory] = useState<Category>("tops");
@@ -462,6 +452,13 @@ export function DressUpStudio() {
         </button>
 
         <nav className="mobile-category-tabs" aria-label="Wardrobe categories">
+          <img
+            className="mobile-category-tabs-bg"
+            src={publicAsset("/game/ui/category-tabs-pink.webp")}
+            alt=""
+            draggable={false}
+            aria-hidden="true"
+          />
           {categories.map((item) => (
             <button
               type="button"
@@ -473,9 +470,7 @@ export function DressUpStudio() {
               data-testid={`mobile-category-${item.id}`}
               onClick={() => activateCategory(item.id)}
               aria-label={`${item.id === "tops" ? "Tops" : item.id === "bottoms" ? "Bottoms" : "Shoes"} category`}
-            >
-              <CategoryIcon category={item.id} />
-            </button>
+            />
           ))}
         </nav>
 
