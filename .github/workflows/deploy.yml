@@ -40,6 +40,7 @@ jobs:
       - name: Build static website
         env:
           BASE_PATH: "/-Fashion-Dress-up-Game"
+          DEPLOY_VERSION: ${{ github.sha }}
         run: |
           npm run build
           touch ./out/.nojekyll

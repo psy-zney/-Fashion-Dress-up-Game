@@ -1,3 +1,5 @@
+import { DEPLOY_VERSION, publicAsset } from "./public-asset";
+
 export const STAGE = { width: 1024, height: 1536 } as const;
 export const STUDIO_ASSET_VERSION = "production-v2-20260909-v13-narrow-waistband";
 // Product art is independently approved and must not change with layer releases.
@@ -67,8 +69,7 @@ export const presets: { name: string; selection: Selection }[] = [
   { name: "Soft Contrast", selection: { tops: "top-modal-grommet", bottoms: "bottom-sculpted-jeans", shoes: "shoes-party-platform-boots" } },
 ];
 
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-export const assetUrl = (id: string) => `${basePath}/game/studio/layers/${id}.png?v=${STUDIO_ASSET_VERSION}`;
+export const assetUrl = (id: string) => publicAsset(`/game/studio/layers/${id}.png`, `${STUDIO_ASSET_VERSION}-${DEPLOY_VERSION}`);
 export const hasShowcasePose = (selected: Selection, showcase: boolean) => showcase &&
   (selected.tops === "top-fitted-denim" || selected.tops === "top-modal-grommet");
 export function modelAssetId(selected: Selection, showcase = false) {
@@ -83,4 +84,4 @@ export function garmentAssetId(id: string, selected: Selection, showcase = false
 }
 // Reviewed product cutouts have real alpha; the card and pointer sticker share
 // this URL. Never substitute body-aligned sprite masks or opaque source renders.
-export const previewAssetUrl = (id: string) => `${basePath}/game/studio/products/${id}.png?v=${STUDIO_PRODUCT_VERSION}`;
+export const previewAssetUrl = (id: string) => publicAsset(`/game/studio/products/${id}.png`, STUDIO_PRODUCT_VERSION);

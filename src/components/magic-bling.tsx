@@ -1,13 +1,12 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import { publicAsset } from "@/lib/public-asset";
 
 interface ColorBubbleBurstProps {
   activeItem: string | null;
   category?: "tops" | "bottoms" | "shoes" | null;
 }
-
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 const burstBubbles = [
   { x: "-8.4cqw", y: "-1.2cqw", size: 17, delay: 10, hue: 185 },
@@ -44,7 +43,7 @@ export function ColorBubbleBurst({ activeItem, category }: ColorBubbleBurstProps
       <span className="color-bubble-burst-ring color-bubble-burst-ring-inner" />
       <img
         className="color-bubble-burst-art"
-        src={`${basePath}/game/effects/color-bubble-burst.gif`}
+        src={publicAsset("/game/effects/color-bubble-burst.gif")}
         alt=""
         draggable={false}
       />

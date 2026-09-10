@@ -7,9 +7,9 @@ import { playSound } from "@/lib/sound-effects";
 import { SoapBubbles } from "@/components/soap-bubbles";
 import { loadMusicWithProgress, initAudio, playBgmSafely } from "@/lib/audio-manager";
 import { preloadAllAssets } from "@/lib/asset-preloader";
+import { publicAsset } from "@/lib/public-asset";
 
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-const asset = (name: string) => `${basePath}/game/ui/${name}`;
+const asset = (name: string) => publicAsset(`/game/ui/${name}`);
 const unit = (pixels: number) => `${pixels / 14.4}cqw`;
 
 function Help() {

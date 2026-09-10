@@ -3,7 +3,21 @@ import { expect, test } from "@playwright/test";
 test("touch outfit selection, full character and photoshoot on a phone", async ({ page }, testInfo) => {
   test.setTimeout(60_000);
   const errors: string[] = [];
+  const consoleErrors: string[] = [];
+  const failedRequests: string[] = [];
+  const badResponses: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  page.on("requestfailed", (request) => {
+    const reason = request.failure()?.errorText || "unknown";
+    const isExpectedSafariMediaCancel = reason === "Load request cancelled" && request.url().includes("/game/Music/BackgroundMusic.mp3");
+    if (!isExpectedSafariMediaCancel) failedRequests.push(`${reason} ${request.method()} ${request.url()}`);
+  });
+  page.on("response", (response) => {
+    if (response.status() >= 400) badResponses.push(`${response.status()} ${response.url()}`);
+  });
   await page.goto("/play");
   await page.getByTestId("garment-top-modal-grommet").tap();
   await page.getByTestId("mobile-category-bottoms").tap();
@@ -51,4 +65,7 @@ test("touch outfit selection, full character and photoshoot on a phone", async (
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `artifacts/mobile/${testInfo.project.name}-landscape.png`, scale: "css" });
   expect(errors).toEqual([]);
+  expect(consoleErrors).toEqual([]);
+  expect(failedRequests).toEqual([]);
+  expect(badResponses).toEqual([]);
 });

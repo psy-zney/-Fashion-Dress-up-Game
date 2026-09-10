@@ -1,6 +1,7 @@
 "use client";
 
 import { setSfxVolume, preloadAudio } from "./sound-effects";
+import { publicAsset } from "./public-asset";
 
 export interface AudioSettings {
   masterVolume: number; // 0 to 100: controls ALL sounds
@@ -12,7 +13,6 @@ export interface AudioSettings {
 
 const STORAGE_KEY = "dress_up_audio_settings_v2";
 const LEGACY_STORAGE_KEY = "dress_up_audio_settings";
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 const DEFAULT_SETTINGS: AudioSettings = {
   masterVolume: 100,
@@ -233,7 +233,7 @@ export function applyBgmState() {
   void playBgmSafely();
 }
 
-const BGM_SRC = `${basePath}/game/Music/BackgroundMusic.mp3?v=20260908`;
+const BGM_SRC = publicAsset("/game/Music/BackgroundMusic.mp3");
 
 export function initAudio(): AudioSettings {
   if (typeof window === "undefined") return currentSettings;

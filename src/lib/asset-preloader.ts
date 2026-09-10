@@ -1,23 +1,22 @@
 "use client";
 
 import { allGarments, assetUrl, previewAssetUrl, STUDIO_ASSET_VERSION, STUDIO_PRODUCT_VERSION } from './studio';
-
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+import { DEPLOY_VERSION, publicAsset } from "./public-asset";
 
 export const CORE_PRELOAD_IMAGES: string[] = [
   // Landing UI
-  `${basePath}/game/ui/landing-background.png`,
-  `${basePath}/game/ui/landing-overlay.png`,
-  `${basePath}/game/ui/back.svg`,
-  `${basePath}/game/ui/shadow.svg`,
-  `${basePath}/game/ui/back-button-glossy.png`,
-  `${basePath}/game/ui/category-wheel-pink.webp`,
-  `${basePath}/game/ui/wardrobe-cabinet-glossy.webp`,
-  `${basePath}/game/ui/pick-an-outfit-header.png`,
-  `${basePath}/game/backgrounds/slide-playground.webp`,
-  `${basePath}/game/photoshoot/background.png`,
-  `${basePath}/game/photoshoot/camera.svg`,
-  `${basePath}/game/effects/color-bubble-burst.gif`,
+  publicAsset("/game/ui/landing-background.png"),
+  publicAsset("/game/ui/landing-overlay.png"),
+  publicAsset("/game/ui/back.svg"),
+  publicAsset("/game/ui/shadow.svg"),
+  publicAsset("/game/ui/back-button-glossy.png"),
+  publicAsset("/game/ui/category-wheel-pink.webp"),
+  publicAsset("/game/ui/wardrobe-cabinet-glossy.webp"),
+  publicAsset("/game/ui/pick-an-outfit-header.png"),
+  publicAsset("/game/backgrounds/slide-playground.webp"),
+  publicAsset("/game/photoshoot/background.png"),
+  publicAsset("/game/photoshoot/camera.svg"),
+  publicAsset("/game/effects/color-bubble-burst.gif"),
 
   ...['model', 'model-boots', 'model-arms', 'model-lower', 'model-lower-boots', 'top-fitted-denim-pose', 'top-modal-grommet-pose', 'bottom-sculpted-jeans-under-yellow'].map(assetUrl),
   ...allGarments.map(({ id }) => previewAssetUrl(id)),
@@ -25,16 +24,16 @@ export const CORE_PRELOAD_IMAGES: string[] = [
 ];
 
 export const CORE_PRELOAD_AUDIO: string[] = [
-  `${basePath}/game/Music/BackgroundMusic.mp3?v=20260908`,
-  `${basePath}/game/effects/click_btn.mp3`,
-  `${basePath}/game/effects/particles_sparkle_small.mp3`,
-  `${basePath}/game/effects/particles_sparkle_small 2.mp3?v=20260908-boing`,
-  `${basePath}/game/effects/buble.mp3`,
+  publicAsset("/game/Music/BackgroundMusic.mp3"),
+  publicAsset("/game/effects/click_btn.mp3"),
+  publicAsset("/game/effects/particles_sparkle_small.mp3"),
+  publicAsset("/game/effects/particles_sparkle_small 2.mp3"),
+  publicAsset("/game/effects/buble.mp3"),
 ];
 
 let isGlobalPreloaded = false;
 let activePreload: Promise<void> | null = null;
-const PRELOAD_STORAGE_KEY = `tung_tung_preloaded_${STUDIO_ASSET_VERSION}_${STUDIO_PRODUCT_VERSION}`;
+const PRELOAD_STORAGE_KEY = `tung_tung_preloaded_${STUDIO_ASSET_VERSION}_${STUDIO_PRODUCT_VERSION}_${DEPLOY_VERSION}`;
 
 export function isAssetsPreloaded(): boolean {
   if (isGlobalPreloaded) return true;

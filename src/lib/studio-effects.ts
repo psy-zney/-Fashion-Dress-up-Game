@@ -1,4 +1,5 @@
 import { type Category } from "./studio";
+import { publicAsset } from "./public-asset";
 
 export type EffectMode = "normal" | "cloud" | "smoke";
 
@@ -8,7 +9,6 @@ export interface EffectController {
   destroy: () => void;
 }
 
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 export function createEffectController(canvas: HTMLCanvasElement): EffectController {
   const ctx = canvas.getContext("2d", { willReadFrequently: true });
@@ -22,13 +22,13 @@ export function createEffectController(canvas: HTMLCanvasElement): EffectControl
 
   // Offscreen videos
   const cloudVideo = document.createElement("video");
-  cloudVideo.src = `${basePath}/game/effects/cloud.webm`;
+  cloudVideo.src = publicAsset("/game/effects/cloud.webm");
   cloudVideo.muted = true;
   cloudVideo.playsInline = true;
   cloudVideo.preload = "auto";
 
   const smokeVideo = document.createElement("video");
-  smokeVideo.src = `${basePath}/game/effects/smoke.mp4`;
+  smokeVideo.src = publicAsset("/game/effects/smoke.mp4");
   smokeVideo.muted = true;
   smokeVideo.playsInline = true;
   smokeVideo.preload = "auto";

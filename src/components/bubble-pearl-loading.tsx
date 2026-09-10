@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type TouchEvent } from "react";
 import { preloadAllAssets, isAssetsPreloaded } from "@/lib/asset-preloader";
 import { playBubblePop } from "@/lib/sound-effects";
+import { publicAsset } from "@/lib/public-asset";
 
 interface BubblePearlLoadingProps {
   active: boolean;
@@ -92,8 +93,6 @@ interface PearlWakeParticle {
   size: number;
   alpha: number;
 }
-
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
 export function BubblePearlLoading({
   active,
@@ -675,7 +674,7 @@ export function BubblePearlLoading({
             >
               <div className="figma-loading-pearl-halo" />
               <img
-                src={`${basePath}/game/ui/cyan-pearl-3d.png`}
+                src={publicAsset("/game/ui/cyan-pearl-3d.png")}
                 alt=""
                 className="figma-loading-pearl-img"
                 draggable={false}

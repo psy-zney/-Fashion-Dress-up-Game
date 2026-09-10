@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type PointerEvent, type KeyboardEvent } from "react";
 import { readLook, renderLook } from "@/lib/studio-look";
 import { playSound } from "@/lib/sound-effects";
+import { publicAsset } from "@/lib/public-asset";
 
-const art = `${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/photoshoot`;
+const art = (name: string) => publicAsset(`/game/photoshoot/${name}`);
 type CameraState = "off" | "starting" | "live" | "error";
 type Placement = { x: number; y: number; scale: number };
 const initialPlacement: Placement = { x: 0.5, y: 0.5, scale: 0.94 };
@@ -156,7 +157,7 @@ export function Photoshoot() {
       context.restore();
     } else {
       const background = new Image();
-      background.src = `${art}/background.png`;
+      background.src = art("background.png");
       await background.decode();
       const ratio = Math.max(canvas.width / background.width, canvas.height / background.height);
       context.drawImage(background, (canvas.width - background.width * ratio) / 2, (canvas.height - background.height * ratio) / 2, background.width * ratio, background.height * ratio);
@@ -205,13 +206,13 @@ export function Photoshoot() {
   return (
     <main className="photoshoot-shell" lang="en">
       <div className="photoshoot-scene" ref={sceneRef}>
-        <img className="photoshoot-background" src={`${art}/background.png`} alt="" draggable={false} />
+        <img className="photoshoot-background" src={art("background.png")} alt="" draggable={false} />
         <section className="photoshoot-panel" aria-labelledby="photoshoot-title">
           <p className="photoshoot-sticker">TIME FOR YOUR</p>
           <h1 id="photoshoot-title">PHOTOSHOOT</h1>
           <button className="photoshoot-shutter" type="button" aria-label={photo ? "Retake photo" : camera === "live" ? "Take photo" : "Turn on camera"}
             disabled={!canShoot || camera === "starting"} onClick={() => { playSound("click"); if (camera === "live") void takePhoto(); else void startCamera(); }}>
-            <img src={`${art}/camera.svg`} alt="" draggable={false} />
+            <img src={art("camera.svg")} alt="" draggable={false} />
           </button>
           <span className="photoshoot-shutter-label">{photo ? "RETAKE" : camera === "live" ? "TAKE PHOTO" : camera === "starting" ? "STARTING CAMERA…" : "TURN ON CAMERA"}</span>
           <div className="photoshoot-tools">

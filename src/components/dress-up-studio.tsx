@@ -28,6 +28,7 @@ import { AudioSettingsModal } from "@/components/audio-settings-modal";
 import { BubblePearlLoading } from "@/components/bubble-pearl-loading";
 import { ColorBubbleBurst } from "@/components/magic-bling";
 import { Fireworks } from "@/components/fireworks";
+import { publicAsset } from "@/lib/public-asset";
 
 type DragPreview = {
   id: string;
@@ -329,7 +330,13 @@ export function DressUpStudio() {
   return (
     <main className="game-shell" lang="en">
       <div className="game-canvas dressing-room" aria-label="Fashion Dress-Up Dressing Room">
-        <div className={`dressing-room-content ${isShowcaseMode ? "is-showcase-mode" : ""}`}>
+        <div
+          className={`dressing-room-content ${isShowcaseMode ? "is-showcase-mode" : ""}`}
+          style={{
+            "--studio-background-image": `url('${publicAsset("/game/backgrounds/slide-playground.webp")}')`,
+            "--wardrobe-background-image": `url('${publicAsset("/game/ui/wardrobe-cabinet-glossy.webp")}')`,
+          } as CSSProperties}
+        >
         <div className="desktop-6-atmosphere" aria-hidden="true">
           <span className="ambient-bubble ambient-bubble-a" />
           <span className="ambient-bubble ambient-bubble-b" />
@@ -340,7 +347,7 @@ export function DressUpStudio() {
         {/* Photoshoot background layer in showcase mode matching Image 1 */}
         <img
           className="showcase-bg-layer"
-          src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/photoshoot/background.png`}
+          src={publicAsset("/game/photoshoot/background.png")}
           alt=""
           draggable={false}
           aria-hidden="true"
@@ -359,11 +366,11 @@ export function DressUpStudio() {
             onClick={handleExitShowcase}
             data-testid="showcase-back-btn"
           >
-            <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/ui/back-button-glossy.png`} alt="" draggable={false} />
+            <img src={publicAsset("/game/ui/back-button-glossy.png")} alt="" draggable={false} />
           </button>
         ) : (
           <Link className="back-button" href="/" aria-label="Back to home" onClick={() => playSound("back")}>
-            <img src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/ui/back-button-glossy.png`} alt="" draggable={false} />
+            <img src={publicAsset("/game/ui/back-button-glossy.png")} alt="" draggable={false} />
           </Link>
         )}
 
@@ -388,7 +395,7 @@ export function DressUpStudio() {
         <div className="character-stage-wrap">
           <div className="character-spotlight" aria-hidden="true" />
           <div className="character-podium" aria-hidden="true" />
-          <img className="character-shadow" src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/ui/shadow.svg`} alt="" draggable={false} />
+          <img className="character-shadow" src={publicAsset("/game/ui/shadow.svg")} alt="" draggable={false} />
           <div
             ref={stageRef}
             className={`studio-stage ${isDragOverStage ? "is-drag-over" : ""}`}
@@ -486,7 +493,7 @@ export function DressUpStudio() {
           >
             {/* 3D pearl-pink wheel background exported from Figma 72:223 */}
             <img
-              src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/ui/category-wheel-pink.webp`}
+              src={publicAsset("/game/ui/category-wheel-pink.webp")}
               alt=""
               className="wardrobe-wheel-bg"
               draggable={false}
@@ -609,7 +616,7 @@ export function DressUpStudio() {
               <div className="capture-polaroid-photo">
                 <img
                   className="capture-polaroid-bg"
-                  src={`${process.env.NEXT_PUBLIC_BASE_PATH || ""}/game/photoshoot/background.png`}
+                  src={publicAsset("/game/photoshoot/background.png")}
                   alt=""
                   draggable={false}
                   aria-hidden="true"

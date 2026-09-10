@@ -18,6 +18,32 @@ test("màn hình mở đầu chỉ dẫn PLAY vào phòng phối đồ tích h�
   expect(errors).toEqual([]);
 });
 
+test("PLAY dùng nền Figma có deploy version và giữ tỉ lệ model desktop", async ({ page, request }) => {
+  await page.goto("/play");
+
+  const versionResponse = await request.get(`/deploy-version.json?t=${Date.now()}`);
+  expect(versionResponse.ok()).toBe(true);
+  const { version } = await versionResponse.json() as { version: string };
+
+  const room = page.locator(".dressing-room-content");
+  const backgroundImage = await room.evaluate((element) => getComputedStyle(element).backgroundImage);
+  expect(backgroundImage).toContain("/game/backgrounds/slide-playground.webp?v=");
+  expect(backgroundImage).toContain(encodeURIComponent(version));
+
+  const backgroundUrl = backgroundImage.match(/url\(["']?(.*?)["']?\)/)?.[1];
+  expect(backgroundUrl).toBeTruthy();
+  const backgroundResponse = await request.get(backgroundUrl!);
+  expect(backgroundResponse.ok()).toBe(true);
+
+  const stage = (await page.getByTestId("studio-stage").boundingBox())!;
+  expect(stage.width / stage.height).toBeCloseTo(2 / 3, 2);
+  expect(stage.x).toBeGreaterThan(195);
+  expect(stage.x).toBeLessThan(220);
+  expect(stage.y).toBeGreaterThan(80);
+  expect(stage.y).toBeLessThan(100);
+  expect(stage.y + stage.height).toBeLessThan(910);
+});
+
 test("hướng dẫn mở, giữ focus, đóng bằng Escape và trả focus", async ({ page }) => {
   await page.goto("/");
   const help = page.getByRole("button", { name: "How to play" });

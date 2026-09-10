@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { DeployVersionGuard } from "@/components/deploy-version-guard";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -13,5 +14,5 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return <html lang="en"><body><DeployVersionGuard />{children}</body></html>;
 }
