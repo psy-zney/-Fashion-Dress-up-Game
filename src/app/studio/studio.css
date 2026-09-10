@@ -2552,7 +2552,7 @@
   .mobile-category-tabs {
     display: grid !important;
     top: calc(var(--mobile-stage-end) + 58px);
-    width: min(39vw, 170px);
+    width: min(49vw, 213px);
     height: 48px;
     aspect-ratio: auto;
     grid-template-columns: repeat(3, minmax(0, 1fr));

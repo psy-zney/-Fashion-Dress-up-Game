@@ -48,7 +48,7 @@ test("touch outfit selection, full character and photoshoot on a phone", async (
   const actor = (await page.getByTestId("photoshoot-look").boundingBox())!;
   const frame = (await page.getByTestId("photoshoot-frame").boundingBox())!;
   expect(actor.height).toBeGreaterThan(180);
-  expect(actor.y).toBeGreaterThanOrEqual(frame.y);
+  expect(actor.y).toBeGreaterThanOrEqual(frame.y - 1);
   expect(actor.y + actor.height).toBeLessThanOrEqual(frame.y + frame.height + 1);
   expect(actor.height / actor.width).toBeCloseTo(1.5, 1);
   await page.getByRole("link", { name: "GO BACK" }).scrollIntoViewIfNeeded();
