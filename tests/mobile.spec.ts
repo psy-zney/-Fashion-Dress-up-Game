@@ -20,12 +20,13 @@ test("touch outfit selection, full character and photoshoot on a phone", async (
   });
   await page.goto("/play");
   await page.getByTestId("garment-top-modal-grommet").tap();
-  await page.getByTestId("category-bottoms").tap();
+  await page.getByTestId("mobile-category-bottoms").tap();
   await page.getByTestId("garment-bottom-sculpted-jeans").tap();
-  await page.getByTestId("category-shoes").tap();
+  await page.getByTestId("mobile-category-shoes").tap();
   await page.getByTestId("garment-shoes-party-platform-boots").tap();
   const stage = page.getByTestId("studio-stage");
-  await expect(page.locator(".wardrobe-wheel")).toBeVisible();
+  await expect(page.locator(".mobile-category-tabs")).toBeVisible();
+  await expect(page.locator(".wardrobe-wheel")).toBeHidden();
   await expect(stage).toHaveAttribute("data-layer-count", "3");
   await stage.locator("img").evaluateAll((images) => Promise.all(images.map((image) => (image as HTMLImageElement).decode())));
   const box = (await stage.boundingBox())!;
