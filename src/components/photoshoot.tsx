@@ -9,7 +9,7 @@ import { publicAsset } from "@/lib/public-asset";
 const art = (name: string) => publicAsset(`/game/photoshoot/${name}`);
 type CameraState = "off" | "starting" | "live" | "error";
 type Placement = { x: number; y: number; scale: number };
-const initialPlacement: Placement = { x: 0.5, y: 0.5, scale: 0.94 };
+const initialPlacement: Placement = { x: 0.5, y: 0.47, scale: 0.88 };
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
 function cameraError(error: unknown) {
@@ -161,6 +161,14 @@ export function Photoshoot() {
       await background.decode();
       const ratio = Math.max(canvas.width / background.width, canvas.height / background.height);
       context.drawImage(background, (canvas.width - background.width * ratio) / 2, (canvas.height - background.height * ratio) / 2, background.width * ratio, background.height * ratio);
+      try {
+        const podium = new Image();
+        podium.src = art("podium.png");
+        await podium.decode();
+        context.drawImage(podium, 740 * (canvas.width / 1440), 830 * (canvas.height / 1024), 560 * (canvas.width / 1440), 194 * (canvas.height / 1024));
+      } catch {
+        /* Podium is optional in custom camera modes */
+      }
     }
     const factor = canvas.width / bounds.width;
     const height = frameBounds.height * placement.scale * factor;
@@ -207,8 +215,10 @@ export function Photoshoot() {
     <main className="photoshoot-shell" lang="en">
       <div className="photoshoot-scene" ref={sceneRef}>
         <img className="photoshoot-background" src={art("background.png")} alt="" draggable={false} />
+        {!cameraFrame && <img className="photoshoot-podium" src={art("podium.png")} alt="" draggable={false} />}
         <section className="photoshoot-panel" aria-labelledby="photoshoot-title">
-          <p className="photoshoot-sticker">TIME FOR YOUR</p>
+          <img className="photoshoot-panel-bg" src={art("glass-panel.png")} alt="" draggable={false} />
+          <div className="photoshoot-sticker"><p>TIME FOR YOUR</p></div>
           <h1 id="photoshoot-title">PHOTOSHOOT</h1>
           <button className="photoshoot-shutter" type="button" aria-label={photo ? "Retake photo" : camera === "live" ? "Take photo" : "Turn on camera"}
             disabled={!canShoot || camera === "starting"} onClick={() => { playSound("click"); if (camera === "live") void takePhoto(); else void startCamera(); }}>
@@ -229,9 +239,18 @@ export function Photoshoot() {
             {lookState === "error" && <button type="button" onClick={() => { playSound("click"); setLoadAttempt((value) => value + 1); }}>Reload outfit</button>}
           </div>
           <nav className="photoshoot-menu" aria-label="Photoshoot">
-            <button type="button" disabled={!canShoot || camera === "starting"} onClick={() => { playSound("click"); void savePhoto(); }}><span aria-hidden="true">▸</span> {busy ? "SAVING…" : "SAVE"}</button>
-            <Link href="/" onClick={() => { stopCamera(); playSound("back"); }}><span aria-hidden="true">▸</span> MAIN MENU</Link>
-            <Link href="/play" onClick={() => { stopCamera(); playSound("back"); }}><span aria-hidden="true">▸</span> GO BACK</Link>
+            <button type="button" disabled={!canShoot || camera === "starting"} onClick={() => { playSound("click"); void savePhoto(); }}>
+              <svg className="photoshoot-caret" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M7 4.5a1.5 1.5 0 0 0-2.5 1.15v12.7a1.5 1.5 0 0 0 2.5 1.15l10.5-6.35a1.5 1.5 0 0 0 0-2.3L7 4.5Z" /></svg>
+              {busy ? "SAVING…" : "SAVE"}
+            </button>
+            <Link href="/" onClick={() => { stopCamera(); playSound("back"); }}>
+              <svg className="photoshoot-caret" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M7 4.5a1.5 1.5 0 0 0-2.5 1.15v12.7a1.5 1.5 0 0 0 2.5 1.15l10.5-6.35a1.5 1.5 0 0 0 0-2.3L7 4.5Z" /></svg>
+              MAIN MENU
+            </Link>
+            <Link href="/play" onClick={() => { stopCamera(); playSound("back"); }}>
+              <svg className="photoshoot-caret" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M7 4.5a1.5 1.5 0 0 0-2.5 1.15v12.7a1.5 1.5 0 0 0 2.5 1.15l10.5-6.35a1.5 1.5 0 0 0 0-2.3L7 4.5Z" /></svg>
+              GO BACK
+            </Link>
           </nav>
           <p className="photoshoot-status" role="status">{status}</p>
         </section>

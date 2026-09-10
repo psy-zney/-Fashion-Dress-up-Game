@@ -1874,28 +1874,28 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.8cqw;
-  padding: 0.85cqw 2.4cqw;
+  width: max(48px, 3.4cqw);
+  height: max(48px, 3.4cqw);
+  aspect-ratio: 1 / 1;
+  padding: 0;
   background: linear-gradient(135deg, #dfff55 0%, #41ffad 50%, #71ead6 100%);
   color: #0b3d33;
-  font-size: max(14px, 1.25cqw);
-  font-weight: 800;
-  letter-spacing: 0.05em;
   border: 2px solid #ffffff;
-  border-radius: 999px;
+  border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 10px 28px rgba(23, 126, 116, 0.4), 0 0 22px rgba(223, 255, 85, 0.45);
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
   animation: saveGlowPulse 2.2s ease-in-out infinite;
+  flex-shrink: 0;
 }
 
 .showcase-save-btn:hover {
-  transform: translateY(-2px) scale(1.04);
+  transform: translateY(-2px) scale(1.08);
   box-shadow: 0 14px 36px rgba(23, 126, 116, 0.5), 0 0 30px rgba(223, 255, 85, 0.65);
 }
 
 .showcase-save-btn:active {
-  transform: translateY(1px) scale(0.98);
+  transform: translateY(1px) scale(0.96);
 }
 
 .showcase-save-btn:disabled {
@@ -1917,30 +1917,30 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6cqw;
-  padding: 0.85cqw 1.8cqw;
+  width: max(48px, 3.4cqw);
+  height: max(48px, 3.4cqw);
+  aspect-ratio: 1 / 1;
+  padding: 0;
   background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   color: #1b4b3e;
-  font-size: max(13px, 1.1cqw);
-  font-weight: 700;
-  letter-spacing: 0.03em;
   border: 1.5px solid rgba(255, 255, 255, 0.95);
-  border-radius: 999px;
+  border-radius: 50%;
   cursor: pointer;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
   transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  flex-shrink: 0;
 }
 
 .showcase-edit-btn:hover {
   background: rgba(255, 255, 255, 0.98);
-  transform: translateY(-2px);
+  transform: translateY(-2px) scale(1.08);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .showcase-edit-btn:active {
-  transform: translateY(1px);
+  transform: translateY(1px) scale(0.96);
 }
 
 .showcase-edit-btn:disabled {
@@ -2105,14 +2105,11 @@
     justify-content: center;
   }
 
-  .showcase-save-btn {
-    font-size: 13px;
-    padding: 10px 22px;
-  }
-
+  .showcase-save-btn,
   .showcase-edit-btn {
-    font-size: 12px;
-    padding: 10px 16px;
+    width: 46px;
+    height: 46px;
+    padding: 0;
   }
 
   .capture-polaroid-card {
@@ -2149,14 +2146,11 @@
     gap: 12px;
   }
 
-  .showcase-save-btn {
-    font-size: 11px;
-    padding: 6px 16px;
-  }
-
+  .showcase-save-btn,
   .showcase-edit-btn {
-    font-size: 11px;
-    padding: 6px 12px;
+    width: 38px;
+    height: 38px;
+    padding: 0;
   }
 
   .capture-polaroid-card {

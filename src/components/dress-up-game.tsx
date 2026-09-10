@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { looks, wardrobeCards, type LookScreen, type Screen } from "@/lib/outfits";
 import { playSound } from "@/lib/sound-effects";
 import { SoapBubbles } from "@/components/soap-bubbles";
@@ -12,10 +12,13 @@ import { publicAsset } from "@/lib/public-asset";
 const asset = (name: string) => publicAsset(`/game/ui/${name}`);
 const unit = (pixels: number) => `${pixels / 14.4}cqw`;
 
-function Help() {
+function Help({ onOpen }: { onOpen?: () => void }) {
   const dialog = useRef<HTMLDialogElement>(null);
   return <>
-    <button className="glass-button help-button" aria-label="How to play" onClick={() => { playSound("panelOpen"); dialog.current?.showModal(); }}>?</button>
+    <button className="help-button" aria-label="How to play" onClick={() => { onOpen?.(); playSound("panelOpen"); dialog.current?.showModal(); }}>
+      <img src={asset("button-help.png")} alt="" className="help-button-img" draggable={false} />
+      <span className="sr-only">?</span>
+    </button>
     <dialog ref={dialog} className="help-dialog" aria-labelledby="help-title" onClose={() => playSound("panelClose")} onClick={(event) => {
       if (event.target === event.currentTarget) dialog.current?.close();
     }}>
@@ -83,6 +86,34 @@ export function DressUpGame({ screen }: { screen: Screen }) {
   const [freshlyLoaded, setFreshlyLoaded] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const [loadAttempt, setLoadAttempt] = useState(0);
+  const [isActivated, setIsActivated] = useState(false);
+
+  const handleActivate = useCallback(() => {
+    setIsActivated((prev) => {
+      if (prev) return true;
+      initAudio();
+      void playBgmSafely();
+      playSound("click");
+      setFreshlyLoaded(true);
+      return true;
+    });
+  }, []);
+
+  // Allow clicking or tapping ANYWHERE on the screen to activate audio, clear blur, and start
+  useEffect(() => {
+    if (screen !== 1 || audioLoading || isActivated) return;
+
+    const onUserGesture = () => {
+      handleActivate();
+    };
+
+    window.addEventListener("pointerdown", onUserGesture, { passive: true });
+    window.addEventListener("keydown", onUserGesture, { passive: true });
+    return () => {
+      window.removeEventListener("pointerdown", onUserGesture);
+      window.removeEventListener("keydown", onUserGesture);
+    };
+  }, [screen, audioLoading, isActivated, handleActivate]);
 
   useEffect(() => {
     if (screen === 1) {
@@ -112,8 +143,6 @@ export function DressUpGame({ screen }: { screen: Screen }) {
         if (!isMounted) return;
 
         setAudioLoading(false);
-        setFreshlyLoaded(true);
-        void playBgmSafely();
       })().catch(() => {
         if (!isMounted) return;
         setAudioLoading(false);
@@ -127,55 +156,92 @@ export function DressUpGame({ screen }: { screen: Screen }) {
     }
   }, [loadAttempt, screen]);
 
+  const isBlurred = screen === 1 && (audioLoading || !isActivated);
+
   return (
     <main
       className={`game-shell ${screen === 1 ? "landing-shell" : ""}`}
       style={{ "--landing-bg": `url('${asset("landing-background.png")}')` } as CSSProperties}
     >
-      <div className={`game-canvas ${screen === 1 ? "landing" : "dressing-room"}`} data-screen={screen} data-node-id={screen === 1 ? "1:2" : looks[screen].nodeId} aria-label={screen === 1 ? "Fashion Dress-Up minigame" : "Dress up game"}>
+      <div
+        className={`game-canvas ${screen === 1 ? "landing" : "dressing-room"}`}
+        data-screen={screen}
+        data-node-id={screen === 1 ? "1:2" : looks[screen].nodeId}
+        aria-label={screen === 1 ? "Fashion Dress-Up minigame" : "Dress up game"}
+        onClick={() => {
+          if (screen === 1 && !audioLoading && !isActivated) {
+            handleActivate();
+          }
+        }}
+      >
         {screen === 1 ? <>
           <img
-            className={`landing-art ${audioLoading ? "is-loading-blur" : ""}`}
+            className={`landing-art ${isBlurred ? "is-loading-blur" : ""}`}
             src={asset("landing-background.png")}
             alt="Fashion Dress-Up Minigame — a colorful fashion collage in the city"
             fetchPriority="high"
             draggable={false}
           />
           <img
-            className={`landing-art landing-overlay ${audioLoading ? "is-loading-blur" : ""}`}
+            className={`landing-art landing-overlay ${isBlurred ? "is-loading-blur" : ""}`}
             src={asset("landing-overlay.png")}
             alt=""
             draggable={false}
           />
-          {!audioLoading && <SoapBubbles count={12} />}
+          {!audioLoading && isActivated && <SoapBubbles count={12} />}
           {loadError ? <button
             type="button"
-            className="glass-button play-button is-freshly-loaded"
+            className="glass-button play-button is-freshly-loaded is-retry"
             onClick={() => setLoadAttempt((value) => value + 1)}
           >
             RETRY
           </button> : <Link
             className={`glass-button play-button ${audioLoading ? "is-loading-hidden" : ""} ${freshlyLoaded ? "is-freshly-loaded" : ""}`}
             href="/play"
+            aria-label="PLAY"
             onClick={() => {
+              handleActivate();
               playSound("play");
               void playBgmSafely();
             }}
           >
-            PLAY
+            <img
+              src={asset("button-play.png")}
+              alt=""
+              className="play-button-img"
+              draggable={false}
+            />
+            <span className="sr-only">PLAY</span>
           </Link>}
           <div
             className={`landing-loading-bar-wrap ${!audioLoading ? "is-hidden" : ""}`}
             aria-hidden={!audioLoading}
           >
+            <div className="landing-loading-info">
+              <span className="landing-loading-percent">{audioProgress}%</span>
+              <span className="landing-loading-label">
+                {loadError ? "Loading failed — tap retry" : "Loading game assets"}
+              </span>
+            </div>
             <div className="landing-loading-track">
               <div className="landing-loading-fill" style={{ width: `${audioProgress}%` }} />
             </div>
-            <span className="landing-loading-label">
-              {loadError ? "Loading failed — tap retry" : audioProgress < 100 ? `Loading game assets ${audioProgress}%` : "Ready to play"}
-            </span>
           </div>
-          <Help />
+          {!audioLoading && !isActivated && (
+            <div
+              className="landing-tap-notification"
+              role="button"
+              tabIndex={0}
+              aria-label="Tap to play"
+              onClick={handleActivate}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") handleActivate();
+              }}
+            >
+              <span className="landing-tap-title">Tap to play</span>
+            </div>
+          )}
+          <Help onOpen={handleActivate} />
         </> : <DressingRoom screen={screen} />}
       </div>
     </main>

@@ -7,6 +7,8 @@ export const CORE_PRELOAD_IMAGES: string[] = [
   // Landing UI
   publicAsset("/game/ui/landing-background.png"),
   publicAsset("/game/ui/landing-overlay.png"),
+  publicAsset("/game/ui/button-play.png"),
+  publicAsset("/game/ui/button-help.png"),
   publicAsset("/game/ui/back.svg"),
   publicAsset("/game/ui/shadow.svg"),
   publicAsset("/game/ui/back-button-glossy.png"),
@@ -15,6 +17,8 @@ export const CORE_PRELOAD_IMAGES: string[] = [
   publicAsset("/game/ui/pick-an-outfit-header.png"),
   publicAsset("/game/backgrounds/slide-playground.webp"),
   publicAsset("/game/photoshoot/background.png"),
+  publicAsset("/game/photoshoot/podium.png"),
+  publicAsset("/game/photoshoot/glass-panel.png"),
   publicAsset("/game/photoshoot/camera.svg"),
   publicAsset("/game/effects/color-bubble-burst.gif"),
 
