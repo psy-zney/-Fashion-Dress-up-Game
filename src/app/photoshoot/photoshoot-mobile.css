@@ -1,7 +1,15 @@
 /* Keep portrait controls compact so the styled model remains the focal point. */
 @media (max-width: 600px) and (orientation: portrait) {
+  .photoshoot-scene {
+    gap: 6px;
+  }
+
   .photoshoot-frame {
-    width: min(100%, 34svh);
+    width: min(100%, 40svh);
+  }
+
+  .photoshoot-frame:not(.has-camera) .photoshoot-character {
+    transform: translate(-50%, -44%);
   }
 
   .photoshoot-panel {
