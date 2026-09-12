@@ -33,7 +33,8 @@ test("touch outfit selection, full character and photoshoot on a phone", async (
   expect(box.height / box.width).toBeCloseTo(1.5, 1);
   expect(box.y).toBeGreaterThanOrEqual(0);
   expect(box.y + box.height).toBeLessThan((await page.getByRole("button", { name: "SHOW YOUR LOOK" }).boundingBox())!.y);
-  await expect(page.getByTestId("foreground-arms")).toHaveCSS("z-index", "38");
+  await expect(stage.locator('[data-model-layer="model-lower-boots"]')).toBeVisible();
+  await expect(stage.locator('[data-model-layer="model-dressed-upper"]')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `artifacts/mobile/${testInfo.project.name}-play.png`, scale: "css" });
   await page.getByRole("button", { name: "SHOW YOUR LOOK" }).tap();

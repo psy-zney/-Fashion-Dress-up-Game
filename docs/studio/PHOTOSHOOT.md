@@ -38,3 +38,31 @@ Tests include pixel checks for skin remnants/fabric holes, outfit persistence,
 camera composition and selfie mirroring, download, permission failure, camera
 cleanup, and touch navigation in Android Chrome and iPhone WebKit emulation.
 Hardware camera behavior still needs testing on an actual device.
+
+## Custom face composition
+
+The face camera stores a normalized 160 × 190 transparent portrait texture. It
+does not bake the model hair, hat, glasses or earrings into the captured image.
+Those accessories render above the face through
+`model-face-accessories-safe.png`. That overlay is deterministically cut from
+the archived `model-dressed-upper.png` source; the center of the neck is kept
+clear so no synthetic hair fringe can appear below the chin.
+
+`src/lib/face-composite.ts` is the shared geometry contract for the live guide,
+studio preview, polaroid and `renderLook()` export. A saved custom face always
+switches the character to the neutral, hands-down `face-safe-neutral` pose;
+dramatic denim/modal showcase sprites remain available only when no custom face
+is active. This prevents pose hands from covering the replacement face. The
+camera uses the same upright geometry and supports direct drag-to-pan plus the
+sliders for fine adjustment. Captures are versioned; an older crop is ignored
+rather than stretched into the current geometry.
+
+Rebuild the accessory overlay into a candidate release before installing it:
+
+```sh
+node scripts/studio/build-face-accessory-overlay.mjs --release=face-safe-v5
+node scripts/studio/build-face-accessory-overlay.mjs --release=face-safe-v5 --install
+```
+
+The installer verifies `scripts/studio/product-lock.json` before and after the
+runtime update and refuses to overwrite an existing runtime overlay.

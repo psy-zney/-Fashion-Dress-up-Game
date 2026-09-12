@@ -1,0 +1,140 @@
+{
+  "version": "production-v2-20260912-v15-face-safe",
+  "updatedAt": "2026-09-12T17:36:14.226Z",
+  "fits": {
+    "top-fitted-denim": {
+      "x": 0,
+      "y": -4,
+      "scaleX": 1.015,
+      "scaleY": 1,
+      "angle": 0
+    },
+    "top-modal-grommet": {
+      "x": -1,
+      "y": 0,
+      "scaleX": 1.07,
+      "scaleY": 1,
+      "angle": 0
+    },
+    "bottom-sculpted-jeans": {
+      "x": -6,
+      "y": -1,
+      "scaleX": 0.995,
+      "scaleY": 1,
+      "angle": 0
+    },
+    "shoes-party-platform-boots": {
+      "x": 0,
+      "y": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0
+    }
+  },
+  "eraseMasks": {
+    "bottom-sculpted-jeans": [
+      {
+        "x": 745,
+        "y": 417,
+        "radius": 14
+      },
+      {
+        "x": 393,
+        "y": 604,
+        "radius": 14
+      },
+      {
+        "x": 393,
+        "y": 604,
+        "radius": 14
+      },
+      {
+        "x": 393,
+        "y": 604,
+        "radius": 14
+      },
+      {
+        "x": 403,
+        "y": 609,
+        "radius": 3
+      },
+      {
+        "x": 404,
+        "y": 606,
+        "radius": 3
+      },
+      {
+        "x": 405,
+        "y": 603,
+        "radius": 3
+      },
+      {
+        "x": 405,
+        "y": 600,
+        "radius": 3
+      },
+      {
+        "x": 405,
+        "y": 597,
+        "radius": 3
+      },
+      {
+        "x": 406,
+        "y": 594,
+        "radius": 3
+      },
+      {
+        "x": 406,
+        "y": 597,
+        "radius": 3
+      },
+      {
+        "x": 406,
+        "y": 600,
+        "radius": 3
+      },
+      {
+        "x": 405,
+        "y": 603,
+        "radius": 3
+      },
+      {
+        "x": 404,
+        "y": 606,
+        "radius": 3
+      },
+      {
+        "x": 404,
+        "y": 609,
+        "radius": 3
+      },
+      {
+        "x": 403,
+        "y": 612,
+        "radius": 3
+      },
+      {
+        "x": 401,
+        "y": 615,
+        "radius": 3
+      },
+      {
+        "x": 399,
+        "y": 618,
+        "radius": 3
+      },
+      {
+        "x": 396,
+        "y": 619,
+        "radius": 3
+      },
+      {
+        "x": 393,
+        "y": 621,
+        "radius": 3
+      }
+    ]
+  },
+  "isDenimTucked": false,
+  "isShowcaseMode": false
+}

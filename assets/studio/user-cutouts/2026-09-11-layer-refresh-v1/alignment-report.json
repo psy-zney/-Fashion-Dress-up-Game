@@ -1,0 +1,87 @@
+{
+  "release": "2026-09-11-layer-refresh-v1",
+  "layers": [
+    {
+      "id": "top-modal-grommet",
+      "sourceBounds": {
+        "left": 360,
+        "top": 294,
+        "right": 683,
+        "bottom": 781,
+        "width": 324,
+        "height": 488
+      },
+      "targetBounds": {
+        "left": 384,
+        "top": 274,
+        "width": 280,
+        "height": 389
+      },
+      "visiblePixels": 112316
+    },
+    {
+      "id": "top-fitted-denim",
+      "sourceBounds": {
+        "left": 339,
+        "top": 380,
+        "right": 703,
+        "bottom": 987,
+        "width": 365,
+        "height": 608
+      },
+      "targetBounds": {
+        "left": 402,
+        "top": 250,
+        "width": 244,
+        "height": 406
+      },
+      "visiblePixels": 164047
+    },
+    {
+      "id": "bottom-sculpted-jeans",
+      "sourceBounds": {
+        "left": 195,
+        "top": 196,
+        "right": 840,
+        "bottom": 1414,
+        "width": 646,
+        "height": 1219
+      },
+      "targetBounds": {
+        "left": 283,
+        "top": 541,
+        "width": 503,
+        "height": 898
+      },
+      "visiblePixels": 562238
+    }
+  ],
+  "grommetHoles": [
+    {
+      "pixels": 252,
+      "left": 452,
+      "top": 534,
+      "right": 468,
+      "bottom": 551
+    },
+    {
+      "pixels": 13,
+      "left": 433,
+      "top": 620,
+      "right": 436,
+      "bottom": 623
+    },
+    {
+      "pixels": 12,
+      "left": 615,
+      "top": 468,
+      "right": 618,
+      "bottom": 471
+    }
+  ],
+  "jeansUnderModal": {
+    "firstOverlapY": 541,
+    "lastClipY": 653,
+    "fullJeansRestoredAtY": 654
+  }
+}

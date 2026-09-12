@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "release": "2026-09-11-layer-refresh-v1-draft-05",
+  "layers": [
+    {
+      "id": "model-upper",
+      "status": "source-reviewed",
+      "source": {
+        "path": "assets/studio/user-cutouts/2026-09-11-layer-refresh-v1/aligned/model-upper.png",
+        "sha256": "3f4362ba3cb591a2d6a08705346a4e3aacc59c434a8d89f27c68cc2025aed3a9"
+      }
+    },
+    {
+      "id": "model-dressed-upper",
+      "status": "source-reviewed",
+      "source": {
+        "path": "assets/studio/user-cutouts/2026-09-11-layer-refresh-v1/aligned/model-dressed-upper.png",
+        "sha256": "cadc4e38534338e1d09171eb17048988c460cd646e2b0e86c8d88b2c21f54270"
+      }
+    },
+    {
+      "id": "model-lower",
+      "status": "source-reviewed",
+      "source": {
+        "path": "assets/studio/user-cutouts/2026-09-11-layer-refresh-v1/aligned/model-lower.png",
+        "sha256": "270c2ec281c18fbd7f4334d176005a94417c600abc42744b18d6a121e8a8ef52"
+      }
+    },
+    {
+      "id": "model-lower-boots",
+      "status": "source-reviewed",
+      "source": {
+        "path": "assets/studio/user-cutouts/2026-09-11-layer-refresh-v1/aligned/model-lower-boots.png",
+        "sha256": "59e291b2614df54a5d5603f6e6adb7804dd2961c85ac7263884d27b4e4b4f4a9"
+      }
+    },
+    {
+      "id": "top-modal-grommet",
+      "status": "source-reviewed",
+      "source": {
+        "path": "assets/studio/user-cutouts/2026-09-11-layer-refresh-v1/aligned/top-modal-grommet.png",
+        "sha256": "71ef407e51e7b6f9c0d136d9f43a5ac28bbf9a899e21c98bc16099315e6875e0"
+      }
+    },
+    {
+      "id": "top-modal-grommet-skin",
+      "status": "source-reviewed",
+      "source": {
+        "path": "assets/studio/user-cutouts/2026-09-11-layer-refresh-v1/aligned/top-modal-grommet-skin.png",
+        "sha256": "71adb3bfbc265eae60111c5415ef388c416d52ac409c3cf67e9476e6ceb4c5dd"
+      }
+    },
+    {
+      "id": "top-fitted-denim",
+      "status": "source-reviewed",
+      "source": {
+        "path": "assets/studio/user-cutouts/2026-09-11-layer-refresh-v1/aligned/top-fitted-denim.png",
+        "sha256": "f76901d19e2d7b2357d1458480bd6e786500108f2f02c37a21049fccd5ad5f1c"
+      }
+    },
+    {
+      "id": "bottom-sculpted-jeans",
+      "status": "source-reviewed",
+      "source": {
+        "path": "assets/studio/user-cutouts/2026-09-11-layer-refresh-v1/aligned/bottom-sculpted-jeans.png",
+        "sha256": "276fe20a57fbd4e065953b79a8f35255e202f3406c459f91f798c222d8bbf6ec"
+      }
+    },
+    {
+      "id": "bottom-sculpted-jeans-under-yellow",
+      "status": "source-reviewed",
+      "source": {
+        "path": "assets/studio/user-cutouts/2026-09-11-layer-refresh-v1/aligned/bottom-sculpted-jeans-under-yellow.png",
+        "sha256": "099aa7de1f4276f89c3fe29463c148ae84dc4050d5984dcbef88affd1b3361cd"
+      }
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import { assertProductsUnchanged, projectRoot, sha256 } from './product-lock.mjs
 
 const width = 1024, height = 1536;
 const allowed = new Set([
-  'model', 'model-boots', 'model-arms', 'model-lower', 'model-lower-boots',
+  'model', 'model-boots', 'model-arms', 'model-upper', 'model-dressed-upper', 'model-lower', 'model-lower-boots',
   'model-dressed', 'model-dressed-boots',
   'top-fitted-denim', 'top-fitted-denim-pose', 'top-modal-grommet', 'top-modal-grommet-pose',
   'top-modal-grommet-skin', 'top-modal-grommet-pose-skin',

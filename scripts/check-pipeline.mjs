@@ -4,16 +4,15 @@ import sharp from "sharp";
 import { assertProductsUnchanged } from "./studio/product-lock.mjs";
 
 const REQUIRED_LAYERS = [
-  "model",
-  "model-arms",
-  "model-boots",
+  "model-upper",
+  "model-dressed-upper",
   "model-lower",
   "model-lower-boots",
   "top-fitted-denim",
-  "top-fitted-denim-pose",
   "top-modal-grommet",
-  "top-modal-grommet-pose",
+  "top-modal-grommet-skin",
   "bottom-sculpted-jeans",
+  "bottom-sculpted-jeans-under-yellow",
   "shoes-party-platform-boots",
 ];
 

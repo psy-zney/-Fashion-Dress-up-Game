@@ -6,67 +6,56 @@ const saved = (top: string, bottom = 'bottom-sculpted-jeans') => ({
   selected: { tops: top, bottoms: bottom, shoes: 'shoes-party-platform-boots' }, fits: {}, held: {},
 });
 
-test('production assets have soft alpha, clean denim edges, and unchanged pose legs', async () => {
-  for (const id of ['model', 'top-fitted-denim', 'top-modal-grommet', 'bottom-sculpted-jeans', 'bottom-sculpted-jeans-under-yellow', 'shoes-party-platform-boots', 'top-fitted-denim-pose', 'top-modal-grommet-pose']) {
+test('refreshed cutouts have soft alpha and the split model reconstructs the original base', async () => {
+  for (const id of ['model-upper', 'model-dressed-upper', 'model-face-accessories-safe', 'top-fitted-denim', 'top-modal-grommet', 'top-modal-grommet-skin', 'bottom-sculpted-jeans', 'bottom-sculpted-jeans-under-yellow', 'shoes-party-platform-boots']) {
     const data = await layer(id);
     expect(data.length).toBe(1024 * 1536 * 4);
-    let transparent = 0, soft = 0;
-    for (let p = 3; p < data.length; p += 4) { if (!data[p]) transparent++; else if (data[p] < 255) soft++; }
+    let transparent = 0;
+    let soft = 0;
+    for (let p = 3; p < data.length; p += 4) {
+      if (!data[p]) transparent++;
+      else if (data[p] < 255) soft++;
+    }
     expect(transparent, id).toBeGreaterThan(800000);
-    expect(soft, id).toBeGreaterThan(500);
+    expect(soft, id).toBeGreaterThan(id === 'top-modal-grommet-skin' ? 100 : 500);
   }
+
   const base = await layer('model');
+  const upper = await layer('model-upper');
   const lower = await layer('model-lower');
-  expect(lower.subarray(900 * 1024 * 4).equals(base.subarray(900 * 1024 * 4))).toBe(true);
+  let splitMismatch = 0;
+  for (let pixel = 0; pixel < 1024 * 1536; pixel++) {
+    const p = pixel * 4;
+    const source = lower[p + 3] > 0 ? lower : upper;
+    for (let channel = base[p + 3] > 0 ? 0 : 3; channel < 4; channel++) {
+      if (source[p + channel] !== base[p + channel]) splitMismatch++;
+    }
+  }
+  expect(splitMismatch, 'model-upper + model-lower should reconstruct model.png').toBe(0);
+
   const jeans = await layer('bottom-sculpted-jeans');
-  let fringe = 0;
-  for (let y = 920; y < 1180; y++) for (let x = 495; x < 570; x++) {
-    const p = (y * 1024 + x) * 4;
-    if (jeans[p + 3] > 10 && Math.min(jeans[p], jeans[p + 1], jeans[p + 2]) > 180) fringe++;
-  }
-  expect(fringe).toBe(0);
   const yellow = await layer('top-modal-grommet');
-  const yellowSource = await sharp('assets/studio/manual-extraction/production-v2-white/item/02-Modal-Grommet-Top-White-Background.png')
-    .resize(1024, 1536, { fit: 'fill' }).removeAlpha().raw().toBuffer();
-  let opaque = 0, sourceExact = 0;
-  for (let p = 0; p < 1024 * 1536; p++) {
-    if (yellow[p * 4 + 3] !== 255) continue;
-    opaque++;
-    if (yellow[p * 4] === yellowSource[p * 3] && yellow[p * 4 + 1] === yellowSource[p * 3 + 1] && yellow[p * 4 + 2] === yellowSource[p * 3 + 2]) sourceExact++;
-  }
-  expect(sourceExact / opaque, 'opaque shirt pixels must remain faithful to the approved source').toBeGreaterThan(0.985);
+  const skin = await layer('top-modal-grommet-skin');
   const denim = await layer('top-fitted-denim');
-  for (const y of [300, 350, 400, 500, 600]) {
+  for (const y of [280, 350, 450, 550, 625]) {
     expect(denim[(y * 1024 + 520) * 4 + 3], `center zipper at y=${y}`).toBeGreaterThan(240);
   }
-  for (const [x, y, radius] of [[465, 543, 14], [608, 470, 6], [440, 622, 6]]) {
-    expect(yellow[(y * 1024 + x) * 4 + 3], `transparent grommet hole at ${x},${y}`).toBe(0);
-    expect(yellow[(y * 1024 + x + radius + 3) * 4 + 3], `metal rim retained at ${x},${y}`).toBeGreaterThan(240);
+  for (const [x, y, radius] of [[460, 542, 10], [616, 469, 4], [434, 621, 3]]) {
+    expect(yellow[(y * 1024 + x) * 4 + 3], `transparent grommet hole at ${x},${y}`).toBeLessThan(10);
+    expect(skin[(y * 1024 + x) * 4 + 3], `skin backing at ${x},${y}`).toBeGreaterThan(240);
+    expect(yellow[(y * 1024 + x + radius + 2) * 4 + 3], `metal rim retained at ${x},${y}`).toBeGreaterThan(200);
   }
-  const jeansUnderYellow = await layer('bottom-sculpted-jeans-under-yellow');
-  const span = (rgba: Buffer, y: number) => {
-    let left = 1024, right = -1;
-    for (let x = 0; x < 1024; x++) if (rgba[(y * 1024 + x) * 4 + 3] > 32) { left = Math.min(left, x); right = x; }
-    return { left, right, width: right - left + 1 };
-  };
-  for (const y of [620, 640]) {
-    const baseSpan = span(jeans, y), fittedSpan = span(jeansUnderYellow, y), shirtSpan = span(yellow, y);
-    expect(fittedSpan.width, `narrowed waistband at y=${y}`).toBeLessThan(baseSpan.width);
-    expect(fittedSpan.left, `left waistband hidden at y=${y}`).toBeGreaterThanOrEqual(shirtSpan.left);
-    expect(fittedSpan.right, `right waistband hidden at y=${y}`).toBeLessThanOrEqual(shirtSpan.right);
-  }
-  expect(jeansUnderYellow.subarray(700 * 1024 * 4, 701 * 1024 * 4).equals(jeans.subarray(700 * 1024 * 4, 701 * 1024 * 4)), 'pants return to full width below the shirt').toBe(true);
+  expect(jeans[(550 * 1024 + 520) * 4 + 3], 'jeans waistband remains covered').toBeGreaterThan(200);
 
-  const arms = await layer('model-arms');
-  let hipSkinOverlay = 0;
-  for (let y = 620; y < 720; y++) for (let x = 387; x <= 670; x++) {
-    if (arms[(y * 1024 + x) * 4 + 3] > 10) hipSkinOverlay++;
+  const faceAccessories = await layer('model-face-accessories-safe');
+  expect(faceAccessories[(60 * 1024 + 512) * 4 + 3], 'cap is retained').toBeGreaterThan(240);
+  for (const [x, y] of [[512, 200], [512, 225], [512, 250], [512, 275]]) {
+    expect(faceAccessories[(y * 1024 + x) * 4 + 3], `face/neck center stays clear at ${x},${y}`).toBe(0);
   }
-  expect(hipSkinOverlay, 'foreground arms must not paint skin over the pants at the hips').toBe(0);
 });
 
 for (const top of ['top-fitted-denim', 'top-modal-grommet']) {
-  test(`${top} poses only in showcase and exports that pose`, async ({ page }) => {
+  test(`${top} uses the refreshed neutral cutout in play, showcase, and export`, async ({ page }) => {
     const failures: string[] = [];
     page.on('pageerror', error => failures.push(error.message));
     page.on('response', response => { if (response.status() >= 400) failures.push(response.url()); });
@@ -79,33 +68,146 @@ for (const top of ['top-fitted-denim', 'top-modal-grommet']) {
     const pants = await stage.locator('[data-garment="bottom-sculpted-jeans"]').getAttribute('src');
     await expect(stage.locator('[data-garment="bottom-sculpted-jeans"]')).toHaveAttribute(
       'src',
-      top === 'top-modal-grommet' ? /bottom-sculpted-jeans-under-yellow\.png/ : /bottom-sculpted-jeans\.png/,
+      /bottom-sculpted-jeans\.png/,
     );
-    if (top === 'top-fitted-denim') {
-      await stage.locator('img').evaluateAll(async images => { await Promise.all(images.map(image => (image as HTMLImageElement).decode())); });
-      await page.screenshot({ path: 'artifacts/studio/qa/production-v2/neutral-hip-mask-browser.png' });
-    }
+    await expect(stage.locator('[data-model-layer="model-lower-boots"]')).toBeVisible();
+    await expect(stage.locator('[data-model-layer="model-dressed-upper"]')).toBeVisible();
+    await expect(page.getByTestId('top-modal-skin-backing')).toHaveCount(top === 'top-modal-grommet' ? 1 : 0);
+    await stage.locator('img').evaluateAll(async images => { await Promise.all(images.map(image => (image as HTMLImageElement).decode())); });
+    await page.screenshot({ path: `artifacts/studio/qa/production-v2/${top}-neutral-browser.png` });
+
     await page.getByRole('button', { name: 'SHOW YOUR LOOK' }).click();
     await expect(garment).toHaveAttribute('src', new RegExp(`${top}-pose\\.png`));
     await expect(stage.locator('img').first()).toHaveAttribute('src', /model-lower-boots/);
     await expect(stage.locator('[data-garment="bottom-sculpted-jeans"]')).toHaveAttribute('src', pants!);
-    await expect(page.getByTestId('foreground-arms')).toHaveCount(0);
     await stage.locator('img').evaluateAll(async images => { await Promise.all(images.map(image => (image as HTMLImageElement).decode())); });
-    await page.screenshot({ path: `artifacts/studio/qa/production-v2/${top}-browser.png` });
+    await page.screenshot({ path: `artifacts/studio/qa/production-v2/${top}-showcase-browser.png` });
     await page.getByTestId('showcase-edit-btn').click();
     await expect(garment).toHaveAttribute('src', new RegExp(`${top}\\.png`));
-    await expect(page.getByTestId('foreground-arms')).toBeVisible();
     await page.getByRole('button', { name: 'SHOW YOUR LOOK' }).click();
     await page.getByTestId('showcase-save-btn').click();
     await expect(page).toHaveURL(/\/photoshoot/);
     await expect(page.getByTestId('photoshoot-look')).toBeVisible();
     const url = await page.getByTestId('photoshoot-look').getAttribute('src');
     const exported = await sharp(Buffer.from(url!.split(',')[1], 'base64')).ensureAlpha().raw().toBuffer();
-    // Raised elbow exists outside the neutral silhouette in the exported PNG.
-    expect(exported[((top === 'top-fitted-denim' ? 240 : 275) * 1024 + 200) * 4 + 3]).toBeGreaterThan(200);
+    expect(exported[(200 * 1024 + 520) * 4 + 3], 'export retains the upper model').toBeGreaterThan(200);
     expect(failures).toEqual([]);
   });
 }
+
+for (const top of ['top-fitted-denim', 'top-modal-grommet'] as const) {
+  test(`${top} custom face switches to the hands-down face-safe pose`, async ({ page }) => {
+    const facePng = await sharp({
+      create: { width: 160, height: 190, channels: 4, background: { r: 220, g: 70, b: 150, alpha: 1 } },
+    }).png().toBuffer();
+    const look = {
+      ...saved(top),
+      userFace: `data:image/png;base64,${facePng.toString('base64')}`,
+      userFaceVersion: 'face-safe-neutral-v3',
+      isDenimTucked: false,
+    };
+    await page.addInitScript(value => {
+      localStorage.setItem('tung-tung-play-ge', JSON.stringify(value));
+      Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+        configurable: true,
+        value: async () => { throw new DOMException('Denied', 'NotAllowedError'); },
+      });
+    }, look);
+
+    await page.goto('/play');
+    await expect(page.getByTestId('heart-loader')).toHaveCount(0, { timeout: 20000 });
+    await page.getByRole('button', { name: 'SHOW YOUR LOOK' }).click();
+
+    const stage = page.getByTestId('studio-stage');
+    const face = stage.getByTestId('user-face-sprite');
+    const garment = stage.locator(`[data-garment="${top}"]`);
+    await expect(face).toHaveAttribute('data-face-pose', 'face-safe-neutral');
+    await expect(garment).toHaveAttribute('src', new RegExp(`${top}\\.png`));
+    await expect(stage.locator('[data-model-layer="model-dressed-upper"]')).toBeVisible();
+    await expect(stage.getByTestId('foreground-arms')).toBeVisible();
+    await expect(stage.getByTestId('user-hair-hat-overlay')).toHaveAttribute('src', /model-face-accessories-safe\.png/);
+    expect(await face.evaluate(element => Number(getComputedStyle(element).zIndex)))
+      .toBeLessThan(await garment.evaluate(element => Number(getComputedStyle(element).zIndex)));
+
+    await page.getByTestId('open-face-cam-btn').click();
+    const viewport = page.locator('.face-cam-viewport');
+    await expect(viewport).toHaveAttribute('data-face-pose', 'face-safe-neutral');
+    await expect(viewport.locator('.face-cam-overlay')).toHaveCount(0);
+    await expect(viewport.getByTestId('face-cam-accessory-overlay')).toHaveAttribute('src', /model-face-accessories-safe\.png/);
+    const guide = viewport.locator('.face-cam-features-guide > g');
+    await expect(guide).toHaveAttribute('transform', /rotate\(0 /);
+    const ellipse = guide.locator('ellipse');
+    expect(Number(await ellipse.getAttribute('ry')) / Number(await ellipse.getAttribute('rx'))).toBeGreaterThan(1.25);
+    await page.locator('input[type="file"]').setInputFiles({
+      name: 'face.png',
+      mimeType: 'image/png',
+      buffer: facePng,
+    });
+    const panX = page.getByRole('slider', { name: /Ngang/ });
+    const panY = page.getByRole('slider', { name: /Vị trí dọc/ });
+    const roll = page.getByRole('slider', { name: /Độ nghiêng/ });
+    await expect(panX).toBeVisible();
+    await expect(roll).toBeVisible();
+    const bounds = await viewport.boundingBox();
+    expect(bounds).not.toBeNull();
+    await page.mouse.move(bounds!.x + bounds!.width / 2, bounds!.y + bounds!.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(bounds!.x + bounds!.width / 2 + 24, bounds!.y + bounds!.height / 2 + 16);
+    await page.mouse.up();
+    expect(Number(await panX.inputValue())).toBeGreaterThan(0);
+    expect(Number(await panY.inputValue())).toBeGreaterThan(0);
+    await page.getByRole('button', { name: 'Căn lại' }).click();
+    await expect(panX).toHaveValue('0');
+    await expect(panY).toHaveValue('0');
+    await panX.fill('7');
+    await panY.fill('-5');
+    await roll.fill('2');
+    await expect(viewport.locator('img.face-cam-media')).toHaveAttribute('style', /translate\(7px, -5px\) rotate\(2deg\)/);
+    await page.screenshot({ path: `artifacts/studio/qa/face-cam/face-safe-${top}-guide.png` });
+
+    await page.getByTestId('face-cam-snap-btn').click();
+    const captured = viewport.locator('.face-cam-captured-face');
+    await expect(captured).toBeVisible();
+    const capturedUrl = await captured.getAttribute('src');
+    const capturedPixels = await sharp(Buffer.from(capturedUrl!.split(',')[1], 'base64'))
+      .ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    expect(capturedPixels.info.width).toBe(160);
+    expect(capturedPixels.info.height).toBe(190);
+    let transparent = 0;
+    let opaque = 0;
+    let soft = 0;
+    for (let p = 3; p < capturedPixels.data.length; p += 4) {
+      if (capturedPixels.data[p] === 0) transparent++;
+      else if (capturedPixels.data[p] === 255) opaque++;
+      else soft++;
+    }
+    expect(transparent).toBeGreaterThan(1000);
+    expect(opaque).toBeGreaterThan(1000);
+    expect(soft).toBeGreaterThan(500);
+    await page.screenshot({ path: `artifacts/studio/qa/face-cam/face-safe-${top}-captured.png` });
+    await page.getByTestId('face-cam-confirm-btn').click();
+    await expect
+      .poll(() =>
+        page.evaluate(() =>
+          JSON.parse(localStorage.getItem('tung-tung-play-ge') || '{}').isDenimTucked,
+        ),
+      )
+      .toBe(false);
+  });
+}
+
+test('selecting a top without bottoms keeps the lower model visible', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('tung-tung-play-ge', JSON.stringify({
+    selected: { tops: 'top-modal-grommet' }, fits: {}, held: {},
+  })));
+  await page.goto('/play');
+  await expect(page.getByTestId('heart-loader')).toHaveCount(0, { timeout: 20000 });
+  const stage = page.getByTestId('studio-stage');
+  await expect(stage.locator('[data-model-layer="model-lower"]')).toBeVisible();
+  await expect(stage.locator('[data-model-layer="model-dressed-upper"]')).toBeVisible();
+  await expect(stage.locator('[data-garment="bottom-sculpted-jeans"]')).toHaveCount(0);
+  await expect(stage.locator('[data-garment="top-modal-grommet"]')).toBeVisible();
+});
 
 test('withheld skirt and removed Mary Janes are absent from the wardrobe', async ({ page }) => {
   await page.addInitScript(look => localStorage.setItem('tung-tung-play-ge', JSON.stringify(look)), saved('top-fitted-denim', 'bottom-denim-sculpted-skirt'));

@@ -1,5 +1,5 @@
 {
-  "version": "production-v2-20260909-v13-narrow-waistband",
+  "version": "production-v2-20260912-v15-face-safe",
   "catalogGarments": 4,
   "items": [
     {
@@ -23,12 +23,13 @@
       "name": "Quần jeans balloon ráp mảnh"
     }
   ],
-  "poses": [
-    "top-fitted-denim-pose",
-    "top-modal-grommet-pose"
-  ],
+  "poses": [],
   "variants": [
+    "model-upper",
+    "model-dressed-upper",
+    "model-face-accessories-safe",
+    "top-modal-grommet-skin",
     "bottom-sculpted-jeans-under-yellow"
   ],
-  "updatedAt": "2026-09-09T07:32:54.654Z"
+  "updatedAt": "2026-09-12T00:00:00.000Z"
 }

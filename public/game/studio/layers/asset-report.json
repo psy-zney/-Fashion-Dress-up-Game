@@ -26,10 +26,10 @@
       "left": 402,
       "top": 250,
       "width": 244,
-      "height": 387,
-      "visiblePixels": 71928
+      "height": 406,
+      "visiblePixels": 74552
     },
-    "antialiasedPixels": 2482
+    "antialiasedPixels": 4686
   },
   {
     "id": "top-modal-grommet",
@@ -39,13 +39,13 @@
     "height": 1536,
     "hasAlpha": true,
     "bounds": {
-      "left": 394,
+      "left": 384,
       "top": 274,
-      "width": 258,
-      "height": 383,
-      "visiblePixels": 69732
+      "width": 280,
+      "height": 389,
+      "visiblePixels": 78500
     },
-    "antialiasedPixels": 2949
+    "antialiasedPixels": 5656
   },
   {
     "id": "bottom-sculpted-jeans",
@@ -59,8 +59,8 @@
       "top": 541,
       "width": 503,
       "height": 898,
-      "visiblePixels": 329238
+      "visiblePixels": 326116
     },
-    "antialiasedPixels": 8148
+    "antialiasedPixels": 14706
   }
 ]
