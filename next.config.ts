@@ -6,9 +6,8 @@ const deployVersion = (process.env.DEPLOY_VERSION || process.env.GITHUB_SHA || `
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   devIndicators: false,
-  turbopack: { root: process.cwd() },
   allowedDevOrigins: ["127.0.0.1", "localhost", "192.168.88.200"],
-  output: "export",
+  output: process.env.NODE_ENV === "production" ? "export" : undefined,
   basePath: basePath || undefined,
   assetPrefix: basePath || undefined,
   images: {

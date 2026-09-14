@@ -2,7 +2,22 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { initialFit, readLook, rememberLook, getSvgMaskUrl, type Fit, type EraseMasks } from "@/lib/studio-look";
+import {
+  initialFit,
+  readLook,
+  rememberLook,
+  getSvgMaskUrl,
+  resolveStudioFit,
+  subscribeStudioUpdate,
+  publishedVariableFits,
+  publishedFaceCompositeFit,
+  publishedHideUnderlyingBody,
+  type Fit,
+  type EraseMasks,
+  type VariableFits,
+  type StudioPublishedConfig,
+  type FaceCompositeFit,
+} from "@/lib/studio-look";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent } from "react";
 import {
   STAGE,
@@ -11,10 +26,14 @@ import {
   garmentAssetId,
   hasShowcasePose,
   categories,
+  wheelCategories,
+  extraCategories,
   garments,
   allGarments,
   layerOrder,
-  foregroundArmsOrder,
+  faceFrameOrder,
+  foregroundHandsOrder,
+  foregroundHandsAssetId,
   bootTuckBottomIds,
   getGarmentLayerOrder,
   getUserFaceLayerOrder,
@@ -68,6 +87,8 @@ export function DressUpStudio() {
   const [selected, setSelected] = useState<Selection>({});
   const [held, setHeld] = useState<Partial<Record<Category, boolean>>>({});
   const [fits, setFits] = useState<Record<string, Fit>>({});
+  const [variableFits, setVariableFits] = useState<VariableFits>(publishedVariableFits);
+  const [faceCompositeFit, setFaceCompositeFit] = useState<FaceCompositeFit | undefined>(publishedFaceCompositeFit);
   const [eraseMasks, setEraseMasks] = useState<EraseMasks>({});
   const [positionsLocked, setPositionsLocked] = useState(true);
   const [hydrated, setHydrated] = useState(false);
@@ -79,6 +100,7 @@ export function DressUpStudio() {
   const [userFace, setUserFace] = useState<string | undefined>();
   const [faceCamOpen, setFaceCamOpen] = useState(false);
   const [isDenimTucked, setIsDenimTucked] = useState(true);
+  const [hideUnderlyingBody, setHideUnderlyingBody] = useState(publishedHideUnderlyingBody);
 
   // Drag & drop state
   const [isDragging, setIsDragging] = useState<string | null>(null);
@@ -91,7 +113,9 @@ export function DressUpStudio() {
   const stageRef = useRef<HTMLDivElement>(null);
   const pointerDrag = useRef<{ preview: DragPreview; startX: number; startY: number; active: boolean } | null>(null);
   const suppressClick = useRef(false);
-  const outfitComplete = Boolean(selected.tops && selected.bottoms && selected.shoes);
+  const outfitComplete = Boolean(
+    selected.shoes && (selected.dresses || (selected.tops && selected.bottoms)),
+  );
 
   const menuOpen = menuPinned || menuHovered;
 
@@ -113,24 +137,58 @@ export function DressUpStudio() {
     const saved = readLook();
     setSelected(saved.selected);
     setFits(saved.fits);
+    if (saved.variableFits) setVariableFits(saved.variableFits);
+    if (saved.faceCompositeFit) setFaceCompositeFit(saved.faceCompositeFit);
     setHeld(saved.held);
     if (saved.eraseMasks) setEraseMasks(saved.eraseMasks);
     if (saved.isDenimTucked !== undefined) setIsDenimTucked(saved.isDenimTucked);
     if (saved.isShowcaseMode) setIsShowcaseMode(saved.isShowcaseMode);
+    if (saved.hideUnderlyingBody !== undefined) setHideUnderlyingBody(saved.hideUnderlyingBody);
     setUserFace(saved.userFace);
     setHydrated(true);
     initAudio();
     router.prefetch("/photoshoot");
+
+    // Fetch freshest published fits from server
+    fetch(`/api/fits?t=${Date.now()}`)
+      .then((res) => res.json())
+      .then((data: StudioPublishedConfig) => {
+        if (data && data.fits) {
+          setFits((prev) => ({ ...data.fits, ...prev }));
+          if (data.variableFits) setVariableFits(data.variableFits);
+          if (data.faceCompositeFit) setFaceCompositeFit(data.faceCompositeFit);
+          if (data.eraseMasks) setEraseMasks(data.eraseMasks);
+          if (typeof data.isDenimTucked === "boolean") setIsDenimTucked(data.isDenimTucked);
+          if (typeof data.hideUnderlyingBody === "boolean") setHideUnderlyingBody(data.hideUnderlyingBody);
+        }
+      })
+      .catch(() => {});
+
+    // Real-time live sync across open tabs and windows
+    const unsubscribe = subscribeStudioUpdate((payload) => {
+      if (payload.fits) setFits(payload.fits);
+      if (payload.variableFits) setVariableFits(payload.variableFits);
+      if (payload.faceCompositeFit) setFaceCompositeFit(payload.faceCompositeFit);
+      if (payload.eraseMasks) setEraseMasks(payload.eraseMasks);
+      if (typeof payload.isDenimTucked === "boolean") setIsDenimTucked(payload.isDenimTucked);
+      if (typeof payload.isShowcaseMode === "boolean") setIsShowcaseMode(payload.isShowcaseMode);
+      if (typeof payload.hideUnderlyingBody === "boolean") setHideUnderlyingBody(payload.hideUnderlyingBody);
+      if (payload.selected) setSelected((prev) => ({ ...prev, ...payload.selected }));
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, [router]);
 
   useEffect(() => {
     if (!hydrated) return;
     try {
-      rememberLook({ selected, fits, eraseMasks, held, userFace, isDenimTucked, isShowcaseMode });
+      rememberLook({ selected, fits, variableFits, faceCompositeFit, eraseMasks, held, userFace, isDenimTucked, isShowcaseMode, hideUnderlyingBody });
     } catch {
       setStatus("Unable to save current outfit in browser storage.");
     }
-  }, [eraseMasks, fits, held, hydrated, isDenimTucked, isShowcaseMode, selected, userFace]);
+  }, [eraseMasks, faceCompositeFit, fits, held, hydrated, isDenimTucked, isShowcaseMode, selected, userFace, variableFits, hideUnderlyingBody]);
 
   function garmentLayer(item: Garment) {
     return getGarmentLayerOrder(item, selected, isDenimTucked);
@@ -142,8 +200,9 @@ export function DressUpStudio() {
       .sort((left, right) => garmentLayer(left) - garmentLayer(right)),
     [selected, isDenimTucked],
   );
-  const facePose = facePoseFor(selected);
+  const facePose = facePoseFor(selected, faceCompositeFit);
   const userFaceLayerOrder = getUserFaceLayerOrder(selected, isDenimTucked);
+  const foregroundHands = foregroundHandsAssetId(selected, isShowcaseMode, Boolean(userFace));
   const visibleGarments = useMemo(
     () => garments.filter((item) => item.category === category),
     [category],
@@ -157,7 +216,16 @@ export function DressUpStudio() {
     if (!item) return;
     const sequence = ++dressEffectSequence.current;
     playSound(sound);
-    setSelected((previous) => ({ ...previous, [item.category]: id }));
+    setSelected((previous) => {
+      const next: Selection = { ...previous, [item.category]: id };
+      if (item.category === "dresses") {
+        delete next.tops;
+        delete next.bottoms;
+      } else if (item.category === "tops" || item.category === "bottoms") {
+        delete next.dresses;
+      }
+      return next;
+    });
     setDressEffect({ id, category: item.category, sequence });
     setTimeout(() => {
       setDressEffect((current) => (current?.sequence === sequence ? null : current));
@@ -296,17 +364,28 @@ export function DressUpStudio() {
   }
 
   function layerStyle(id: string): CSSProperties {
-    // The pose includes the head and arms, so it stays anchored to the body.
-    const fit = hasShowcasePose(selected, isShowcaseMode, Boolean(userFace)) && id === selected.tops ? initialFit : fits[id] || initialFit;
+    const fitContext = {
+      isTucked: isDenimTucked,
+      hasFace: Boolean(userFace),
+      isShowcase: isShowcaseMode,
+      selection: selected,
+    };
+    const fit =
+      hasShowcasePose(selected, isShowcaseMode, Boolean(userFace)) && id === selected.tops
+        ? variableFits?.showcase_pose?.[id] || initialFit
+        : resolveStudioFit(id, fits, fitContext, variableFits);
+
     const maskUrl = getSvgMaskUrl(eraseMasks[id]);
-    const maskStyle: CSSProperties = maskUrl ? {
-      WebkitMaskImage: `url("${maskUrl}")`,
-      maskImage: `url("${maskUrl}")`,
-      WebkitMaskSize: "100% 100%",
-      maskSize: "100% 100%",
-    } : {};
+    const maskStyle: CSSProperties = maskUrl
+      ? {
+          WebkitMaskImage: `url("${maskUrl}")`,
+          maskImage: `url("${maskUrl}")`,
+          WebkitMaskSize: "100% 100%",
+          maskSize: "100% 100%",
+        }
+      : {};
     return {
-      transform: `translate(${fit.x / STAGE.width * 100}%, ${fit.y / STAGE.height * 100}%) rotate(${fit.angle}deg) scale(${fit.scaleX}, ${fit.scaleY})`,
+      transform: `translate(${(fit.x / STAGE.width) * 100}%, ${(fit.y / STAGE.height) * 100}%) rotate(${fit.angle}deg) scale(${fit.scaleX}, ${fit.scaleY})`,
       ...maskStyle,
     };
   }
@@ -319,7 +398,7 @@ export function DressUpStudio() {
 
   function handleSaveLook() {
     try {
-      rememberLook({ selected, fits, eraseMasks, held, userFace, isDenimTucked, isShowcaseMode });
+      rememberLook({ selected, fits, variableFits, faceCompositeFit, eraseMasks, held, userFace, isDenimTucked, isShowcaseMode, hideUnderlyingBody });
     } catch {
       /* The session copy remains available. */
     }
@@ -338,8 +417,7 @@ export function DressUpStudio() {
 
   return (
     <main className="game-shell" lang="en">
-      <div className="game-canvas dressing-room" aria-label="Fashion Dress-Up Dressing Room">
-        <div
+      <div className="game-canvas dressing-room" aria-label="Fashion Dress-Up Dressing Room">   <div
           className={`dressing-room-content ${isShowcaseMode ? "is-showcase-mode" : ""}`}
           style={{
             "--studio-background-image": `url('${publicAsset("/game/backgrounds/slide-playground.webp")}')`,
@@ -411,20 +489,31 @@ export function DressUpStudio() {
             data-testid="studio-stage"
             data-layer-count={layers.length}
           >
-            {/* With a custom face, the full model switches to the hands-down neutral pose. */}
-            {modelAssetIds(selected, isShowcaseMode, Boolean(userFace)).map((id, index) => (
-              <img
-                key={id}
-                src={assetUrl(id)}
-                className="studio-layer"
-                style={{ zIndex: index }}
-                alt={index === 0 ? (hasShowcasePose(selected, isShowcaseMode, Boolean(userFace)) ? "Paper doll showing your look" : "2D paper doll model standing upright with arms relaxed") : ""}
-                aria-hidden={index === 0 ? undefined : "true"}
-                data-model-layer={id}
-                draggable={false}
-                fetchPriority="high"
-              />
-            ))}
+            {/* Showcase keeps the selected top's pose; custom faces use its face-cutout variant. */}
+            {modelAssetIds(selected, isShowcaseMode, Boolean(userFace)).map((id, index) => {
+              const modelMaskUrl = getSvgMaskUrl(eraseMasks["model"], hideUnderlyingBody);
+              const modelMaskStyle: CSSProperties = modelMaskUrl
+                ? {
+                    WebkitMaskImage: `url("${modelMaskUrl}")`,
+                    maskImage: `url("${modelMaskUrl}")`,
+                    WebkitMaskSize: "100% 100%",
+                    maskSize: "100% 100%",
+                  }
+                : {};
+              return (
+                <img
+                  key={id}
+                  src={assetUrl(id)}
+                  className="studio-layer"
+                  style={{ zIndex: index, ...modelMaskStyle }}
+                  alt={index === 0 ? (hasShowcasePose(selected, isShowcaseMode, Boolean(userFace)) ? "Paper doll showing your look" : "2D paper doll model standing upright with arms relaxed") : ""}
+                  aria-hidden={index === 0 ? undefined : "true"}
+                  data-model-layer={id}
+                  draggable={false}
+                  fetchPriority="high"
+                />
+              );
+            })}
 
             {selected.tops === "top-modal-grommet" && !hasShowcasePose(selected, isShowcaseMode, Boolean(userFace)) && (
               <img
@@ -465,8 +554,9 @@ export function DressUpStudio() {
             )}
             {isShowcaseMode && userFace && (
               <img
-                src={assetUrl("model-face-accessories-safe")}
+                src={assetUrl("model-face-frame-overlay")}
                 className="studio-layer studio-user-hair-hat-overlay"
+                style={{ zIndex: faceFrameOrder }}
                 alt=""
                 aria-hidden="true"
                 data-testid="user-hair-hat-overlay"
@@ -474,15 +564,15 @@ export function DressUpStudio() {
               />
             )}
 
-            {!hasShowcasePose(selected, isShowcaseMode, Boolean(userFace)) && (
+            {foregroundHands && (
               <img
-                src={assetUrl("model-arms")}
-                className="studio-layer studio-foreground-arms"
-                style={{ zIndex: foregroundArmsOrder }}
+                src={assetUrl(foregroundHands)}
+                className="studio-layer studio-foreground-hands"
+                style={{ zIndex: foregroundHandsOrder }}
                 alt=""
                 aria-hidden="true"
                 draggable={false}
-                data-testid="foreground-arms"
+                data-testid="foreground-hands"
               />
             )}
 
@@ -522,7 +612,7 @@ export function DressUpStudio() {
           className={`showcase-button ${outfitComplete ? "is-ready" : ""}`}
           disabled={!hydrated || !outfitComplete}
           onClick={showLook}
-          title={outfitComplete ? "Open the photoshoot" : "Choose a top, bottom and shoes first"}
+          title={outfitComplete ? "Open the photoshoot" : "Choose a dress and shoes, or a top, bottom and shoes"}
         >
           <span aria-hidden="true">✧</span> SHOW YOUR LOOK
         </button>
@@ -535,7 +625,7 @@ export function DressUpStudio() {
             draggable={false}
             aria-hidden="true"
           />
-          {categories.map((item) => (
+          {wheelCategories.map((item) => (
             <button
               type="button"
               className={category === item.id ? "is-active" : ""}
@@ -545,7 +635,7 @@ export function DressUpStudio() {
               aria-controls="garment-panel"
               data-testid={`mobile-category-${item.id}`}
               onClick={() => activateCategory(item.id)}
-              aria-label={`${item.id === "tops" ? "Tops" : item.id === "bottoms" ? "Bottoms" : "Shoes"} category`}
+              aria-label={`${item.label} category`}
             />
           ))}
         </nav>
@@ -581,7 +671,7 @@ export function DressUpStudio() {
             />
 
             {/* Interactive category buttons positioned over the 3 sectors — click only */}
-            {categories.map((item) => (
+            {wheelCategories.map((item) => (
               <button
                 type="button"
                 className={`wheel-sector-btn sector-${item.id} ${category === item.id ? "is-active" : ""}`}
@@ -592,7 +682,7 @@ export function DressUpStudio() {
                 aria-controls="garment-panel"
                 data-testid={`category-${item.id}`}
                 onClick={() => activateCategory(item.id)}
-                aria-label={`${item.id === "tops" ? "Tops" : item.id === "bottoms" ? "Bottoms" : "Shoes"} category`}
+                aria-label={`${item.label} category`}
               >
                 <span className="wheel-active-indicator" aria-hidden="true" />
               </button>
@@ -603,6 +693,20 @@ export function DressUpStudio() {
           <div className="wardrobe-header">
             <h1 id="wardrobe-title">PICK AN OUTFIT</h1>
           </div>
+
+          <nav className="wardrobe-extra-categories" aria-label="Extra wardrobe categories">
+            {extraCategories.map((item) => (
+              <button
+                type="button"
+                key={item.id}
+                className={category === item.id ? "is-active" : ""}
+                onClick={() => activateCategory(item.id)}
+                data-testid={`category-${item.id}`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </nav>
 
           {/* Scrollable 2-column cards grid displaying generated/ product shots */}
           <div className="wardrobe-scroll" tabIndex={0} aria-label="Outfit list">
@@ -785,17 +889,18 @@ export function DressUpStudio() {
                   )}
                   {userFace && (
                     <img
-                      src={assetUrl("model-face-accessories-safe")}
+                      src={assetUrl("model-face-frame-overlay")}
                       className="studio-layer studio-user-hair-hat-overlay"
+                      style={{ zIndex: faceFrameOrder }}
                       alt=""
                       draggable={false}
                     />
                   )}
-                  {!hasShowcasePose(selected, isShowcaseMode, Boolean(userFace)) && (
+                  {foregroundHands && (
                     <img
-                      src={assetUrl("model-arms")}
-                      className="studio-layer studio-foreground-arms"
-                      style={{ zIndex: foregroundArmsOrder }}
+                      src={assetUrl(foregroundHands)}
+                      className="studio-layer studio-foreground-hands"
+                      style={{ zIndex: foregroundHandsOrder }}
                       alt=""
                       aria-hidden="true"
                       draggable={false}
@@ -839,7 +944,7 @@ export function DressUpStudio() {
         onClose={() => setFaceCamOpen(false)}
         onApplyFace={(faceUrl) => {
           setUserFace(faceUrl);
-          rememberLook({ selected, fits, eraseMasks, held, userFace: faceUrl, isDenimTucked, isShowcaseMode });
+          rememberLook({ selected, fits, variableFits, faceCompositeFit, eraseMasks, held, userFace: faceUrl, isDenimTucked, isShowcaseMode, hideUnderlyingBody });
         }}
       />
     </main>

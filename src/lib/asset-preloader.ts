@@ -22,7 +22,21 @@ export const CORE_PRELOAD_IMAGES: string[] = [
   publicAsset("/game/photoshoot/camera.svg"),
   publicAsset("/game/effects/color-bubble-burst.gif"),
 
-  ...['model-upper', 'model-dressed-upper', 'model-lower', 'model-lower-boots', 'model-face-accessories-safe', 'top-modal-grommet-skin', 'bottom-sculpted-jeans-under-yellow'].map(assetUrl),
+  ...[
+    'model-upper',
+    'model-dressed-upper',
+    'model-lower',
+    'model-lower-boots',
+    'model-face-frame-overlay',
+    'top-modal-grommet-skin',
+    'bottom-sculpted-jeans-under-yellow',
+    'top-fitted-denim-pose',
+    'top-fitted-denim-pose-swap',
+    'top-fitted-denim-pose-hands',
+    'top-modal-grommet-pose',
+    'top-modal-grommet-pose-swap',
+    'top-modal-grommet-pose-hands',
+  ].map(assetUrl),
   ...allGarments.map(({ id }) => previewAssetUrl(id)),
   ...allGarments.map(({ id }) => assetUrl(id)),
 ];

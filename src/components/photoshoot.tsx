@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type PointerEvent, type KeyboardEvent } from "react";
-import { readLook, renderLook } from "@/lib/studio-look";
+import { readLook, renderLook, subscribeStudioUpdate } from "@/lib/studio-look";
 import { playSound } from "@/lib/sound-effects";
 import { publicAsset } from "@/lib/public-asset";
 
@@ -49,15 +49,25 @@ export function Photoshoot() {
 
   useEffect(() => {
     mounted.current = true;
-    return () => { mounted.current = false; stopCamera(); };
+    const unsubscribe = subscribeStudioUpdate(() => {
+      setLoadAttempt((v) => v + 1);
+    });
+    return () => {
+      mounted.current = false;
+      stopCamera();
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
     let cancelled = false;
     const look = readLook();
-    if (!look.selected.tops || !look.selected.bottoms || !look.selected.shoes) {
+    const hasClothes = Boolean(
+      look.selected.dresses || (look.selected.tops && look.selected.bottoms),
+    );
+    if (!hasClothes || !look.selected.shoes) {
       setLookState("empty");
-      setStatus("Please select a top, bottom, and shoes to begin the photoshoot.");
+      setStatus("Please select a dress and shoes, or a top, bottom, and shoes to begin the photoshoot.");
       return;
     }
     setLookState("loading");

@@ -340,7 +340,7 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
             </div>
 
             <img
-              src={assetUrl("model-face-accessories-safe")}
+              src={assetUrl("model-face-frame-overlay")}
               alt=""
               className="face-cam-accessory-overlay"
               style={faceCameraAccessoryStyle(pose)}

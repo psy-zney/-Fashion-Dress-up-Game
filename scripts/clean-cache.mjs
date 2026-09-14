@@ -5,6 +5,8 @@ const DIRS_TO_CLEAN = [
   "test-results",
   ".studio-work",
   "artifacts/debug",
+  "artifacts/studio/pipeline-tests",
+  "out",
 ];
 
 console.log("🧹 Cleaning caches and temporary artifacts...");

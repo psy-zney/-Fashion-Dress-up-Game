@@ -35,7 +35,7 @@ async function fixture() {
 }
 
 test('repository product lock and audit do not imply a visual pass', async () => {
-  assert.equal(await assertProductsUnchanged(), 4);
+  assert.equal(await assertProductsUnchanged(), 12);
   const report = await audit();
   assert.equal(report.mode, 'read-only');
   assert.match(report.note, /does not approve visual quality/);

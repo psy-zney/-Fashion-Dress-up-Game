@@ -1,10 +1,18 @@
 {
-  "version": 1,
-  "reason": "User-approved wardrobe artwork (top denim v3, top modal v4, bottom jeans v1, boots kept).",
+  "version": 2,
+  "reason": "User-approved wardrobe artwork: four preserved products plus eight generated 2.5D product candidates added on 2026-09-13.",
   "files": {
+    "accessory-abstract-denim-hip-scarf.png": "8923a51ebc7d9a4dedff81de8c478c7c8685ad380a6465354e964d5573fe3a26",
+    "bottom-front-slit-denim-skort.png": "d2cab409919fb5635db2b450bffed5f79013120272071bc049d1f61faa10a609",
+    "bottom-inside-out-cuff-jeans.png": "55f3eed21f7e13b84a5fabccc8963fbfa758fb9497b19ae187bba6c7b586c981",
     "bottom-sculpted-jeans.png": "362154a998da8541e8dc911cef77ee06a4d6d79a7f3fdc4a4bbbb1bf2d4bda9c",
+    "bottom-three-tone-wide-leg-jeans.png": "25fa3a9f2878781582a489863217fe4fc0e31e2750b71a323122b6b78cffd00e",
+    "dress-strapless-deep-fold-denim.png": "ae43101fabb5500511ba24848b97a74789ce75dfbd04052eba6dc6b4b704d735",
+    "legwear-pocket-denim-warmers.png": "3a216bf66f5805b3e639c4f2ded2b40046137362d54e427daf19e150f52a882a",
     "shoes-party-platform-boots.png": "3535dbb45f48d00aa96e8cf8765af36bfd8910dcd04f6f8023e871849be7936e",
+    "top-asymmetric-gradient-denim-shirt.png": "f57d1a106f27c148c4ab797ae3aaa106c123f17a6013a94b3bc4cbd0a00a50d5",
     "top-fitted-denim.png": "406eccbfa041c50e538b27e55831a2dec8bccb2253aefce3cfd822f2698db131",
-    "top-modal-grommet.png": "bf0238c155ea3d4a686ce5f38aeef9c73656444c88f7aac6889e8d986c40369f"
+    "top-modal-grommet.png": "bf0238c155ea3d4a686ce5f38aeef9c73656444c88f7aac6889e8d986c40369f",
+    "top-oversized-mint-zip-tank.png": "5c916189aeedccaade33c4f480c88e5c1a6260042973562ec6ef0f47338f1840"
   }
 }

@@ -2,10 +2,11 @@
 
 import type { CSSProperties } from "react";
 import { publicAsset } from "@/lib/public-asset";
+import type { Category } from "@/lib/studio";
 
 interface ColorBubbleBurstProps {
   activeItem: string | null;
-  category?: "tops" | "bottoms" | "shoes" | null;
+  category?: Category | null;
 }
 
 const burstBubbles = [

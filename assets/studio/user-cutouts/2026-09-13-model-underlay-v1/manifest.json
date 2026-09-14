@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "release": "2026-09-13-model-underlay-v1-draft-02",
+  "layers": [
+    {
+      "id": "model-dressed-upper",
+      "status": "source-reviewed",
+      "source": {
+        "path": "assets/studio/user-cutouts/2026-09-13-model-underlay-v1/aligned/model-dressed-upper.png",
+        "sha256": "9a9636fd47cd773aa7f358c494f1c009a54f62327c0c9722b5c5bc4c2c77e7f6"
+      }
+    },
+    {
+      "id": "model-lower",
+      "status": "source-reviewed",
+      "source": {
+        "path": "assets/studio/user-cutouts/2026-09-13-model-underlay-v1/aligned/model-lower.png",
+        "sha256": "b654f12b254207b3ba89d771cbc454a9510b7f7eb1f338893b808b504d9e35d6"
+      }
+    },
+    {
+      "id": "model-lower-boots",
+      "status": "source-reviewed",
+      "source": {
+        "path": "assets/studio/user-cutouts/2026-09-13-model-underlay-v1/aligned/model-lower-boots.png",
+        "sha256": "a71113211cbbb0f9b277c8808a269b4b228dcefbfb35c76897e97704cc8ed55f"
+      }
+    }
+  ]
+}

@@ -956,6 +956,36 @@
   text-transform: uppercase;
 }
 
+.wardrobe-extra-categories {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(5px, 0.45cqw, 9px);
+  margin: 0 0 clamp(7px, 0.65cqw, 12px);
+}
+
+.wardrobe-extra-categories button {
+  min-height: clamp(28px, 2.35cqw, 38px);
+  padding: 4px 8px;
+  border: 1px solid rgba(126, 57, 102, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #74345f;
+  font: 700 clamp(10px, 0.8cqw, 13px)/1 Inter, system-ui, sans-serif;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+}
+
+.wardrobe-extra-categories button:hover {
+  transform: translateY(-1px);
+}
+
+.wardrobe-extra-categories button.is-active {
+  background: #dbf552;
+  color: #111;
+  box-shadow: 0 2px 8px rgba(127, 79, 15, 0.2);
+}
+
 /* Scrollable cards list with yellow track and white pill thumb */
 .wardrobe-scroll {
   flex: 1;

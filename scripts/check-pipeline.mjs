@@ -8,8 +8,15 @@ const REQUIRED_LAYERS = [
   "model-dressed-upper",
   "model-lower",
   "model-lower-boots",
+  "model-face-frame-overlay",
   "top-fitted-denim",
+  "top-fitted-denim-pose",
+  "top-fitted-denim-pose-swap",
+  "top-fitted-denim-pose-hands",
   "top-modal-grommet",
+  "top-modal-grommet-pose",
+  "top-modal-grommet-pose-swap",
+  "top-modal-grommet-pose-hands",
   "top-modal-grommet-skin",
   "bottom-sculpted-jeans",
   "bottom-sculpted-jeans-under-yellow",
@@ -64,19 +71,21 @@ async function checkAssets() {
   }
   console.log(`  ✅ All ${REQUIRED_PRODUCTS.length} wardrobe card thumbnails verified.`);
 
-  // 3. Regression: Verify no hip skin leak in model-arms
-  const armsRaw = await sharp("public/game/studio/layers/model-arms.png").raw().toBuffer();
-  let hipSkinOverlay = 0;
-  for (let y = 620; y < 720; y++) {
-    for (let x = 387; x <= 670; x++) {
-      if (armsRaw[(y * STAGE_W + x) * 4 + 3] > 10) hipSkinOverlay++;
+  // 3. Regression: foreground hand layers may overlap the face frame, never the hips.
+  for (const id of ["top-fitted-denim-pose-hands", "top-modal-grommet-pose-hands"]) {
+    const handsRaw = await sharp(`public/game/studio/layers/${id}.png`).ensureAlpha().raw().toBuffer();
+    let hipSkinOverlay = 0;
+    for (let y = 620; y < 720; y++) {
+      for (let x = 387; x <= 670; x++) {
+        if (handsRaw[(y * STAGE_W + x) * 4 + 3] > 10) hipSkinOverlay++;
+      }
+    }
+    if (hipSkinOverlay > 0) {
+      console.error(`  ❌ Hip skin leak detected: ${hipSkinOverlay} pixels in ${id}!`);
+      process.exit(1);
     }
   }
-  if (hipSkinOverlay > 0) {
-    console.error(`  ❌ Hip skin leak detected: ${hipSkinOverlay} pixels in model-arms!`);
-    process.exit(1);
-  }
-  console.log(`  ✅ Model foreground arms: 0 hip skin leakage.`);
+  console.log(`  ✅ Pose-specific foreground hands: 0 hip skin leakage.`);
 
   // 4. Verify ready.json
   const readyRaw = JSON.parse(await fs.readFile("public/game/studio/layers/ready.json", "utf8"));

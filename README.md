@@ -54,12 +54,12 @@ Workflow tái sử dụng ảnh: [WORKFLOW.md](docs/studio/WORKFLOW.md). Lệnh,
 
 Thứ tự mặc định từ sau ra trước:
 
-1. `model`
+1. `model-lower*` + `model-upper`/`model-dressed-upper`
 2. `shoes`
 3. `bottoms`
 4. `tops`
 
-Riêng `shoes-brown-boots` kết hợp với hai quần jeans dài, ống quần được giấu từ tỷ lệ 0.648 và boot chuyển lên z35. Váy dài vẫn ở trước boot. Base `model-boots` ẩn chân nền từ y995. UI, ảnh QA và PNG export nội bộ dùng cùng quy tắc.
+Riêng boot kết hợp với quần jeans dài, ống quần được giấu theo cấu hình và boot chuyển lên trước quần. Váy dài vẫn ở trước boot. Base dùng `model-lower-boots` để ẩn chân từ y995; hai full-model legacy đã được loại. UI, ảnh QA và PNG export nội bộ dùng cùng quy tắc split-layer.
 
 ## Thêm một món mới
 

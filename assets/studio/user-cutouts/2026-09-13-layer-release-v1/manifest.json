@@ -1,0 +1,133 @@
+{
+  "release": "2026-09-13-layer-release-v1",
+  "items": [
+    {
+      "id": "top-oversized-mint-zip-tank",
+      "name": "Oversized Mint Zip Tank",
+      "category": "tops",
+      "sourceFile": "Chưa có tên (1024 x 1536 px) (Whiteboard)(5).png",
+      "originalSha256": "35b29380f5bad6ae78177674d357f6568788cdba95bb1c6cd190816086c2b854",
+      "candidateSha256": "e663790ed1c3e46054eed5ee44d9869260224e0b68b0ca068bb3b5f70fcfe70d",
+      "bounds": {
+        "left": 376,
+        "top": 271,
+        "width": 292,
+        "height": 458
+      },
+      "visiblePixels": 90896,
+      "antialiasedPixels": 3273
+    },
+    {
+      "id": "top-asymmetric-gradient-denim-shirt",
+      "name": "Asymmetric Gradient Denim Shirt",
+      "category": "tops",
+      "sourceFile": "Chưa có tên (1024 x 1536 px) (Whiteboard)(4).png",
+      "originalSha256": "b059573466668d4755389c2daed25bbc81031f7815c81576c2ca876e6854296c",
+      "candidateSha256": "9fe8bc8c0a920941867034a064bf14ad06b64ee404b424c94d77ec290df14446",
+      "bounds": {
+        "left": 312,
+        "top": 244,
+        "width": 422,
+        "height": 474
+      },
+      "visiblePixels": 116762,
+      "antialiasedPixels": 3301
+    },
+    {
+      "id": "bottom-three-tone-wide-leg-jeans",
+      "name": "Three-Tone Wide-Leg Jeans",
+      "category": "bottoms",
+      "sourceFile": "Chưa có tên (1024 x 1536 px) (Whiteboard)(3).png",
+      "originalSha256": "6ed6ec872fd46f3062820acb75e6f3d9ed2d6175e4d71481a6bd13937d90487d",
+      "candidateSha256": "fbc7feabd78d324ab1baebb6fa8c79b28ff66a997b7340382357a13af892da5f",
+      "bounds": {
+        "left": 345,
+        "top": 549,
+        "width": 355,
+        "height": 867
+      },
+      "visiblePixels": 254484,
+      "antialiasedPixels": 5775
+    },
+    {
+      "id": "bottom-front-slit-denim-skort",
+      "name": "Front-Slit Denim Skort",
+      "category": "bottoms",
+      "sourceFile": "Chưa có tên (1024 x 1536 px) (Whiteboard)(2).png",
+      "originalSha256": "d665f506c36fe3eb373047ccb54dd7b8bb8da36317299badf61ba6763b3e49c9",
+      "candidateSha256": "e4953f6c39f3bdeaa333548c672aa36f1ac9cc6573403047fc816d820573c294",
+      "bounds": {
+        "left": 358,
+        "top": 529,
+        "width": 327,
+        "height": 299
+      },
+      "visiblePixels": 77146,
+      "antialiasedPixels": 2315
+    },
+    {
+      "id": "bottom-inside-out-cuff-jeans",
+      "name": "Inside-Out Cuff Jeans",
+      "category": "bottoms",
+      "sourceFile": "Chưa có tên (1024 x 1536 px) (Whiteboard)(1).png",
+      "originalSha256": "c3401a848e2df067762f4078c1558889f9fbefc80f7e6feb57d79b68358c70d3",
+      "candidateSha256": "d400aed5f17fae1c775c0af671bdbd657b9e4482ac132340cd3dc7fed071ec85",
+      "bounds": {
+        "left": 376,
+        "top": 527,
+        "width": 293,
+        "height": 796
+      },
+      "visiblePixels": 201135,
+      "antialiasedPixels": 4995
+    },
+    {
+      "id": "legwear-pocket-denim-warmers",
+      "name": "Pocket Denim Leg Warmers",
+      "category": "shoes",
+      "sourceFile": "Chưa có tên (1024 x 1536 px) (Whiteboard).png",
+      "originalSha256": "2610208d267bada63c8321c99eda097a2b1691d5f913c4387fb0da44495098b6",
+      "candidateSha256": "b151ce95c802a165ffc04fe3c49daacd81aab7151d95fdd7c355f295c7873265",
+      "bounds": {
+        "left": 378,
+        "top": 994,
+        "width": 284,
+        "height": 316
+      },
+      "visiblePixels": 65185,
+      "antialiasedPixels": 3081
+    },
+    {
+      "id": "accessory-abstract-denim-hip-scarf",
+      "name": "Abstract Denim Hip Scarf",
+      "category": "accessories",
+      "sourceFile": "Chưa có tên (1024 x 1536 px) (Whiteboard)(7).png",
+      "originalSha256": "ad56c7995a8e6a8a496a9c53d895c1251a9446ac4692702fcea4806647afc825",
+      "candidateSha256": "79d0dcc65ad49b71aecf3005a33a9a11c998bf50b7c4df5c177d523cf3b7d82d",
+      "bounds": {
+        "left": 374,
+        "top": 572,
+        "width": 313,
+        "height": 263
+      },
+      "visiblePixels": 43489,
+      "antialiasedPixels": 2076
+    },
+    {
+      "id": "dress-strapless-deep-fold-denim",
+      "name": "Strapless Deep-Fold Denim Dress",
+      "category": "dresses",
+      "sourceFile": "Chưa có tên (1024 x 1536 px) (Whiteboard)(6).png",
+      "originalSha256": "7720ef19618e2ccb23f0382b347e9d22761ff2ea27abb9130d8b880c38e564df",
+      "candidateSha256": "c2ca6f11fa63b62200942d2646452f11811eec39355012d93e354a8b67519879",
+      "bounds": {
+        "left": 309,
+        "top": 339,
+        "width": 423,
+        "height": 859
+      },
+      "visiblePixels": 254807,
+      "antialiasedPixels": 4331
+    }
+  ]
+}

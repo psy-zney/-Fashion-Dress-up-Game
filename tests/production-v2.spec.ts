@@ -1,13 +1,31 @@
 import { expect, test } from '@playwright/test';
+import fs from 'node:fs/promises';
 import sharp from 'sharp';
+import { FACE_CAPTURE_VERSION } from '../src/lib/face-composite';
 
 const layer = (id: string) => sharp(`public/game/studio/layers/${id}.png`).ensureAlpha().raw().toBuffer();
 const saved = (top: string, bottom = 'bottom-sculpted-jeans') => ({
   selected: { tops: top, bottoms: bottom, shoes: 'shoes-party-platform-boots' }, fits: {}, held: {},
 });
 
-test('refreshed cutouts have soft alpha and the split model reconstructs the original base', async () => {
-  for (const id of ['model-upper', 'model-dressed-upper', 'model-face-accessories-safe', 'top-fitted-denim', 'top-modal-grommet', 'top-modal-grommet-skin', 'bottom-sculpted-jeans', 'bottom-sculpted-jeans-under-yellow', 'shoes-party-platform-boots']) {
+test('refreshed cutouts have soft alpha and the split model has no checkerboard leakage', async () => {
+  for (const id of [
+    'model-upper',
+    'model-dressed-upper',
+    'model-lower',
+    'model-lower-boots',
+    'model-face-frame-overlay',
+    'top-fitted-denim',
+    'top-fitted-denim-pose-swap',
+    'top-fitted-denim-pose-hands',
+    'top-modal-grommet',
+    'top-modal-grommet-pose-swap',
+    'top-modal-grommet-pose-hands',
+    'top-modal-grommet-skin',
+    'bottom-sculpted-jeans',
+    'bottom-sculpted-jeans-under-yellow',
+    'shoes-party-platform-boots',
+  ]) {
     const data = await layer(id);
     expect(data.length).toBe(1024 * 1536 * 4);
     let transparent = 0;
@@ -20,18 +38,22 @@ test('refreshed cutouts have soft alpha and the split model reconstructs the ori
     expect(soft, id).toBeGreaterThan(id === 'top-modal-grommet-skin' ? 100 : 500);
   }
 
-  const base = await layer('model');
-  const upper = await layer('model-upper');
-  const lower = await layer('model-lower');
-  let splitMismatch = 0;
-  for (let pixel = 0; pixel < 1024 * 1536; pixel++) {
-    const p = pixel * 4;
-    const source = lower[p + 3] > 0 ? lower : upper;
-    for (let channel = base[p + 3] > 0 ? 0 : 3; channel < 4; channel++) {
-      if (source[p + channel] !== base[p + channel]) splitMismatch++;
+  await expect(fs.access('public/game/studio/layers/model.png')).rejects.toThrow();
+  await expect(fs.access('public/game/studio/layers/model-boots.png')).rejects.toThrow();
+
+  for (const id of ['model-dressed-upper', 'model-lower', 'model-lower-boots']) {
+    const data = await layer(id);
+    let visible = 0;
+    let grayCheckerPixels = 0;
+    for (let p = 0; p < data.length; p += 4) {
+      if (!data[p + 3]) continue;
+      visible++;
+      const maximum = Math.max(data[p], data[p + 1], data[p + 2]);
+      const minimum = Math.min(data[p], data[p + 1], data[p + 2]);
+      if (maximum - minimum < 10 && maximum > 70 && maximum < 230) grayCheckerPixels++;
     }
+    expect(grayCheckerPixels / visible, `${id} must not contain a rasterized checkerboard`).toBeLessThan(0.01);
   }
-  expect(splitMismatch, 'model-upper + model-lower should reconstruct model.png').toBe(0);
 
   const jeans = await layer('bottom-sculpted-jeans');
   const yellow = await layer('top-modal-grommet');
@@ -47,10 +69,10 @@ test('refreshed cutouts have soft alpha and the split model reconstructs the ori
   }
   expect(jeans[(550 * 1024 + 520) * 4 + 3], 'jeans waistband remains covered').toBeGreaterThan(200);
 
-  const faceAccessories = await layer('model-face-accessories-safe');
-  expect(faceAccessories[(60 * 1024 + 512) * 4 + 3], 'cap is retained').toBeGreaterThan(240);
+  const faceFrame = await layer('model-face-frame-overlay');
+  expect(faceFrame[(60 * 1024 + 512) * 4 + 3], 'cap is retained').toBeGreaterThan(240);
   for (const [x, y] of [[512, 200], [512, 225], [512, 250], [512, 275]]) {
-    expect(faceAccessories[(y * 1024 + x) * 4 + 3], `face/neck center stays clear at ${x},${y}`).toBe(0);
+    expect(faceFrame[(y * 1024 + x) * 4 + 3], `face opening stays clear at ${x},${y}`).toBe(0);
   }
 });
 
@@ -96,14 +118,14 @@ for (const top of ['top-fitted-denim', 'top-modal-grommet']) {
 }
 
 for (const top of ['top-fitted-denim', 'top-modal-grommet'] as const) {
-  test(`${top} custom face switches to the hands-down face-safe pose`, async ({ page }) => {
+  test(`${top} custom face keeps the showcase pose and stacks frame then pose-specific hands`, async ({ page }) => {
     const facePng = await sharp({
       create: { width: 160, height: 190, channels: 4, background: { r: 220, g: 70, b: 150, alpha: 1 } },
     }).png().toBuffer();
     const look = {
       ...saved(top),
       userFace: `data:image/png;base64,${facePng.toString('base64')}`,
-      userFaceVersion: 'face-safe-neutral-v3',
+      userFaceVersion: FACE_CAPTURE_VERSION,
       isDenimTucked: false,
     };
     await page.addInitScript(value => {
@@ -122,18 +144,23 @@ for (const top of ['top-fitted-denim', 'top-modal-grommet'] as const) {
     const face = stage.getByTestId('user-face-sprite');
     const garment = stage.locator(`[data-garment="${top}"]`);
     await expect(face).toHaveAttribute('data-face-pose', 'face-safe-neutral');
-    await expect(garment).toHaveAttribute('src', new RegExp(`${top}\\.png`));
-    await expect(stage.locator('[data-model-layer="model-dressed-upper"]')).toBeVisible();
-    await expect(stage.getByTestId('foreground-arms')).toBeVisible();
-    await expect(stage.getByTestId('user-hair-hat-overlay')).toHaveAttribute('src', /model-face-accessories-safe\.png/);
-    expect(await face.evaluate(element => Number(getComputedStyle(element).zIndex)))
-      .toBeLessThan(await garment.evaluate(element => Number(getComputedStyle(element).zIndex)));
+    await expect(garment).toHaveAttribute('src', new RegExp(`${top}-pose-swap\\.png`));
+    await expect(stage.locator('[data-model-layer="model-dressed-upper"]')).toHaveCount(0);
+    const frame = stage.getByTestId('user-hair-hat-overlay');
+    const hands = stage.getByTestId('foreground-hands');
+    await expect(frame).toHaveAttribute('src', /model-face-frame-overlay\.png/);
+    await expect(hands).toHaveAttribute('src', new RegExp(`${top}-pose-hands\\.png`));
+    const faceZ = await face.evaluate(element => Number(getComputedStyle(element).zIndex));
+    const frameZ = await frame.evaluate(element => Number(getComputedStyle(element).zIndex));
+    const handsZ = await hands.evaluate(element => Number(getComputedStyle(element).zIndex));
+    expect(faceZ).toBeLessThan(frameZ);
+    expect(frameZ).toBeLessThan(handsZ);
 
     await page.getByTestId('open-face-cam-btn').click();
     const viewport = page.locator('.face-cam-viewport');
     await expect(viewport).toHaveAttribute('data-face-pose', 'face-safe-neutral');
     await expect(viewport.locator('.face-cam-overlay')).toHaveCount(0);
-    await expect(viewport.getByTestId('face-cam-accessory-overlay')).toHaveAttribute('src', /model-face-accessories-safe\.png/);
+    await expect(viewport.getByTestId('face-cam-accessory-overlay')).toHaveAttribute('src', /model-face-frame-overlay\.png/);
     const guide = viewport.locator('.face-cam-features-guide > g');
     await expect(guide).toHaveAttribute('transform', /rotate\(0 /);
     const ellipse = guide.locator('ellipse');
@@ -185,6 +212,9 @@ for (const top of ['top-fitted-denim', 'top-modal-grommet'] as const) {
     expect(opaque).toBeGreaterThan(1000);
     expect(soft).toBeGreaterThan(500);
     await page.screenshot({ path: `artifacts/studio/qa/face-cam/face-safe-${top}-captured.png` });
+    const tuckedBeforeConfirm = await page.evaluate(() =>
+      JSON.parse(localStorage.getItem('tung-tung-play-ge') || '{}').isDenimTucked,
+    );
     await page.getByTestId('face-cam-confirm-btn').click();
     await expect
       .poll(() =>
@@ -192,7 +222,7 @@ for (const top of ['top-fitted-denim', 'top-modal-grommet'] as const) {
           JSON.parse(localStorage.getItem('tung-tung-play-ge') || '{}').isDenimTucked,
         ),
       )
-      .toBe(false);
+      .toBe(tuckedBeforeConfirm);
   });
 }
 

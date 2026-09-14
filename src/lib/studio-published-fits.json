@@ -1,10 +1,10 @@
 {
-  "version": "production-v2-20260912-v15-face-safe",
-  "updatedAt": "2026-09-12T17:36:14.226Z",
+  "version": "production-v2-20260913-v19-short-underlay",
+  "updatedAt": "2026-09-14T06:40:09.933Z",
   "fits": {
     "top-fitted-denim": {
-      "x": 0,
-      "y": -4,
+      "x": 15,
+      "y": -20,
       "scaleX": 1.015,
       "scaleY": 1,
       "angle": 0
@@ -29,9 +29,202 @@
       "scaleX": 1,
       "scaleY": 1,
       "angle": 0
+    },
+    "top-asymmetric-gradient-denim-shirt": {
+      "x": 0,
+      "y": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0
+    },
+    "top-oversized-mint-zip-tank": {
+      "x": 0,
+      "y": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0
+    },
+    "bottom-three-tone-wide-leg-jeans": {
+      "x": 0,
+      "y": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0
+    },
+    "bottom-inside-out-cuff-jeans": {
+      "x": 0,
+      "y": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0
+    },
+    "bottom-front-slit-denim-skort": {
+      "x": 0,
+      "y": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0
+    },
+    "legwear-pocket-denim-warmers": {
+      "x": 0,
+      "y": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0
+    },
+    "dress-strapless-deep-fold-denim": {
+      "x": 0,
+      "y": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0
+    },
+    "accessory-abstract-denim-hip-scarf": {
+      "x": 0,
+      "y": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "angle": 0
+    }
+  },
+  "variableFits": {
+    "denim_tucked": {
+      "top-fitted-denim": {
+        "x": 0,
+        "y": -4,
+        "scaleX": 1.015,
+        "scaleY": 1,
+        "angle": 0
+      },
+      "bottom-sculpted-jeans": {
+        "x": -6,
+        "y": -1,
+        "scaleX": 0.995,
+        "scaleY": 1,
+        "angle": 0
+      },
+      "shoes-party-platform-boots": {
+        "x": 0,
+        "y": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0
+      }
+    },
+    "denim_untucked": {
+      "top-fitted-denim": {
+        "x": 0,
+        "y": -4,
+        "scaleX": 1.015,
+        "scaleY": 1,
+        "angle": 0
+      },
+      "bottom-sculpted-jeans": {
+        "x": -6,
+        "y": -1,
+        "scaleX": 0.995,
+        "scaleY": 1,
+        "angle": 0
+      },
+      "shoes-party-platform-boots": {
+        "x": 0,
+        "y": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0
+      }
+    },
+    "modal_default": {
+      "top-modal-grommet": {
+        "x": 2,
+        "y": 4,
+        "scaleX": 1.07,
+        "scaleY": 1,
+        "angle": 0
+      },
+      "bottom-sculpted-jeans": {
+        "x": -6,
+        "y": -1,
+        "scaleX": 0.995,
+        "scaleY": 1,
+        "angle": 0
+      },
+      "shoes-party-platform-boots": {
+        "x": 0,
+        "y": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0
+      }
+    },
+    "face_composite": {
+      "top-fitted-denim": {
+        "x": 0,
+        "y": -4,
+        "scaleX": 1.015,
+        "scaleY": 1,
+        "angle": 0
+      },
+      "top-modal-grommet": {
+        "x": -1,
+        "y": 0,
+        "scaleX": 1.07,
+        "scaleY": 1,
+        "angle": 0
+      },
+      "bottom-sculpted-jeans": {
+        "x": -6,
+        "y": -1,
+        "scaleX": 0.995,
+        "scaleY": 1,
+        "angle": 0
+      },
+      "shoes-party-platform-boots": {
+        "x": 0,
+        "y": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0
+      }
+    },
+    "showcase_pose": {
+      "top-fitted-denim": {
+        "x": 0,
+        "y": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0
+      },
+      "top-modal-grommet": {
+        "x": 0,
+        "y": 0,
+        "scaleX": 1,
+        "scaleY": 1,
+        "angle": 0
+      }
+    }
+  },
+  "faceCompositeFit": {
+    "stage": {
+      "centerX": 512,
+      "centerY": 176,
+      "width": 120,
+      "height": 160,
+      "angle": 0
+    },
+    "guide": {
+      "centerX": 190,
+      "centerY": 150,
+      "width": 126,
+      "height": 160,
+      "angle": 0
     }
   },
   "eraseMasks": {
+    "model": [],
+    "top-fitted-denim": [],
+    "top-modal-grommet": [],
+    "shoes-party-platform-boots": [],
     "bottom-sculpted-jeans": [
       {
         "x": 745,
@@ -136,5 +329,6 @@
     ]
   },
   "isDenimTucked": false,
-  "isShowcaseMode": false
+  "isShowcaseMode": false,
+  "hideUnderlyingBody": false
 }

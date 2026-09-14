@@ -8,3 +8,16 @@ test-results/
 .studio-work/
 artifacts/
 output/
+
+# Local-only garment alignment studio. Do not ship the admin editor.
+/src/app/admin/
+/src/components/studio-fit-admin.tsx
+/tests/admin-*.spec.ts
+/tests/denim-tuck.spec.ts
+/tests/eraser-tool.spec.ts
+/tests/studio-state-flow.spec.ts
+/tests/svg-mask-test.spec.ts
+/tests/verify-pants-and-underlying-body.spec.ts
+/tests/face-cam-showcase.spec.ts
+/scripts/studio/inspect-admin.cjs
+/scripts/studio/scratch/

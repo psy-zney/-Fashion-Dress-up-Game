@@ -3,7 +3,7 @@ import type { Selection } from "./studio";
 
 export const FACE_CAPTURE_VIEWPORT = { width: 380, height: 300 } as const;
 export const FACE_TEXTURE = { width: 160, height: 190 } as const;
-export const FACE_CAPTURE_VERSION = "face-safe-neutral-v3";
+export const FACE_CAPTURE_VERSION = "face-frame-overlay-v4";
 
 export type FacePoseId = "face-safe-neutral";
 
@@ -26,19 +26,22 @@ export type FacePose = {
   };
 };
 
-// Custom faces use the neutral, hands-down model. The supplied showcase poses
-// place fingers over the facial aperture and are intentionally not face-safe.
+export type FacePoseFit = Pick<FacePose, "guide" | "stage">;
+
+// The face crop is shared by both showcase poses. Pose-specific hand layers are
+// rendered after the frame so fingers can overlap the captured photo naturally.
 export const FACE_POSES: Record<FacePoseId, FacePose> = {
   "face-safe-neutral": {
     id: "face-safe-neutral",
-    label: "pose chụp mặt an toàn",
+    label: "khung mặt showcase",
     guide: { centerX: 190, centerY: 150, width: 126, height: 160, angle: 0 },
-    stage: { centerX: 518, centerY: 176, width: 132, height: 158, angle: 0 },
+    stage: { centerX: 512, centerY: 176, width: 120, height: 160, angle: 0 },
   },
 };
 
-export function facePoseFor(_selection: Selection): FacePose {
-  return FACE_POSES["face-safe-neutral"];
+export function facePoseFor(_selection: Selection, fit?: FacePoseFit): FacePose {
+  const pose = FACE_POSES["face-safe-neutral"];
+  return fit ? { ...pose, guide: fit.guide, stage: fit.stage } : pose;
 }
 
 export function faceLayerStyle(pose: FacePose, zIndex: number): CSSProperties {

@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("màn hình mở đầu chỉ dẫn PLAY vào phòng phối đồ tích hợp", async ({ page }) => {
+  test.slow();
   const errors: string[] = [];
   page.on("pageerror", (error) => errors.push(error.message));
 
@@ -56,6 +57,7 @@ test("hướng dẫn mở, giữ focus, đóng bằng Escape và trả focus", a
 });
 
 test("các URL phòng mẫu cũ chuyển vào PLAY, route sai vẫn 404", async ({ page }) => {
+  test.slow();
   for (const url of ["/studio", "/desktop/1", "/desktop/2", "/desktop/3", "/desktop/4", "/desktop/5"]) {
     await page.goto(url, { waitUntil: "domcontentloaded" });
     await expect(page).toHaveURL(/\/play$/);

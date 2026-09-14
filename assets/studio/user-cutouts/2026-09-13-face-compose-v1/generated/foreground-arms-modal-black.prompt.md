@@ -1,0 +1,3 @@
+Use case: background-extraction
+
+From the supplied modal-top showcase pose, isolate the exact complete left and right arms, wrists, both hands, all fingers, colorful bead bracelets, and dangling charms. Preserve shoulder positions, elbow angles, wrist positions, the left-hand V sign beside the eye, and the right hand on the waist. Arms and wrist accessories only on pure solid black. Remove head, face, hair, cap, glasses, earrings, neck, torso, and lime top. Keep the original front-facing anatomy, skin tone, relative scale, and location. No text, shadow, checkerboard, extra fingers, missing fingers, clothing fragments, or face fragments.

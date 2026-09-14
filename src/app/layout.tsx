@@ -14,5 +14,12 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body><DeployVersionGuard />{children}</body></html>;
+  return (
+    <html lang="en" suppressHydrationWarning>
+      <body suppressHydrationWarning>
+        <DeployVersionGuard />
+        {children}
+      </body>
+    </html>
+  );
 }

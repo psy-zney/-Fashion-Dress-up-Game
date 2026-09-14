@@ -89,7 +89,7 @@ Vùng rủi ro: hở eo, đầu tay thừa, da dính trong vải, gấu váy đ�
 ## 8. Quy tắc phối lớp và chuyển động
 
 - Mặc định: model → shoes z20 → bottoms z30 → tops z40.
-- Boot dùng `model-boots.png`: ẩn chân nền từ y995 trở xuống; boot thay toàn silhouette cẳng chân.
+- Boot dùng `model-lower-boots.png` cùng upper layer phù hợp: ẩn chân nền từ y995 trở xuống; boot thay toàn silhouette cẳng chân. Không dùng full-model legacy trong runtime.
 - Váy dài giữ nguyên gấu và phủ trước ống boot. Không biến váy dài thành mini khi chọn boot.
 - Jeans + boot: giấu ống dưới tỷ lệ y=0.648, boot z35 phủ trước quần. Web/export/render QA phải cùng quy tắc.
 - Drag dùng Pointer Events, ngưỡng 6px, pointer capture, giữ đúng điểm cầm. Chỉ mặc khi thả trong stage; click vẫn mặc nhanh; Escape/hủy pointer/blur phải dọn preview.

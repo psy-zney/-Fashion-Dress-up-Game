@@ -27,9 +27,9 @@
       "top": 250,
       "width": 244,
       "height": 406,
-      "visiblePixels": 74552
+      "visiblePixels": 73347
     },
-    "antialiasedPixels": 4686
+    "antialiasedPixels": 2169
   },
   {
     "id": "top-modal-grommet",
@@ -43,9 +43,9 @@
       "top": 274,
       "width": 280,
       "height": 389,
-      "visiblePixels": 78500
+      "visiblePixels": 77407
     },
-    "antialiasedPixels": 5656
+    "antialiasedPixels": 3016
   },
   {
     "id": "bottom-sculpted-jeans",
@@ -59,8 +59,136 @@
       "top": 541,
       "width": 503,
       "height": 898,
-      "visiblePixels": 326116
+      "visiblePixels": 322795
     },
-    "antialiasedPixels": 14706
+    "antialiasedPixels": 7619
+  },
+  {
+    "id": "top-asymmetric-gradient-denim-shirt",
+    "category": "tops",
+    "name": "Áo sơ mi denim loang bất đối xứng",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 312,
+      "top": 244,
+      "width": 422,
+      "height": 473,
+      "visiblePixels": 116617
+    },
+    "antialiasedPixels": 3156
+  },
+  {
+    "id": "top-oversized-mint-zip-tank",
+    "category": "tops",
+    "name": "Áo tank top khóa kéo xanh mint",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 376,
+      "top": 271,
+      "width": 292,
+      "height": 458,
+      "visiblePixels": 90738
+    },
+    "antialiasedPixels": 3115
+  },
+  {
+    "id": "bottom-three-tone-wide-leg-jeans",
+    "category": "bottoms",
+    "name": "Quần jeans ống rộng 3 màu",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 345,
+      "top": 549,
+      "width": 355,
+      "height": 867,
+      "visiblePixels": 254337
+    },
+    "antialiasedPixels": 5628
+  },
+  {
+    "id": "bottom-inside-out-cuff-jeans",
+    "category": "bottoms",
+    "name": "Quần jeans gập gấu ngược",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 376,
+      "top": 527,
+      "width": 293,
+      "height": 796,
+      "visiblePixels": 201013
+    },
+    "antialiasedPixels": 4873
+  },
+  {
+    "id": "bottom-front-slit-denim-skort",
+    "category": "bottoms",
+    "name": "Chân váy quần denim xẻ tà",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 358,
+      "top": 529,
+      "width": 327,
+      "height": 299,
+      "visiblePixels": 77037
+    },
+    "antialiasedPixels": 2206
+  },
+  {
+    "id": "legwear-pocket-denim-warmers",
+    "category": "shoes",
+    "name": "Tất ống denim có túi",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 378,
+      "top": 994,
+      "width": 284,
+      "height": 315,
+      "visiblePixels": 65082
+    },
+    "antialiasedPixels": 2978
+  },
+  {
+    "id": "dress-strapless-deep-fold-denim",
+    "category": "dresses",
+    "name": "Đầm denim cúp ngực xếp ly sâu",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 309,
+      "top": 340,
+      "width": 423,
+      "height": 857,
+      "visiblePixels": 254622
+    },
+    "antialiasedPixels": 4146
+  },
+  {
+    "id": "accessory-abstract-denim-hip-scarf",
+    "category": "accessories",
+    "name": "Khăn quấn hông denim họa tiết",
+    "width": 1024,
+    "height": 1536,
+    "hasAlpha": true,
+    "bounds": {
+      "left": 374,
+      "top": 572,
+      "width": 313,
+      "height": 263,
+      "visiblePixels": 43392
+    },
+    "antialiasedPixels": 1979
   }
 ]
