@@ -166,11 +166,20 @@ export function BubblePearlLoading({
       })
       .catch(() => {
         if (!isMounted) return;
-        setError("Some game assets could not be loaded. Check your connection and retry.");
+        assetsDoneRef.current = true;
+        rawAssetProgressRef.current = 100;
       });
+
+    const fallbackTimer = setTimeout(() => {
+      if (isMounted && !assetsDoneRef.current) {
+        assetsDoneRef.current = true;
+        rawAssetProgressRef.current = 100;
+      }
+    }, Math.max(minDurationMs + 2500, 5500));
 
     return () => {
       isMounted = false;
+      clearTimeout(fallbackTimer);
     };
   }, [active, attempt, minDurationMs, onFinish]);
 

@@ -1,0 +1,8 @@
+Use case: identity-preserve
+Asset type: corrected full-model pose source for exact dress-up shoe-layer alignment
+Primary request: Preserve the leaning denim-dress model and correct only the exposed lower legs, ankles, and bare feet beneath the dress so they match the game's neutral model shoe coordinates.
+Coordinate contract: image-left lower leg/foot x=404..494 from y=1200 downward; image-right lower leg/foot x=542..636; lowest foot pixels at approximately y=1503..1504. Feet are parallel, forward-facing, separated, and suitable for the existing shoe layers without transforms.
+Invariants: 1024 x 1536 canvas; unchanged face, hair, hat, glasses, accessories, upper-body pose, arms, hands, dress design, dress placement, lighting, and opaque white background.
+Avoid: touching or crossed feet, altered dress, shoes, malformed ankles, missing toes, crop, zoom, transparency, text, watermark.
+
+Note: Image generation alone did not honor exact pixel coordinates. The selected source therefore retains the generated upper pose and dress, while the exposed lower-leg/foot pixels are taken directly from public/game/studio/layers/model/model-neutral.png behind the dress hem.

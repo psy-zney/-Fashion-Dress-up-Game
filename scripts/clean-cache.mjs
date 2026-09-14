@@ -1,12 +1,14 @@
 import fs from "node:fs";
 
 const DIRS_TO_CLEAN = [
-  ".next/cache",
+  ".next",
   "test-results",
+  "playwright-report",
   ".studio-work",
-  "artifacts/debug",
-  "artifacts/studio/pipeline-tests",
+  ".studio-history",
+  "artifacts",
   "out",
+  "output",
 ];
 
 console.log("🧹 Cleaning caches and temporary artifacts...");

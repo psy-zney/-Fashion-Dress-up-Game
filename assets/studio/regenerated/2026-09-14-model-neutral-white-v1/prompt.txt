@@ -1,0 +1,11 @@
+Use case: identity-preserve
+Asset type: full-body game studio model source candidate
+Input images: Image 1 is the only edit target and geometry reference. Image 2 is a close-up reference pointing out the small rendering artifacts around the hands and upper thighs that must be removed; do not use Image 2 as a composition target.
+Primary request: Cleanly regenerate/edit Image 1 on a pure solid white background (#FFFFFF), removing all small visual defects and stray rectangular patches/lines around both hands, wrists, shorts edges, crotch, and upper thighs.
+Subject/style: Preserve the exact same stylized 3D female character, face identity, expression, hairstyle and neon colors, hat and button, glasses, earrings, bracelets, turquoise bandeau and shorts, skin tone, lighting, body anatomy, pose, hands, legs, feet, and rendering style.
+Composition/framing: Preserve the exact 1024 x 1536 canvas, exact full-body scale, pixel position, centering, head/shoulder/waist/hand/foot coordinates, margins, and front-facing pose from Image 1. Do not crop, zoom, recenter, resize, rotate, or alter proportions.
+Constraints: Change only the background and tiny defects. Make the white background completely opaque and uniform. Keep clean natural antialiased subject edges without black/white halos. Repair the visible pale horizontal blocks/strips on the right upper thigh and any stray block near the left hand/hip; maintain natural continuous skin texture. Preserve all fingers and toes correctly. No added objects, no missing accessories, no wardrobe redesign, no nudity, no text, no watermark.
+Avoid: identity drift, body-shape drift, asymmetry, warped hands or feet, extra/missing fingers or toes, shifted character, softened details, seams, checkerboard, transparency, shadows on the background.
+
+Generation mode: built-in image_gen edit
+Runtime integration: not performed; candidate/archive only

@@ -156,12 +156,33 @@ export function DressUpGame({ screen }: { screen: Screen }) {
     }
   }, [loadAttempt, screen]);
 
+  const parallaxStageRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (screen !== 1) return;
+    const stage = parallaxStageRef.current;
+    if (!stage) return;
+    const handleMouseMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth) - 0.5;
+      const y = (e.clientY / window.innerHeight) - 0.5;
+      const layers = stage.querySelectorAll<HTMLElement>('.parallax-layer');
+      layers.forEach((layer) => {
+        const speedX = parseFloat(layer.getAttribute('data-speed-x') || '0');
+        const speedY = parseFloat(layer.getAttribute('data-speed-y') || '0');
+        layer.style.transform = `translate(${x * speedX}px, ${y * speedY}px)`;
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [screen]);
+
   const isBlurred = screen === 1 && (audioLoading || !isActivated);
 
   return (
     <main
       className={`game-shell ${screen === 1 ? "landing-shell" : ""}`}
-      style={{ "--landing-bg": `url('${asset("landing-background.png")}')` } as CSSProperties}
+      style={{ "--landing-bg": `url('${asset("landing-new-bg.png")}')` } as CSSProperties}
+      ref={parallaxStageRef}
     >
       <div
         className={`game-canvas ${screen === 1 ? "landing" : "dressing-room"}`}
@@ -177,42 +198,73 @@ export function DressUpGame({ screen }: { screen: Screen }) {
         {screen === 1 ? <>
           <img
             className={`landing-art ${isBlurred ? "is-loading-blur" : ""}`}
-            src={asset("landing-background.png")}
+            src={asset("landing-new-bg.png")}
             alt="Fashion Dress-Up Minigame — a colorful fashion collage in the city"
             fetchPriority="high"
             draggable={false}
           />
-          <img
-            className={`landing-art landing-overlay ${isBlurred ? "is-loading-blur" : ""}`}
-            src={asset("landing-overlay.png")}
-            alt=""
-            draggable={false}
-          />
+          <div className="landing-model-wrap parallax-layer" data-speed-x="-3" data-speed-y="-1">
+            <img className={`landing-asset ${isBlurred ? "is-loading-blur" : ""}`} src={asset("landing-model.png")} alt="" draggable={false} />
+          </div>
+          <div className="landing-pole-wrap parallax-layer" data-speed-x="3" data-speed-y="1">
+            <img className={`landing-asset ${isBlurred ? "is-loading-blur" : ""}`} src={asset("landing-pole.png")} alt="" draggable={false} />
+          </div>
+
+          <div className="landing-sign-hehe-wrap parallax-layer" data-speed-x="10" data-speed-y="5">
+            <img className={`landing-asset landing-sign-hehe ${isBlurred ? "is-loading-blur" : ""}`} src={asset("sign-hehe.png")} alt="" draggable={false} />
+          </div>
+          <div className="landing-sign-tung-wrap parallax-layer" data-speed-x="12" data-speed-y="4">
+            <img className={`landing-asset landing-sign-tung ${isBlurred ? "is-loading-blur" : ""}`} src={asset("sign-tung-tung.png")} alt="" draggable={false} />
+          </div>
+          <div className="landing-dress-up-btn-wrap parallax-layer" data-speed-x="8" data-speed-y="6">
+            <img className={`landing-asset ${isBlurred ? "is-loading-blur" : ""}`} src={asset("button-dress-up.png")} alt="" draggable={false} />
+          </div>
           {!audioLoading && isActivated && <SoapBubbles count={12} />}
-          {loadError ? <button
-            type="button"
-            className="glass-button play-button is-freshly-loaded is-retry"
-            onClick={() => setLoadAttempt((value) => value + 1)}
-          >
-            RETRY
-          </button> : <Link
-            className={`glass-button play-button ${audioLoading ? "is-loading-hidden" : ""} ${freshlyLoaded ? "is-freshly-loaded" : ""}`}
-            href="/play"
-            aria-label="PLAY"
-            onClick={() => {
-              handleActivate();
-              playSound("play");
-              void playBgmSafely();
-            }}
-          >
-            <img
-              src={asset("button-play.png")}
-              alt=""
-              className="play-button-img"
-              draggable={false}
-            />
-            <span className="sr-only">PLAY</span>
-          </Link>}
+          {loadError ? (
+            <button
+              type="button"
+              className="glass-button play-button is-freshly-loaded is-retry"
+              onClick={() => setLoadAttempt((value) => value + 1)}
+            >
+              RETRY
+            </button>
+          ) : isActivated && !audioLoading ? (
+            <>
+              <Link
+                className={`glass-button play-button ${freshlyLoaded ? "is-freshly-loaded" : ""}`}
+                href="/play"
+                aria-label="PLAY"
+                onClick={() => {
+                  handleActivate();
+                  playSound("play");
+                  void playBgmSafely();
+                }}
+              >
+                PLAY
+              </Link>
+              <div className="landing-start-game-wrap parallax-layer" data-speed-x="10" data-speed-y="3">
+                <Link
+                  className={`landing-btn-inner ${freshlyLoaded ? "is-freshly-loaded" : ""}`}
+                  href="/play"
+                  aria-label="PLAY"
+                  onClick={() => {
+                    handleActivate();
+                    playSound("play");
+                    void playBgmSafely();
+                  }}
+                  style={{ display: 'block', width: '100%', height: '100%' }}
+                >
+                  <img
+                    src={asset("button-start-game.png")}
+                    alt=""
+                    className="landing-asset"
+                    draggable={false}
+                  />
+                  <span className="sr-only">PLAY</span>
+                </Link>
+              </div>
+            </>
+          ) : null}
           <div
             className={`landing-loading-bar-wrap ${!audioLoading ? "is-hidden" : ""}`}
             aria-hidden={!audioLoading}

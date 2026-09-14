@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "reason": "User-approved wardrobe artwork: four preserved products plus eight generated 2.5D product candidates added on 2026-09-13.",
+  "version": 4,
+  "reason": "User-approved wardrobe artwork: 16 products; Party Platform Boots product changed from front view to three-quarter catalog view on 2026-09-14.",
   "files": {
     "accessory-abstract-denim-hip-scarf.png": "8923a51ebc7d9a4dedff81de8c478c7c8685ad380a6465354e964d5573fe3a26",
     "bottom-front-slit-denim-skort.png": "d2cab409919fb5635db2b450bffed5f79013120272071bc049d1f61faa10a609",
@@ -9,10 +9,14 @@
     "bottom-three-tone-wide-leg-jeans.png": "25fa3a9f2878781582a489863217fe4fc0e31e2750b71a323122b6b78cffd00e",
     "dress-strapless-deep-fold-denim.png": "ae43101fabb5500511ba24848b97a74789ce75dfbd04052eba6dc6b4b704d735",
     "legwear-pocket-denim-warmers.png": "3a216bf66f5805b3e639c4f2ded2b40046137362d54e427daf19e150f52a882a",
-    "shoes-party-platform-boots.png": "3535dbb45f48d00aa96e8cf8765af36bfd8910dcd04f6f8023e871849be7936e",
+    "shoes-party-platform-boots.png": "77729da5adecaad33c68079db0ae3957a52d913346ce2e4bd61dede68e8f9321",
     "top-asymmetric-gradient-denim-shirt.png": "f57d1a106f27c148c4ab797ae3aaa106c123f17a6013a94b3bc4cbd0a00a50d5",
     "top-fitted-denim.png": "406eccbfa041c50e538b27e55831a2dec8bccb2253aefce3cfd822f2698db131",
     "top-modal-grommet.png": "bf0238c155ea3d4a686ce5f38aeef9c73656444c88f7aac6889e8d986c40369f",
-    "top-oversized-mint-zip-tank.png": "5c916189aeedccaade33c4f480c88e5c1a6260042973562ec6ef0f47338f1840"
+    "top-oversized-mint-zip-tank.png": "5c916189aeedccaade33c4f480c88e5c1a6260042973562ec6ef0f47338f1840",
+    "shoes-mint-studded-wedge-sneakers.png": "556a09cf65a8e667d0ac87d1c0aefa1a1afdc5e8dcb5dd23a119ab62546ca5ce",
+    "shoes-aqua-wrap-strap-wedge-sneakers.png": "87bcfce240e4817b75b1a002766244448b590d3e410e0beafafd89e138058d8d",
+    "shoes-pink-aqua-striped-platform-high-tops.png": "17aa72ac0d8c4aa49a3ce226878767127275d173bd0100dbf53e4fecda212054",
+    "shoes-aqua-coral-wedge-high-tops.png": "5c48e1c1239a048211278ef397432684bbb56be156b0035f694787ec4e211c76"
   }
 }

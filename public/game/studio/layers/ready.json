@@ -1,11 +1,31 @@
 {
-  "version": "production-v2-20260913-v19-short-underlay",
-  "catalogGarments": 12,
+  "version": "production-v2-20260914-v22-full-models",
+  "catalogGarments": 16,
   "items": [
     {
       "id": "shoes-party-platform-boots",
       "category": "shoes",
       "name": "Boots platform sắc màu"
+    },
+    {
+      "id": "shoes-mint-studded-wedge-sneakers",
+      "category": "shoes",
+      "name": "Giày sneaker wedge mint đính đinh"
+    },
+    {
+      "id": "shoes-aqua-wrap-strap-wedge-sneakers",
+      "category": "shoes",
+      "name": "Giày sneaker wedge aqua dây quấn"
+    },
+    {
+      "id": "shoes-pink-aqua-striped-platform-high-tops",
+      "category": "shoes",
+      "name": "Giày platform cổ cao sọc hồng–aqua"
+    },
+    {
+      "id": "shoes-aqua-coral-wedge-high-tops",
+      "category": "shoes",
+      "name": "Giày wedge cổ cao aqua–coral"
     },
     {
       "id": "top-fitted-denim",
@@ -49,13 +69,13 @@
     },
     {
       "id": "legwear-pocket-denim-warmers",
-      "category": "shoes",
+      "category": "accessories",
       "name": "Tất ống denim có túi"
     },
     {
       "id": "dress-strapless-deep-fold-denim",
-      "category": "dresses",
-      "name": "Đầm denim cúp ngực xếp ly sâu"
+      "category": "tops",
+      "name": "Strapless Deep-Fold Denim Dress"
     },
     {
       "id": "accessory-abstract-denim-hip-scarf",
@@ -63,19 +83,18 @@
       "name": "Khăn quấn hông denim họa tiết"
     }
   ],
-  "poses": [],
-  "variants": [
-    "model-upper",
-    "model-dressed-upper",
-    "model-face-frame-overlay",
+  "poses": [
     "top-fitted-denim-pose",
-    "top-fitted-denim-pose-swap",
-    "top-fitted-denim-pose-hands",
     "top-modal-grommet-pose",
-    "top-modal-grommet-pose-swap",
-    "top-modal-grommet-pose-hands",
-    "top-modal-grommet-skin",
-    "bottom-sculpted-jeans-under-yellow"
+    "top-oversized-mint-zip-tank-pose",
+    "top-asymmetric-gradient-denim-shirt-pose"
   ],
-  "updatedAt": "2026-09-13T20:19:25.2092793+07:00"
+  "variants": [
+    "model-neutral",
+    "model-neutral-shoes",
+    "model-neutral-no-arms",
+    "model-neutral-no-arms-shoes",
+    "model-face-frame-overlay"
+  ],
+  "updatedAt": "2026-09-14T23:55:00.000Z"
 }

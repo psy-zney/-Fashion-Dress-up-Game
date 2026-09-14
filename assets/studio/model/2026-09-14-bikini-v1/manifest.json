@@ -1,0 +1,47 @@
+{
+  "schema": 1,
+  "release": "2026-09-14-model-bikini-v1",
+  "canvas": {
+    "width": 1024,
+    "height": 1536
+  },
+  "generatedSources": [
+    "assets/studio/model/2026-09-14-bikini-v1/uncut/model-aqua-two-piece-white.png",
+    "assets/studio/model/2026-09-14-bikini-v1/uncut/model-showcase-hands-on-hips-beige-white.png",
+    "assets/studio/model/2026-09-14-bikini-v1/uncut/top-asymmetric-showcase-bent-sleeves-white.png"
+  ],
+  "masks": [
+    "assets/studio/model/2026-09-14-bikini-v1/masks/torso-edit-mask.png",
+    "assets/studio/model/2026-09-14-bikini-v1/masks/showcase-white-matte.png",
+    "assets/studio/model/2026-09-14-bikini-v1/masks/showcase-hands-mask.png"
+  ],
+  "runtimeModelIds": [
+    "model-neutral",
+    "model-neutral-shoes",
+    "model-showcase",
+    "model-showcase-shoes"
+  ],
+  "tests": {
+    "structural": "pass",
+    "typecheck": "pass",
+    "playwrightCore": "14/14",
+    "productionBuild": "pending"
+  },
+  "visualReview": {
+    "status": "candidate-contact-sheet-generated-manual-edge-cleanup-recommended",
+    "qaContactSheet": "artifacts/studio/candidates/2026-09-14-model-bikini-v1/qa/full-model-low-foot-cut-all-shoes.png",
+    "knownIssue": "Manual edge cleanup is still recommended around hair, hands, shoes and the bent-sleeve showcase shirt."
+  },
+  "showcaseGarmentVariants": [
+    "top-asymmetric-gradient-denim-shirt-showcase"
+  ],
+  "rejectedRuntimeIds": [
+    "model-upper",
+    "model-dressed-upper",
+    "model-lower",
+    "model-lower-boots",
+    "model-showcase-dressed",
+    "model-showcase-dressed-shoes",
+    "model-showcase-hands"
+  ]
+}

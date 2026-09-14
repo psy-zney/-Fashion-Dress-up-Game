@@ -1,0 +1,39 @@
+{
+  "version": "2026-09-14-model-upper-waist-v1",
+  "status": "runtime-published",
+  "runtimeVersion": "production-v2-20260914-v20-model-upper-waist",
+  "useCase": "precise-object-edit",
+  "source": {
+    "path": "uncut/model-upper.png",
+    "sha256": "3f4362ba3cb591a2d6a08705346a4e3aacc59c434a8d89f27c68cc2025aed3a9"
+  },
+  "mask": {
+    "path": "masks/model-upper-waist-defect.png",
+    "sha256": "e5e198b3dd5a37311a5e8ef63cf684c855875ce7b61a05e1b9bbf74cbbae4015"
+  },
+  "candidate": {
+    "path": "../../../../artifacts/studio/candidates/2026-09-14-model-upper-waist-v1/layers/model-upper.png",
+    "sha256": "c44dd6c9d3ab1d7d37cde4ffae386c236422708f1d663f7c916cf5660654bed6"
+  },
+  "operation": {
+    "type": "clear-alpha-only",
+    "bounds": {
+      "x": [
+        648,
+        671
+      ],
+      "y": [
+        638,
+        889
+      ]
+    },
+    "changedPixels": 3765,
+    "changedOutsideMask": 0,
+    "changedAtOrRightOfHandBoundary": 0
+  },
+  "publishedAt": "2026-09-14T15:52:36.9438078+07:00",
+  "runtime": {
+    "path": "public/game/studio/layers/model-upper.png",
+    "sha256": "c44dd6c9d3ab1d7d37cde4ffae386c236422708f1d663f7c916cf5660654bed6"
+  }
+}

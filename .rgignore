@@ -1,5 +1,5 @@
-# Archived/demo art is intentionally outside normal search scope. The active
-# production allowlist lives in scripts/studio/pipeline.config.mjs.
+# Archived/demo art is intentionally outside normal search scope. Runtime asset
+# paths and layer rules live in src/lib/studio.ts.
 assets/studio/legacy/**
 assets/studio/sources/garments/worn/**
 assets/studio/sources/products/**

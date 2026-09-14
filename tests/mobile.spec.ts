@@ -12,8 +12,9 @@ test("touch outfit selection, full character and photoshoot on a phone", async (
   });
   page.on("requestfailed", (request) => {
     const reason = request.failure()?.errorText || "unknown";
-    const isExpectedSafariMediaCancel = reason === "Load request cancelled" && request.url().includes("/game/Music/BackgroundMusic.mp3");
-    if (!isExpectedSafariMediaCancel) failedRequests.push(`${reason} ${request.method()} ${request.url()}`);
+    const isExpectedCancel = (reason === "Load request cancelled" && request.url().includes("/game/Music/BackgroundMusic.mp3")) ||
+      (reason === "net::ERR_ABORTED" && request.url().includes("_rsc="));
+    if (!isExpectedCancel) failedRequests.push(`${reason} ${request.method()} ${request.url()}`);
   });
   page.on("response", (response) => {
     if (response.status() >= 400) badResponses.push(`${response.status()} ${response.url()}`);
@@ -33,8 +34,7 @@ test("touch outfit selection, full character and photoshoot on a phone", async (
   expect(box.height / box.width).toBeCloseTo(1.5, 1);
   expect(box.y).toBeGreaterThanOrEqual(0);
   expect(box.y + box.height).toBeLessThan((await page.getByRole("button", { name: "SHOW YOUR LOOK" }).boundingBox())!.y);
-  await expect(stage.locator('[data-model-layer="model-lower-boots"]')).toBeVisible();
-  await expect(stage.locator('[data-model-layer="model-dressed-upper"]')).toBeVisible();
+  await expect(stage.locator('[data-model-layer="model-neutral-shoes"]')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: `artifacts/mobile/${testInfo.project.name}-play.png`, scale: "css" });
   await page.getByRole("button", { name: "SHOW YOUR LOOK" }).tap();

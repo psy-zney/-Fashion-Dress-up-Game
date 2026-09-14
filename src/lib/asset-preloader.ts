@@ -13,6 +13,7 @@ export const CORE_PRELOAD_IMAGES: string[] = [
   publicAsset("/game/ui/shadow.svg"),
   publicAsset("/game/ui/back-button-glossy.png"),
   publicAsset("/game/ui/category-wheel-pink.webp"),
+  publicAsset("/game/ui/category-tabs-pink.webp"),
   publicAsset("/game/ui/wardrobe-cabinet-glossy.webp"),
   publicAsset("/game/ui/pick-an-outfit-header.png"),
   publicAsset("/game/backgrounds/slide-playground.webp"),
@@ -23,19 +24,20 @@ export const CORE_PRELOAD_IMAGES: string[] = [
   publicAsset("/game/effects/color-bubble-burst.gif"),
 
   ...[
-    'model-upper',
-    'model-dressed-upper',
-    'model-lower',
-    'model-lower-boots',
+    'model-neutral',
+    'model-neutral-shoes',
+    'model-neutral-no-arms',
+    'model-neutral-no-arms-shoes',
     'model-face-frame-overlay',
     'top-modal-grommet-skin',
     'bottom-sculpted-jeans-under-yellow',
     'top-fitted-denim-pose',
-    'top-fitted-denim-pose-swap',
-    'top-fitted-denim-pose-hands',
     'top-modal-grommet-pose',
+    'top-oversized-mint-zip-tank-pose',
+    'top-asymmetric-gradient-denim-shirt-pose',
+    'dress-strapless-deep-fold-denim-pose',
+    'top-fitted-denim-pose-swap',
     'top-modal-grommet-pose-swap',
-    'top-modal-grommet-pose-hands',
   ].map(assetUrl),
   ...allGarments.map(({ id }) => previewAssetUrl(id)),
   ...allGarments.map(({ id }) => assetUrl(id)),
@@ -81,17 +83,32 @@ export function markAssetsPreloaded() {
 
 function preloadSingleImage(url: string): Promise<void> {
   return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      if (typeof img.decode === "function") {
-        img.decode().then(resolve).catch(resolve);
-      } else {
+    let settled = false;
+    const done = () => {
+      if (!settled) {
+        settled = true;
         resolve();
       }
     };
-    img.onerror = () => resolve();
+    const timeout = setTimeout(done, 3500);
+    const img = new Image();
+    img.onload = () => {
+      clearTimeout(timeout);
+      if (typeof img.decode === "function") {
+        img.decode().then(done).catch(done);
+      } else {
+        done();
+      }
+    };
+    img.onerror = () => {
+      clearTimeout(timeout);
+      done();
+    };
     img.src = url;
-    if (img.complete && img.naturalWidth > 0) resolve();
+    if (img.complete && img.naturalWidth > 0) {
+      clearTimeout(timeout);
+      done();
+    }
   });
 }
 

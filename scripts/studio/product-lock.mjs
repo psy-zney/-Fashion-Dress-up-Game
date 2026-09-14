@@ -17,3 +17,22 @@ export async function assertProductsUnchanged(root = projectRoot) {
   }
   return expected.length;
 }
+
+async function main() {
+  const productsLocked = await assertProductsUnchanged();
+  const ready = JSON.parse(
+    await fs.readFile(path.join(projectRoot, 'public/game/studio/layers/ready.json'), 'utf8'),
+  );
+  console.log(JSON.stringify({
+    productsLocked,
+    runtimeVersion: ready.version,
+    mode: 'read-only',
+  }, null, 2));
+}
+
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error.message);
+    process.exitCode = 1;
+  });
+}

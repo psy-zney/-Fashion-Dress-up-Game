@@ -1,0 +1,8 @@
+Use case: identity-preserve
+Asset type: uncut pose-specific dress-up game layer source
+Input references: Use the newly generated full-body female model on white as the body scale, shoulder/waist coordinates, skin tone, lighting, hand anatomy, and 3D rendering style reference. Use the pastel pink-and-blue asymmetric denim shirt image as the exact garment design reference. The white mint zip tank reference is unrelated to this output and must not appear.
+Primary request: Generate only the pastel asymmetric gradient denim shirt plus both posed arms and hands, isolated on a clean solid white background, for manual cutting later. Pose: both hands planted naturally on the hips/waist, elbows bent and pointing outward symmetrically.
+Garment fidelity: Preserve the cropped boxy denim silhouette, long sleeves, pointed collar, powder-blue left side and pastel-pink right side gradient, subtle denim texture/printed markings, both chest pockets, silver buttons/snaps, dark piping and stitching, asymmetric diagonal front seam/placket, cuffs and cropped curved hem.
+Composition: Exact 1024 x 1536 portrait canvas. Align invisible body geometry to the new model. Front view, no crop.
+Visible content: Only shirt fabric/sleeves and the model's hands extending beyond the cuffs. No head, hair, hat, glasses, neck, chest skin, torso, abdomen, hips, legs, underwear, bracelets, jewelry, or full model body.
+Avoid: extra garments, mint tank, body fragments, floating skin patches, duplicate limbs, extra/missing fingers, warped hands, fused elbows, black/checkerboard/transparent background, text, watermark, edge halos.

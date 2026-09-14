@@ -145,7 +145,7 @@
   },
   {
     "id": "legwear-pocket-denim-warmers",
-    "category": "shoes",
+    "category": "accessories",
     "name": "Tất ống denim có túi",
     "width": 1024,
     "height": 1536,
@@ -161,8 +161,8 @@
   },
   {
     "id": "dress-strapless-deep-fold-denim",
-    "category": "dresses",
-    "name": "Đầm denim cúp ngực xếp ly sâu",
+    "category": "tops",
+    "name": "Strapless Deep-Fold Denim Dress",
     "width": 1024,
     "height": 1536,
     "hasAlpha": true,

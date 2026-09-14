@@ -57,7 +57,7 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
 
     try {
       if (!navigator.mediaDevices?.getUserMedia) {
-        throw new Error("Trình duyệt không hỗ trợ webcam hoặc cần chạy trên HTTPS / localhost.");
+        throw new Error("Browser does not support webcam or requires HTTPS / localhost.");
       }
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -78,11 +78,11 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
       setCameraState("error");
       const err = error as { name?: string; message?: string };
       if (err.name === "NotAllowedError" || err.name === "SecurityError") {
-        setErrorMessage("Quyền truy cập camera bị từ chối. Vui lòng cấp quyền hoặc tải ảnh chân dung từ máy.");
+        setErrorMessage("Camera access denied. Please allow camera permissions or upload a portrait from your device.");
       } else if (err.name === "NotFoundError") {
-        setErrorMessage("Không tìm thấy camera trên thiết bị. Bạn có thể tải ảnh từ máy.");
+        setErrorMessage("No camera found on this device. You can upload a portrait photo instead.");
       } else {
-        setErrorMessage(err.message || "Không thể mở camera. Vui lòng thử lại hoặc tải ảnh từ máy.");
+        setErrorMessage(err.message || "Unable to start camera. Please try again or upload a photo.");
       }
     }
   }
@@ -257,20 +257,20 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
         <div className="face-cam-header">
           <div className="face-cam-title-group">
             <span className="face-cam-icon">📸</span>
-            <h2 id="face-cam-title">Chụp hình Show your look V2</h2>
+            <h2 id="face-cam-title">Face Capture — Show Your Look</h2>
           </div>
           <button
             type="button"
             className="face-cam-close-btn"
             onClick={onClose}
-            aria-label="Đóng"
+            aria-label="Close"
           >
             ✕
           </button>
         </div>
 
         <p className="face-cam-desc">
-          Tóc, mũ và kính của model đã được đặt trên camera. Kéo ảnh bên dưới để đặt hai mắt vào kính; có thể phóng to và chỉnh nghiêng thêm ở các thanh bên dưới.
+          The model's hair, cap, and glasses are layered over the preview. Drag to align your eyes with the glasses; adjust zoom and rotation using the controls below.
         </p>
 
         {/* Viewport with Hat & Hair overlay */}
@@ -282,7 +282,7 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
             onPointerMove={handleAlignPointerMove}
             onPointerUp={handleAlignPointerEnd}
             onPointerCancel={handleAlignPointerEnd}
-            aria-label="Kéo ảnh để căn khuôn mặt"
+            aria-label="Drag photo to align face"
           >
             {/* Studio Background Layer behind character (ẩn viền cam ngoài / đè hình nền luôn) */}
             <div className="face-cam-bg-layer" aria-hidden="true">
@@ -412,7 +412,7 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
                     />
                   </g>
                 </svg>
-                <span className="face-cam-guide-text">Kéo ảnh • mắt vào 2 chấm • giữ đủ trán và cằm</span>
+                <span className="face-cam-guide-text">Drag photo • Align eyes with dots • Keep forehead & chin visible</span>
               </div>
             )}
 
@@ -420,7 +420,7 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
             {cameraState === "starting" && !uploadedSrc && (
               <div className="face-cam-status-overlay">
                 <div className="face-cam-spinner" />
-                <span>Đang kết nối camera…</span>
+                <span>Connecting to camera…</span>
               </div>
             )}
 
@@ -434,7 +434,7 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
                   className="face-cam-retry-btn"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  📁 Chọn ảnh từ máy tính
+                  📁 Choose photo from device
                 </button>
               </div>
             )}
@@ -445,11 +445,11 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
         {!capturedFaceUrl && (cameraState === "live" || uploadedSrc) && (
           <div className="face-cam-adjust-panel">
             <div className="face-cam-adjust-heading">
-              <span>Kéo trực tiếp trên ảnh để căn nhanh</span>
-              <button type="button" onClick={resetAlignment}>Căn lại</button>
+              <span>Drag photo directly to align quickly</span>
+              <button type="button" onClick={resetAlignment}>Reset</button>
             </div>
             <div className="face-cam-slider-row">
-              <label htmlFor="face-zoom">🔍 Độ phóng:</label>
+              <label htmlFor="face-zoom">🔍 Zoom:</label>
               <input
                 id="face-zoom"
                 type="range"
@@ -463,7 +463,7 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
             </div>
 
             <div className="face-cam-slider-row">
-              <label htmlFor="face-pan-x">↔ Ngang:</label>
+              <label htmlFor="face-pan-x">↔ Horizontal:</label>
               <input
                 id="face-pan-x"
                 type="range"
@@ -476,7 +476,7 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
               <span>{panX > 0 ? `+${panX}` : panX}px</span>
             </div>
             <div className="face-cam-slider-row">
-              <label htmlFor="face-pan-y">↕ Vị trí dọc:</label>
+              <label htmlFor="face-pan-y">↕ Vertical:</label>
               <input
                 id="face-pan-y"
                 type="range"
@@ -489,7 +489,7 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
               <span>{panY > 0 ? `+${panY}` : panY}px</span>
             </div>
             <div className="face-cam-slider-row">
-              <label htmlFor="face-roll">↻ Độ nghiêng:</label>
+              <label htmlFor="face-roll">↻ Rotate:</label>
               <input
                 id="face-roll"
                 type="range"
@@ -520,9 +520,9 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
                 type="button"
                 className="face-cam-btn face-cam-btn-secondary"
                 onClick={() => fileInputRef.current?.click()}
-                title="Tải ảnh khuôn mặt từ thiết bị"
+                title="Upload face portrait from device"
               >
-                📁 Tải ảnh
+                📁 Upload Photo
               </button>
 
               {cameraState === "live" && (
@@ -530,8 +530,8 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
                   type="button"
                   className="face-cam-btn face-cam-btn-icon"
                   onClick={switchCamera}
-                  title="Đổi camera trước / sau"
-                  aria-label="Đổi camera"
+                  title="Switch front / rear camera"
+                  aria-label="Switch camera"
                 >
                   🔄
                 </button>
@@ -544,7 +544,7 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
                 disabled={cameraState !== "live" && !uploadedSrc}
                 data-testid="face-cam-snap-btn"
               >
-                📸 Chụp khuôn mặt
+                📸 Take Photo
               </button>
             </>
           ) : (
@@ -555,7 +555,7 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
                 onClick={handleRetake}
                 data-testid="face-cam-retake-btn"
               >
-                🔄 Chụp lại
+                🔄 Retake
               </button>
               <button
                 type="button"
@@ -563,7 +563,7 @@ export function FaceCamModal({ isOpen, pose, onClose, onApplyFace }: FaceCamModa
                 onClick={handleConfirm}
                 data-testid="face-cam-confirm-btn"
               >
-                ✨ Ghép vào nhân vật
+                ✨ Apply to Model
               </button>
             </>
           )}

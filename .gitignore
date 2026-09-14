@@ -6,6 +6,7 @@ test-results/
 *.tsbuildinfo
 .env*.local
 .studio-work/
+.studio-history/
 artifacts/
 output/
 

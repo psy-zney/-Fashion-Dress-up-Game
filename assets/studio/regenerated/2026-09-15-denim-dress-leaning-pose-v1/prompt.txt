@@ -1,0 +1,10 @@
+Use case: identity-preserve
+Asset type: fully clothed adult fashion-model pose source for a dress-up game
+Input image: exact reference for the adult model's identity, complete denim dress, accessories, colors, lighting, and polished 3D rendering style.
+Primary request: Render the same adult model in a compact, friendly fashion-catalog pose. She bends forward slightly at the waist while standing steadily with softly bent knees and feet placed together. Her head tilts gently toward one hand; that hand rests lightly beneath her jaw, while her other forearm crosses the front of her dress to support the raised elbow. The gesture is cheerful, elegant, balanced, and suitable for a family-friendly dress-up game.
+Identity: Preserve the exact face, calm expression, makeup, blue-pink lips, neon green/pink/aqua bob haircut, white cap with large green button, teal glasses with yellow flower detail, hoop earrings, colorful wrist bracelets, skin tone, and stylized 3D finish.
+Dress fidelity: Preserve the exact strapless dark indigo denim balloon dress: jeans-style top edge with belt loops, silver front button, center fly/placket, fitted corset-like torso, curved side panels, large overlapping sculptural vertical denim petals, wide rounded balloon silhouette, gathered midi hem, denim weave, seams, and natural shading. Adapt only the folds and occlusion needed for the new pose.
+Composition: Exact 1024 x 1536 portrait canvas. Full figure visible from hat through all toes, centered with generous margins. Keep both arms, hands, elbows, the entire dress, legs, feet, hat, and accessories fully inside the frame.
+Background: clean opaque solid white studio background with no floor line, props, text, watermark, checkerboard, border, or shadow.
+Quality: sharp polished stylized 3D fashion illustration, natural adult anatomy, coherent arm overlap, correct hands with five fingers each and feet with five toes each.
+Avoid: identity drift, childlike proportions, different hairstyle, missing glasses or bracelets, changed dress design, trousers, extra limbs, extra or missing digits, fused hands, broken wrists, heels, blur, pixelation, halos, dark background.

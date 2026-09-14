@@ -10,7 +10,7 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Studio asset rules (user correction, 2026-09-09)
 
-- Read `docs/studio/PIPELINE.md` and `docs/studio/REPAIR-PLAN-2026-09-09.md` before changing studio assets.
+- Read `docs/studio/RUNTIME-LAYERS.md` before changing studio assets or layer-order logic.
 - Wardrobe/card/drag images in `public/game/studio/products/` are separately supplied artwork. Never replace them with extracted wearing layers. Verify `scripts/studio/product-lock.json` before and after layer work.
 - Keep full uncut sources and source-bound editable masks in the archive. Build into candidates first; never let generation or extraction directly overwrite runtime.
 - Eyelets reveal model skin, including in showcase/export. Removing the beige base garment must not erase the skin needed beneath openings.

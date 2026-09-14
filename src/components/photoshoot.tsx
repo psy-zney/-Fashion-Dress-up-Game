@@ -62,8 +62,9 @@ export function Photoshoot() {
   useEffect(() => {
     let cancelled = false;
     const look = readLook();
+    const isDressWorn = look.selected.tops === "dress-strapless-deep-fold-denim";
     const hasClothes = Boolean(
-      look.selected.dresses || (look.selected.tops && look.selected.bottoms),
+      isDressWorn || (look.selected.tops && look.selected.bottoms),
     );
     if (!hasClothes || !look.selected.shoes) {
       setLookState("empty");

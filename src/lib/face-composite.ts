@@ -33,7 +33,7 @@ export type FacePoseFit = Pick<FacePose, "guide" | "stage">;
 export const FACE_POSES: Record<FacePoseId, FacePose> = {
   "face-safe-neutral": {
     id: "face-safe-neutral",
-    label: "khung mặt showcase",
+    label: "Showcase Face Frame",
     guide: { centerX: 190, centerY: 150, width: 126, height: 160, angle: 0 },
     stage: { centerX: 512, centerY: 176, width: 120, height: 160, angle: 0 },
   },

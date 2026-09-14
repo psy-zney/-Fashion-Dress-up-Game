@@ -1,0 +1,175 @@
+{
+  "release": "2026-09-14-shoes-v1",
+  "status": "uncut-sources-generated-manual-trim-required",
+  "generator": "built-in-imagegen",
+  "canvas": {
+    "width": 1024,
+    "height": 1536,
+    "aspectRatio": "2:3",
+    "colorSpace": "sRGB",
+    "background": "#FFFFFF",
+    "alpha": false
+  },
+  "modelReference": {
+    "path": "assets/studio/user-cutouts/2026-09-11-layer-refresh-v1/original/model.png",
+    "sha256": "7d92959de4286e3e799624b926abc3f44fc3bfb5d070983ad5cc165fa92ff8fc",
+    "stageTransform": {
+      "x": 0,
+      "y": 0,
+      "scaleX": 1,
+      "scaleY": 1,
+      "rotation": 0
+    },
+    "measuredWhiteBackgroundBounds": {
+      "left": 304,
+      "top": 25,
+      "right": 730,
+      "bottom": 1506
+    },
+    "measuredLegXRunsFromY1200": [
+      [
+        405,
+        493
+      ],
+      [
+        544,
+        636
+      ]
+    ]
+  },
+  "items": [
+    {
+      "id": "shoes-aqua-coral-wedge-high-tops",
+      "nameVi": "Giày wedge cổ cao aqua–coral",
+      "nameEn": "Aqua–Coral Wedge High-Tops",
+      "reference": {
+        "path": "assets/studio/shoes/2026-09-14-shoes-v1/references/01-aqua-coral-wedge-high-tops-reference.png",
+        "sha256": "46bdd454946fa7413feacbd3f07b022ff58d2df8cf4e237bec107176e3c72424"
+      },
+      "product": {
+        "path": "assets/studio/shoes/2026-09-14-shoes-v1/uncut/product/shoes-aqua-coral-wedge-high-tops-product.png",
+        "sha256": "00b26dcd0bcc76c8e58dcdacd12652bf65a4fe2a8bbae90fc6034bf7e47033be",
+        "review": "source-review-passed"
+      },
+      "worn": {
+        "path": "assets/studio/shoes/2026-09-14-shoes-v1/uncut/worn/shoes-aqua-coral-wedge-high-tops-model-worn.png",
+        "sha256": "13097676d160e35840be76d8e83bbafb6656e7939159c7b2c506d90a8be20bd7",
+        "measuredBounds": {
+          "left": 304,
+          "top": 25,
+          "right": 729,
+          "bottom": 1504
+        },
+        "review": "manual-trim-and-composite-qa-required"
+      },
+      "baseColorway": "aqua-coral-yellow",
+      "optionalColorways": []
+    },
+    {
+      "id": "shoes-mint-studded-wedge-sneakers",
+      "nameVi": "Giày sneaker wedge mint đính đinh",
+      "nameEn": "Mint Studded Wedge Sneakers",
+      "reference": {
+        "path": "assets/studio/shoes/2026-09-14-shoes-v1/references/02-mint-studded-wedge-sneakers-reference.png",
+        "sha256": "77596ea0e823052bdbc117e8003e9158f9ec0ba284b4ce4e16f6ee9b8f5ff2c3"
+      },
+      "product": {
+        "path": "assets/studio/shoes/2026-09-14-shoes-v1/uncut/product/shoes-mint-studded-wedge-sneakers-product.png",
+        "sha256": "7d8dc797701975c103753bb98fb9fd0bd78d1c3d2a10d53c73c1fc7aa234a3f1",
+        "review": "source-review-passed"
+      },
+      "worn": {
+        "path": "assets/studio/shoes/2026-09-14-shoes-v1/uncut/worn/shoes-mint-studded-wedge-sneakers-model-worn.png",
+        "sha256": "f3d36aea6a84d188b7c2918898ad618cfdb4118b49b68fe17f3968f9d977e1f0",
+        "measuredBounds": {
+          "left": 304,
+          "top": 25,
+          "right": 729,
+          "bottom": 1511
+        },
+        "review": "manual-trim-and-composite-qa-required"
+      },
+      "baseColorway": "mint-gold",
+      "optionalColorways": []
+    },
+    {
+      "id": "shoes-pink-aqua-striped-platform-high-tops",
+      "nameVi": "Giày platform cổ cao sọc hồng–aqua",
+      "nameEn": "Pink–Aqua Striped Platform High-Tops",
+      "reference": {
+        "path": "assets/studio/shoes/2026-09-14-shoes-v1/references/03-pink-aqua-striped-platform-high-tops-reference.png",
+        "sha256": "09e0cd3780f0c911d4f99436c7864b66d8a39d4352a4e615c852359a04b4a66b"
+      },
+      "product": {
+        "path": "assets/studio/shoes/2026-09-14-shoes-v1/uncut/product/shoes-pink-aqua-striped-platform-high-tops-product.png",
+        "sha256": "cba154b237af0f9a4acafd938ec67302846ca75b0e218be6f1b1308e1110a27f",
+        "review": "source-review-passed"
+      },
+      "worn": {
+        "path": "assets/studio/shoes/2026-09-14-shoes-v1/uncut/worn/shoes-pink-aqua-striped-platform-high-tops-model-worn.png",
+        "sha256": "de49711f5a3d4a88ea92527d707534c69d6973cdbf88405449f74740fed88976",
+        "measuredBounds": {
+          "left": 304,
+          "top": 25,
+          "right": 729,
+          "bottom": 1501
+        },
+        "review": "manual-trim-and-composite-qa-required"
+      },
+      "baseColorway": "aqua-hot-pink",
+      "optionalColorways": []
+    },
+    {
+      "id": "shoes-aqua-wrap-strap-wedge-sneakers",
+      "nameVi": "Giày sneaker wedge aqua dây quấn",
+      "nameEn": "Aqua Wrap-Strap Wedge Sneakers",
+      "reference": {
+        "path": "assets/studio/shoes/2026-09-14-shoes-v1/references/04-pastel-wrap-strap-wedge-sneakers-reference.png",
+        "sha256": "f65c7fcc93fb92dba0fb973ee9041b6c01560b8a8c4750b86cee45dc1651b4c0"
+      },
+      "product": {
+        "path": "assets/studio/shoes/2026-09-14-shoes-v1/uncut/product/shoes-aqua-wrap-strap-wedge-sneakers-product.png",
+        "sha256": "3a9a69c004f2e0612eca17d2a2782db909140eab8ff8c32f59d885aad4dfe20d",
+        "review": "source-review-passed"
+      },
+      "worn": {
+        "path": "assets/studio/shoes/2026-09-14-shoes-v1/uncut/worn/shoes-aqua-wrap-strap-wedge-sneakers-model-worn.png",
+        "sha256": "a09256dc94d41e312afaf9121fcfa2fc4df38f9d0bab41025d6f21bc133c1e5f",
+        "measuredBounds": {
+          "left": 305,
+          "top": 26,
+          "right": 727,
+          "bottom": 1509
+        },
+        "review": "manual-trim-and-composite-qa-required"
+      },
+      "baseColorway": "aqua",
+      "optionalColorways": [
+        "pink",
+        "coral",
+        "yellow"
+      ]
+    }
+  ],
+  "pipelineState": {
+    "referencesArchived": true,
+    "sourcesGenerated": true,
+    "masksCut": true,
+    "runtimeUpdated": true,
+    "productLockUpdated": true,
+    "colorSelectorImplemented": false
+  },
+  "productRevisions": [
+    {
+      "id": "shoes-party-platform-boots",
+      "request": "change product from front view to three-quarter angle",
+      "source": "assets/studio/shoes/2026-09-14-shoes-v1/uncut/product/shoes-party-platform-boots-product-angled-white.png",
+      "sourceSha256": "6ead874a487c8da9a78dada2da24164fce5d31de5710a9e54832320bd68cb70f",
+      "candidate": "artifacts/studio/candidates/2026-09-14-shoes-v1/products/shoes-party-platform-boots.png",
+      "runtime": "public/game/studio/products/shoes-party-platform-boots.png",
+      "previousRuntime": "assets/studio/shoes/2026-09-14-shoes-v1/replaced-products/shoes-party-platform-boots-front-v1.png",
+      "runtimeSha256": "77729da5adecaad33c68079db0ae3957a52d913346ce2e4bd61dede68e8f9321",
+      "review": "visual-contact-sheet-passed"
+    }
+  ]
+}

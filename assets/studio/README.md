@@ -11,8 +11,9 @@ assets/studio/
 │     ├─ original/<item-id>.png       # original product references
 │     ├─ edited/<name>-vN.png          # edited/generated sources + prompt
 │     └─ approved/<item-id>.png        # manually approved cutouts
-├─ ../../.studio-work/runtime-backups/  # local, ignored runtime snapshots
-└─ legacy/v2/                          # historical inputs, not in active pipeline
+├─ user-cutouts/                        # supplied cutouts and source-bound masks
+├─ model/, shoes/, regenerated/         # versioned source batches
+└─ legacy/                              # historical inputs
 ```
 
 ## Naming contract
@@ -21,6 +22,8 @@ assets/studio/
 - A new iteration adds `-v2`, `-v3`, and so on; do not overwrite an approved source while experimenting.
 - Backup folders use UTC `YYYY-MM-DDTHH-mm-ss-SSSZ` so names sort chronologically and remain Windows-safe.
 - `original`, `edited`, and `approved` describe lifecycle state; they are not interchangeable.
-- Runtime output belongs only in `public/game/studio/`. QA and drafts belong only in `artifacts/studio/`.
+- Runtime output belongs only in `public/game/studio/`.
+- QA screenshots and local drafts are disposable output under `artifacts/` and are not source material.
+- Keep full uncut sources, prompts, manifests and source-bound masks in this archive.
 
-The active path contract is centralized in `scripts/studio/pipeline.config.mjs` and `scripts/studio/product-preview.config.mjs`.
+The active path and layer contracts live in `src/lib/studio.ts`. This archive has no executable publishing path into runtime.

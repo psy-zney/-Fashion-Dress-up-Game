@@ -1,0 +1,8 @@
+Use case: identity-preserve
+Asset type: uncut pose-specific dress-up game layer source
+Input references: Use the newly generated full-body female model on white as the body scale, shoulder/waist coordinates, skin tone, lighting, arm/hand anatomy, and polished 3D rendering style reference. Use the white sleeveless oversized tank with oversized mint/aqua zipper as the exact garment design reference. Ignore the pastel denim shirt and the hands-on-hips garment.
+Primary request: Generate only the white sleeveless mint-zip tank plus both bare arms and hands, isolated on a clean solid white background, for manual cutting later. Pose: arms naturally folded/crossed across the front of the torso at mid-chest, one forearm resting over the other.
+Garment fidelity: Preserve the long sleeveless fitted-tunic silhouette, broad shoulder straps, deep V opening, white fabric, subtle natural fabric shading, very large mint/aqua zipper teeth running down the entire center front, large mint zipper slider and circular ring pull, and straight soft hem.
+Composition: Exact 1024 x 1536 portrait canvas. Align invisible body geometry to the new model. Front view, no crop.
+Visible content: Only the tank and the model's two bare arms/hands. No head, hair, hat, glasses, neck, chest skin inside the neckline, torso skin behind the garment, abdomen, hips, legs, underwear, bracelets, jewelry, denim fabric, sleeves, or full model body.
+Avoid: denim shirt, sleeves, extra garments, body fragments, floating skin patches, duplicate limbs, extra/missing fingers, warped hands, fused forearms, impossible crossing, black/checkerboard/transparent background, text, watermark, edge halos.

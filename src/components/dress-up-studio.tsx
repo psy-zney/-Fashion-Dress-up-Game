@@ -8,10 +8,14 @@ import {
   rememberLook,
   getSvgMaskUrl,
   resolveStudioFit,
+  resolveStudioEraseDots,
   subscribeStudioUpdate,
   publishedVariableFits,
   publishedFaceCompositeFit,
+  publishedSpecialDressFaceCompositeFit,
   publishedHideUnderlyingBody,
+  publishedTuckableTopIds,
+  publishedFaceCompositeMode,
   type Fit,
   type EraseMasks,
   type VariableFits,
@@ -24,20 +28,21 @@ import {
   assetUrl,
   modelAssetIds,
   garmentAssetId,
-  hasShowcasePose,
   categories,
   wheelCategories,
-  extraCategories,
   garments,
   allGarments,
   layerOrder,
   faceFrameOrder,
-  foregroundHandsOrder,
-  foregroundHandsAssetId,
+  showcasePoseCoverOrder,
+  showcasePoseCoverAssetId,
   bootTuckBottomIds,
   getGarmentLayerOrder,
   getUserFaceLayerOrder,
   previewAssetUrl,
+  isGarmentSelected,
+  isGarmentVisibleInStage,
+  canTuckTop,
   type Category,
   type Garment,
   type Selection,
@@ -89,6 +94,7 @@ export function DressUpStudio() {
   const [fits, setFits] = useState<Record<string, Fit>>({});
   const [variableFits, setVariableFits] = useState<VariableFits>(publishedVariableFits);
   const [faceCompositeFit, setFaceCompositeFit] = useState<FaceCompositeFit | undefined>(publishedFaceCompositeFit);
+  const [specialDressFaceCompositeFit, setSpecialDressFaceCompositeFit] = useState<FaceCompositeFit>(publishedSpecialDressFaceCompositeFit);
   const [eraseMasks, setEraseMasks] = useState<EraseMasks>({});
   const [positionsLocked, setPositionsLocked] = useState(true);
   const [hydrated, setHydrated] = useState(false);
@@ -96,11 +102,24 @@ export function DressUpStudio() {
   const [audioModalOpen, setAudioModalOpen] = useState(false);
   const [loadingActive, setLoadingActive] = useState(true);
   const [isShowcaseMode, setIsShowcaseMode] = useState(false);
+  const [isFaceCompositeMode, setIsFaceCompositeMode] = useState(publishedFaceCompositeMode);
   const [isCapturing, setIsCapturing] = useState(false);
   const [userFace, setUserFace] = useState<string | undefined>();
   const [faceCamOpen, setFaceCamOpen] = useState(false);
   const [isDenimTucked, setIsDenimTucked] = useState(true);
+  const [tuckableTopIds, setTuckableTopIds] = useState<string[]>(publishedTuckableTopIds);
   const [hideUnderlyingBody, setHideUnderlyingBody] = useState(publishedHideUnderlyingBody);
+  const [toastNotice, setToastNotice] = useState<string | null>(null);
+  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  function showToastNotice(msg: string) {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    setToastNotice(msg);
+    toastTimeoutRef.current = setTimeout(() => {
+      setToastNotice(null);
+      toastTimeoutRef.current = null;
+    }, 4000);
+  }
 
   // Drag & drop state
   const [isDragging, setIsDragging] = useState<string | null>(null);
@@ -113,9 +132,16 @@ export function DressUpStudio() {
   const stageRef = useRef<HTMLDivElement>(null);
   const pointerDrag = useRef<{ preview: DragPreview; startX: number; startY: number; active: boolean } | null>(null);
   const suppressClick = useRef(false);
-  const outfitComplete = Boolean(
-    selected.shoes && (selected.dresses || (selected.tops && selected.bottoms)),
+  const canShowLook = Boolean(
+    selected.tops || selected.bottoms || selected.shoes ||
+    (Array.isArray(selected.accessories) ? selected.accessories.length : selected.accessories),
   );
+  const isSpecialDress = selected.tops === "dress-strapless-deep-fold-denim";
+  const showcaseFaceActive = isShowcaseMode && isFaceCompositeMode && Boolean(userFace);
+  // Add Face activates the face-layout branch. Regular tops use their
+  // hands-on-hips swap pose; only the special denim dress returns to standing.
+  const faceSwapLayoutActive = isShowcaseMode && isFaceCompositeMode;
+  const showcasePoseCoverId = showcasePoseCoverAssetId(selected, isShowcaseMode, faceSwapLayoutActive);
 
   const menuOpen = menuPinned || menuHovered;
 
@@ -124,6 +150,7 @@ export function DressUpStudio() {
       if (event.key === "Escape") {
         if (isShowcaseMode) {
           setIsShowcaseMode(false);
+          setIsFaceCompositeMode(false);
           playSound("tap");
         }
       }
@@ -139,11 +166,13 @@ export function DressUpStudio() {
     setFits(saved.fits);
     if (saved.variableFits) setVariableFits(saved.variableFits);
     if (saved.faceCompositeFit) setFaceCompositeFit(saved.faceCompositeFit);
+    if (saved.specialDressFaceCompositeFit) setSpecialDressFaceCompositeFit(saved.specialDressFaceCompositeFit);
     setHeld(saved.held);
     if (saved.eraseMasks) setEraseMasks(saved.eraseMasks);
     if (saved.isDenimTucked !== undefined) setIsDenimTucked(saved.isDenimTucked);
-    if (saved.isShowcaseMode) setIsShowcaseMode(saved.isShowcaseMode);
+    if (saved.tuckableTopIds) setTuckableTopIds(saved.tuckableTopIds);
     if (saved.hideUnderlyingBody !== undefined) setHideUnderlyingBody(saved.hideUnderlyingBody);
+    if (saved.isFaceCompositeMode !== undefined) setIsFaceCompositeMode(saved.isFaceCompositeMode);
     setUserFace(saved.userFace);
     setHydrated(true);
     initAudio();
@@ -157,9 +186,12 @@ export function DressUpStudio() {
           setFits((prev) => ({ ...data.fits, ...prev }));
           if (data.variableFits) setVariableFits(data.variableFits);
           if (data.faceCompositeFit) setFaceCompositeFit(data.faceCompositeFit);
+          if (data.specialDressFaceCompositeFit) setSpecialDressFaceCompositeFit(data.specialDressFaceCompositeFit);
           if (data.eraseMasks) setEraseMasks(data.eraseMasks);
           if (typeof data.isDenimTucked === "boolean") setIsDenimTucked(data.isDenimTucked);
+          if (Array.isArray(data.tuckableTopIds)) setTuckableTopIds(data.tuckableTopIds);
           if (typeof data.hideUnderlyingBody === "boolean") setHideUnderlyingBody(data.hideUnderlyingBody);
+          if (typeof data.isFaceCompositeMode === "boolean") setIsFaceCompositeMode(data.isFaceCompositeMode);
         }
       })
       .catch(() => {});
@@ -169,9 +201,12 @@ export function DressUpStudio() {
       if (payload.fits) setFits(payload.fits);
       if (payload.variableFits) setVariableFits(payload.variableFits);
       if (payload.faceCompositeFit) setFaceCompositeFit(payload.faceCompositeFit);
+      if (payload.specialDressFaceCompositeFit) setSpecialDressFaceCompositeFit(payload.specialDressFaceCompositeFit);
       if (payload.eraseMasks) setEraseMasks(payload.eraseMasks);
       if (typeof payload.isDenimTucked === "boolean") setIsDenimTucked(payload.isDenimTucked);
+      if (Array.isArray(payload.tuckableTopIds)) setTuckableTopIds(payload.tuckableTopIds);
       if (typeof payload.isShowcaseMode === "boolean") setIsShowcaseMode(payload.isShowcaseMode);
+      if (typeof payload.isFaceCompositeMode === "boolean") setIsFaceCompositeMode(payload.isFaceCompositeMode);
       if (typeof payload.hideUnderlyingBody === "boolean") setHideUnderlyingBody(payload.hideUnderlyingBody);
       if (payload.selected) setSelected((prev) => ({ ...prev, ...payload.selected }));
     });
@@ -184,25 +219,26 @@ export function DressUpStudio() {
   useEffect(() => {
     if (!hydrated) return;
     try {
-      rememberLook({ selected, fits, variableFits, faceCompositeFit, eraseMasks, held, userFace, isDenimTucked, isShowcaseMode, hideUnderlyingBody });
+      rememberLook({ selected, fits, variableFits, faceCompositeFit, specialDressFaceCompositeFit, eraseMasks, held, userFace, isDenimTucked, isShowcaseMode, isFaceCompositeMode, hideUnderlyingBody, tuckableTopIds });
     } catch {
       setStatus("Unable to save current outfit in browser storage.");
     }
-  }, [eraseMasks, faceCompositeFit, fits, held, hydrated, isDenimTucked, isShowcaseMode, selected, userFace, variableFits, hideUnderlyingBody]);
+  }, [eraseMasks, faceCompositeFit, specialDressFaceCompositeFit, fits, held, hydrated, isDenimTucked, isFaceCompositeMode, isShowcaseMode, selected, userFace, variableFits, hideUnderlyingBody, tuckableTopIds]);
 
   function garmentLayer(item: Garment) {
-    return getGarmentLayerOrder(item, selected, isDenimTucked);
+    return getGarmentLayerOrder(item, selected, isDenimTucked, tuckableTopIds, isShowcaseMode, faceSwapLayoutActive);
   }
 
   const layers = useMemo(
     () => allGarments
-      .filter((item) => selected[item.category] === item.id)
+      .filter((item) => isGarmentSelected(item.id, selected) && isGarmentVisibleInStage(item, selected, isShowcaseMode, faceSwapLayoutActive))
       .sort((left, right) => garmentLayer(left) - garmentLayer(right)),
-    [selected, isDenimTucked],
+    [selected, isDenimTucked, tuckableTopIds, isShowcaseMode, faceSwapLayoutActive],
   );
-  const facePose = facePoseFor(selected, faceCompositeFit);
-  const userFaceLayerOrder = getUserFaceLayerOrder(selected, isDenimTucked);
-  const foregroundHands = foregroundHandsAssetId(selected, isShowcaseMode, Boolean(userFace));
+  // In face-composite mode the dress uses model-neutral so the head position is the same as
+  // other tops — use shared faceCompositeFit. specialDressFaceCompositeFit is for legacy use only.
+  const facePose = facePoseFor(selected, (isSpecialDress && !showcaseFaceActive) ? specialDressFaceCompositeFit : faceCompositeFit);
+  const userFaceLayerOrder = getUserFaceLayerOrder(selected, isDenimTucked, tuckableTopIds);
   const visibleGarments = useMemo(
     () => garments.filter((item) => item.category === category),
     [category],
@@ -211,30 +247,96 @@ export function DressUpStudio() {
   const activeItem = activeId ? allGarments.find((item) => item.id === activeId) : undefined;
   const activeFit = activeId ? fits[activeId] || initialFit : initialFit;
 
-  function choose(id: string, sound: SoundEffect = "dress") {
+  function choose(id: string, sound: SoundEffect = "dress", forceWear = false) {
     const item = allGarments.find((candidate) => candidate.id === id);
     if (!item) return;
+
+    const isCurrentlySelected = isGarmentSelected(item.id, selected);
+
+    if (!forceWear && isCurrentlySelected) {
+      playSound("click");
+      setSelected((previous) => {
+        const next: Selection = { ...previous };
+        if (item.category === "accessories") {
+          const currentAcc = Array.isArray(next.accessories)
+            ? next.accessories
+            : next.accessories ? [next.accessories] : [];
+          const updated = currentAcc.filter((accId) => accId !== id);
+          if (updated.length === 0) {
+            delete next.accessories;
+          } else {
+            next.accessories = updated;
+          }
+        } else {
+          delete next[item.category];
+        }
+        return next;
+      });
+      setStatus(`Removed ${item.name.toLowerCase()}.`);
+      return;
+    }
+
+    // Rule: Wearing the strapless denim dress blocks wearing bottoms ("mặc đầm chặn mặc quần")
+    if (item.category === "bottoms" && selected.tops === "dress-strapless-deep-fold-denim") {
+      playSound("cancel");
+      setStatus("Bottoms cannot be worn with the denim dress. Unequip the dress first.");
+      return;
+    }
+
+    const LONG_PANTS_IDS = [
+      "bottom-sculpted-jeans",
+      "bottom-three-tone-wide-leg-jeans",
+      "bottom-inside-out-cuff-jeans",
+    ];
+    if (
+      (id === "legwear-pocket-denim-warmers" && selected.bottoms && LONG_PANTS_IDS.includes(selected.bottoms)) ||
+      (LONG_PANTS_IDS.includes(id) && isGarmentSelected("legwear-pocket-denim-warmers", selected))
+    ) {
+      showToastNotice("Note: Long pants cover the denim leg warmers underneath.");
+    }
+
     const sequence = ++dressEffectSequence.current;
     playSound(sound);
     setSelected((previous) => {
-      const next: Selection = { ...previous, [item.category]: id };
-      if (item.category === "dresses") {
-        delete next.tops;
-        delete next.bottoms;
-      } else if (item.category === "tops" || item.category === "bottoms") {
-        delete next.dresses;
+      const next: Selection = { ...previous };
+      if (item.category === "accessories") {
+        const currentAcc = Array.isArray(next.accessories)
+          ? [...next.accessories]
+          : next.accessories ? [next.accessories] : [];
+        if (!currentAcc.includes(id)) {
+          currentAcc.push(id);
+        }
+        next.accessories = currentAcc;
+      } else {
+        next[item.category] = id;
+        // Equipping the denim dress automatically removes any bottom
+        if (id === "dress-strapless-deep-fold-denim") {
+          delete next.bottoms;
+        }
       }
       return next;
     });
+    if (id === "dress-strapless-deep-fold-denim") {
+      setHeld((previous) => ({ ...previous, bottoms: false }));
+    }
     setDressEffect({ id, category: item.category, sequence });
     setTimeout(() => {
       setDressEffect((current) => (current?.sequence === sequence ? null : current));
     }, 1000);
-    setStatus(`Wearing ${item.name.toLowerCase()}.`);
+    setStatus(
+      id === "dress-strapless-deep-fold-denim" && selected.bottoms
+        ? `Wearing ${item.name.toLowerCase()}. Bottoms removed.`
+        : `Wearing ${item.name.toLowerCase()}.`
+    );
   }
 
   function handlePointerDown(event: PointerEvent<HTMLButtonElement>, id: string) {
     if (event.button !== 0 || !event.isPrimary) return;
+    const item = allGarments.find((candidate) => candidate.id === id);
+    if (item?.category === "bottoms" && selected.tops === "dress-strapless-deep-fold-denim") {
+      suppressClick.current = false;
+      return;
+    }
     suppressClick.current = false;
     const sticker = event.currentTarget.querySelector<HTMLImageElement>(".outfit-card-img");
     if (sticker) {
@@ -275,7 +377,7 @@ export function DressUpStudio() {
 
   function handlePointerUp(event: PointerEvent<HTMLButtonElement>) {
     const drag = pointerDrag.current;
-    if (drag?.active && isOverStage(event.clientX, event.clientY)) choose(drag.preview.id, "drop");
+    if (drag?.active && isOverStage(event.clientX, event.clientY)) choose(drag.preview.id, "drop", true);
     else if (drag?.active) playSound("cancel");
     finishDrag();
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
@@ -309,8 +411,17 @@ export function DressUpStudio() {
 
   function applyLook(proposed: Selection, label: string) {
     const next: Selection = { ...proposed };
+    if (next.tops === "dress-strapless-deep-fold-denim") {
+      delete next.bottoms;
+    }
     categories.forEach(({ id }) => {
-      if (held[id] && selected[id]) next[id] = selected[id];
+      if (held[id] && selected[id]) {
+        if (id === "bottoms" && next.tops === "dress-strapless-deep-fold-denim") {
+          // dress clears held bottoms
+        } else {
+          next[id] = selected[id];
+        }
+      }
     });
     setSelected(next);
     setStatus(`Applied ${label}. Pinned items stayed in place.`);
@@ -323,8 +434,17 @@ export function DressUpStudio() {
       return options[Math.floor(Math.random() * options.length)]?.id;
     };
     next.tops = chooseRandom("tops");
-    next.bottoms = chooseRandom("bottoms");
+    if (next.tops === "dress-strapless-deep-fold-denim") {
+      delete next.bottoms;
+    } else {
+      next.bottoms = chooseRandom("bottoms");
+    }
     next.shoes = chooseRandom("shoes");
+    const accOptions = garments.filter((item) => item.category === "accessories").map((i) => i.id);
+    const chosenAcc = accOptions.filter(() => Math.random() > 0.5);
+    if (chosenAcc.length > 0) {
+      next.accessories = chosenAcc;
+    }
     applyLook(next, "random outfit");
     playSound("dress");
   }
@@ -366,16 +486,13 @@ export function DressUpStudio() {
   function layerStyle(id: string): CSSProperties {
     const fitContext = {
       isTucked: isDenimTucked,
-      hasFace: Boolean(userFace),
+      hasFace: faceSwapLayoutActive,
       isShowcase: isShowcaseMode,
       selection: selected,
     };
-    const fit =
-      hasShowcasePose(selected, isShowcaseMode, Boolean(userFace)) && id === selected.tops
-        ? variableFits?.showcase_pose?.[id] || initialFit
-        : resolveStudioFit(id, fits, fitContext, variableFits);
+    const fit = resolveStudioFit(id, fits, fitContext, variableFits);
 
-    const maskUrl = getSvgMaskUrl(eraseMasks[id]);
+    const maskUrl = getSvgMaskUrl(resolveStudioEraseDots(id, eraseMasks, variableFits, fitContext));
     const maskStyle: CSSProperties = maskUrl
       ? {
           WebkitMaskImage: `url("${maskUrl}")`,
@@ -392,13 +509,14 @@ export function DressUpStudio() {
 
   function showLook() {
     setIsShowcaseMode(true);
+    setIsFaceCompositeMode(false);
     playSound("showcase");
-    setStatus("Showing your look! Add or align your face, then save the photoshoot.");
+    setStatus("Showing your look with the original model face. Face Swap is a separate option.");
   }
 
   function handleSaveLook() {
     try {
-      rememberLook({ selected, fits, variableFits, faceCompositeFit, eraseMasks, held, userFace, isDenimTucked, isShowcaseMode, hideUnderlyingBody });
+      rememberLook({ selected, fits, variableFits, faceCompositeFit, specialDressFaceCompositeFit, eraseMasks, held, userFace, isDenimTucked, isShowcaseMode, isFaceCompositeMode, hideUnderlyingBody, tuckableTopIds });
     } catch {
       /* The session copy remains available. */
     }
@@ -412,6 +530,7 @@ export function DressUpStudio() {
   function handleExitShowcase() {
     playSound("tap");
     setIsShowcaseMode(false);
+    setIsFaceCompositeMode(false);
     setStatus("Continuing outfit styling.");
   }
 
@@ -489,9 +608,19 @@ export function DressUpStudio() {
             data-testid="studio-stage"
             data-layer-count={layers.length}
           >
-            {/* Showcase keeps the selected top's pose; custom faces use its face-cutout variant. */}
-            {modelAssetIds(selected, isShowcaseMode, Boolean(userFace)).map((id, index) => {
-              const modelMaskUrl = getSvgMaskUrl(eraseMasks["model"], hideUnderlyingBody);
+            {/* Base model: pose artwork in plain showcase, standing model in face swap. */}
+            {modelAssetIds(selected, isShowcaseMode, faceSwapLayoutActive).map((id, index) => {
+              const maskContext = {
+                isTucked: isDenimTucked,
+                hasFace: faceSwapLayoutActive,
+                isShowcase: isShowcaseMode,
+                selection: selected,
+              };
+              const combinedDots = [
+                ...resolveStudioEraseDots("model", eraseMasks, variableFits, maskContext),
+                ...resolveStudioEraseDots(id, eraseMasks, variableFits, maskContext),
+              ];
+              const modelMaskUrl = getSvgMaskUrl(combinedDots, hideUnderlyingBody);
               const modelMaskStyle: CSSProperties = modelMaskUrl
                 ? {
                     WebkitMaskImage: `url("${modelMaskUrl}")`,
@@ -506,7 +635,7 @@ export function DressUpStudio() {
                   src={assetUrl(id)}
                   className="studio-layer"
                   style={{ zIndex: index, ...modelMaskStyle }}
-                  alt={index === 0 ? (hasShowcasePose(selected, isShowcaseMode, Boolean(userFace)) ? "Paper doll showing your look" : "2D paper doll model standing upright with arms relaxed") : ""}
+                  alt={index === 0 ? (isShowcaseMode ? "Paper doll showing your look" : "2D paper doll model standing upright with arms relaxed") : ""}
                   aria-hidden={index === 0 ? undefined : "true"}
                   data-model-layer={id}
                   draggable={false}
@@ -515,7 +644,7 @@ export function DressUpStudio() {
               );
             })}
 
-            {selected.tops === "top-modal-grommet" && !hasShowcasePose(selected, isShowcaseMode, Boolean(userFace)) && (
+            {selected.tops === "top-modal-grommet" && (
               <img
                 src={assetUrl("top-modal-grommet-skin")}
                 className="studio-layer"
@@ -531,7 +660,7 @@ export function DressUpStudio() {
             {layers.map((item) => (
               <img
                 key={item.id}
-                src={assetUrl(garmentAssetId(item.id, selected, isShowcaseMode, Boolean(userFace)))}
+                src={assetUrl(garmentAssetId(item.id, selected, isShowcaseMode, faceSwapLayoutActive))}
                 className={`studio-layer ${dressEffect?.id === item.id ? "animate-snap" : ""} ${bootTuckBottomIds.has(item.id) && selected.shoes === "shoes-brown-boots" ? "is-shortened-for-boots" : ""}`}
                 style={{ ...layerStyle(item.id), zIndex: garmentLayer(item) }}
                 alt={item.name}
@@ -541,18 +670,32 @@ export function DressUpStudio() {
               />
             ))}
 
-            {isShowcaseMode && userFace && (
+            {/* Special pose cover: base pose -> denim legwear -> legless pose cover. */}
+            {showcasePoseCoverId && (
+              <img
+                src={assetUrl(showcasePoseCoverId)}
+                className="studio-layer"
+                style={{ zIndex: showcasePoseCoverOrder }}
+                alt=""
+                aria-hidden="true"
+                data-testid="foreground-jeans-overlay"
+                data-layer-role="showcase-pose-cover"
+                draggable={false}
+              />
+            )}
+
+            {showcaseFaceActive && userFace && (
               <img
                 src={userFace}
                 className="studio-layer studio-user-face"
                 style={faceLayerStyle(facePose, userFaceLayerOrder)}
-                alt="Khuôn mặt người chơi"
+                alt="Player face"
                 data-testid="user-face-sprite"
                 data-face-pose={facePose.id}
                 draggable={false}
               />
             )}
-            {isShowcaseMode && userFace && (
+            {showcaseFaceActive && userFace && (
               <img
                 src={assetUrl("model-face-frame-overlay")}
                 className="studio-layer studio-user-hair-hat-overlay"
@@ -561,18 +704,6 @@ export function DressUpStudio() {
                 aria-hidden="true"
                 data-testid="user-hair-hat-overlay"
                 draggable={false}
-              />
-            )}
-
-            {foregroundHands && (
-              <img
-                src={assetUrl(foregroundHands)}
-                className="studio-layer studio-foreground-hands"
-                style={{ zIndex: foregroundHandsOrder }}
-                alt=""
-                aria-hidden="true"
-                draggable={false}
-                data-testid="foreground-hands"
               />
             )}
 
@@ -591,28 +722,28 @@ export function DressUpStudio() {
             )}
           </div>
           {/* Quick toggle on stage when wearing denim top and bottoms */}
-          {selected.tops === "top-fitted-denim" && selected.bottoms && !isShowcaseMode && (
+          {selected.tops && selected.bottoms && canTuckTop(selected.tops, tuckableTopIds) && !isShowcaseMode && (
             <button
               type="button"
               className={`stage-denim-tuck-btn ${isDenimTucked ? "is-tucked" : "is-untucked"}`}
               onClick={() => {
                 setIsDenimTucked((prev) => !prev);
                 playSound("click");
-                setStatus(!isDenimTucked ? "Áo jean: Đóng thùng vào trong quần." : "Áo jean: Thả ra ngoài quần.");
+                setStatus(!isDenimTucked ? "Top tucked into bottoms." : "Top worn untucked.");
               }}
-              title={isDenimTucked ? "Áo jean đang đóng thùng. Bấm để thả ngoài" : "Áo jean đang thả ngoài. Bấm để đóng thùng"}
+              title={isDenimTucked ? "Top is tucked in. Click to untuck" : "Top is untucked. Click to tuck in"}
               data-testid="stage-denim-tuck-btn"
             >
               <span className="tuck-icon">{isDenimTucked ? "👔" : "👕"}</span>
-              <span className="tuck-label">{isDenimTucked ? "Đóng thùng" : "Thả ngoài"}</span>
+              <span className="tuck-label">{isDenimTucked ? "Tucked" : "Untucked"}</span>
             </button>
           )}
         </div>
         <button
-          className={`showcase-button ${outfitComplete ? "is-ready" : ""}`}
-          disabled={!hydrated || !outfitComplete}
+          className={`showcase-button ${canShowLook ? "is-ready" : ""}`}
+          disabled={!hydrated || !canShowLook}
           onClick={showLook}
-          title={outfitComplete ? "Open the photoshoot" : "Choose a dress and shoes, or a top, bottom and shoes"}
+          title={canShowLook ? "Open the photoshoot" : "Choose at least one item"}
         >
           <span aria-hidden="true">✧</span> SHOW YOUR LOOK
         </button>
@@ -694,82 +825,89 @@ export function DressUpStudio() {
             <h1 id="wardrobe-title">PICK AN OUTFIT</h1>
           </div>
 
-          <nav className="wardrobe-extra-categories" aria-label="Extra wardrobe categories">
-            {extraCategories.map((item) => (
-              <button
-                type="button"
-                key={item.id}
-                className={category === item.id ? "is-active" : ""}
-                onClick={() => activateCategory(item.id)}
-                data-testid={`category-${item.id}`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </nav>
-
           {/* Scrollable 2-column cards grid displaying generated/ product shots */}
           <div className="wardrobe-scroll" tabIndex={0} aria-label="Outfit list">
             <div className="outfit-grid" id="garment-panel" role="tabpanel" aria-labelledby={`tab-${category}`}>
-              {visibleGarments.map((item) => (
+              {category === "bottoms" && selected.tops === "dress-strapless-deep-fold-denim" && (
+                <div className="wardrobe-blocked-notice" role="status" data-testid="wardrobe-bottoms-blocked">
+                  Bottoms are unavailable while wearing the Strapless Denim Dress. Unequip the dress to wear bottoms.
+                </div>
+              )}
+              {visibleGarments.map((item) => {
+                const isSelected = isGarmentSelected(item.id, selected);
+                const isBottomBlocked = item.category === "bottoms" && selected.tops === "dress-strapless-deep-fold-denim";
+                return (
+                  <button
+                    type="button"
+                    className={`outfit-card ${isSelected ? "is-selected" : ""} ${isDragging === item.id ? "is-dragging" : ""} ${isBottomBlocked ? "is-blocked" : ""}`}
+                    key={item.id}
+                    aria-pressed={isSelected}
+                    aria-disabled={isBottomBlocked}
+                    title={isBottomBlocked ? "Bottoms cannot be worn with the denim dress. Unequip the dress first." : undefined}
+                    draggable={false}
+                    onPointerDown={(e) => handlePointerDown(e, item.id)}
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={handlePointerUp}
+                    onPointerCancel={finishDrag}
+                    onLostPointerCapture={finishDrag}
+                    onDragStart={(e) => {
+                      e.preventDefault();
+                      playSound("pickup");
+                    }}
+                    onClick={() => { if (!suppressClick.current) choose(item.id); suppressClick.current = false; }}
+                    aria-label={isBottomBlocked ? `${item.name} (unavailable while wearing dress)` : `Wear ${item.name}`}
+                    data-testid={`garment-${item.id}`}
+                  >
+                    <div className="outfit-card-thumb">
+                      <img
+                        src={previewAssetUrl(item.id)}
+                        alt={item.name}
+                        draggable={false}
+                        className="outfit-card-img"
+                      />
+                      {isSelected && <span className="outfit-card-check">✓</span>}
+                      {item.id === "legwear-pocket-denim-warmers" && (
+                        <span className="outfit-card-note">Covered by long pants</span>
+                      )}
+                    </div>
+                    <span className="outfit-card-name">{item.name}</span>
+                  </button>
+                );
+              })}
+              {category === "accessories" && selected.tops && canTuckTop(selected.tops, tuckableTopIds) && (
                 <button
                   type="button"
-                  className={`outfit-card ${activeId === item.id ? "is-selected" : ""} ${isDragging === item.id ? "is-dragging" : ""}`}
-                  key={item.id}
-                  aria-pressed={activeId === item.id}
+                  className={`outfit-card outfit-card-tuck ${isDenimTucked ? "is-selected" : ""}`}
+                  key="denim-tuck-accessory"
+                  aria-pressed={isDenimTucked}
                   draggable={false}
-                  onPointerDown={(e) => handlePointerDown(e, item.id)}
-                  onPointerMove={handlePointerMove}
-                  onPointerUp={handlePointerUp}
-                  onPointerCancel={finishDrag}
-                  onLostPointerCapture={finishDrag}
-                  onDragStart={(e) => {
-                    e.preventDefault();
-                    playSound("pickup");
+                  onClick={() => {
+                    setIsDenimTucked((prev) => !prev);
+                    playSound("click");
+                    setStatus(!isDenimTucked ? "Top tucked into bottoms." : "Top worn untucked.");
                   }}
-                  onClick={() => { if (!suppressClick.current) choose(item.id); suppressClick.current = false; }}
-                  aria-label={`Wear ${item.name}`}
-                  data-testid={`garment-${item.id}`}
+                  aria-label={isDenimTucked ? "Selected top is tucked in. Tap to untuck" : "Selected top is untucked. Tap to tuck in"}
+                  data-testid="wardrobe-denim-tuck-btn"
                 >
                   <div className="outfit-card-thumb">
                     <img
-                      src={previewAssetUrl(item.id)}
-                      alt={item.name}
+                      src={previewAssetUrl(selected.tops)}
+                      alt="Tuck In"
                       draggable={false}
                       className="outfit-card-img"
+                      style={{
+                        transform: isDenimTucked ? "translateY(8px) scale(0.94)" : "scale(1)",
+                        transition: "transform 0.25s ease",
+                      }}
                     />
-                    {activeId === item.id && <span className="outfit-card-check">✓</span>}
-                    {item.id === "top-fitted-denim" && (
-                      <span
-                        role="button"
-                        tabIndex={0}
-                        className={`outfit-card-tuck-btn ${isDenimTucked ? "is-tucked" : "is-untucked"}`}
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          setIsDenimTucked((prev) => !prev);
-                          playSound("click");
-                          setStatus(!isDenimTucked ? "Áo jean: Đóng thùng vào trong quần." : "Áo jean: Thả ra ngoài quần.");
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            setIsDenimTucked((prev) => !prev);
-                            playSound("click");
-                          }
-                        }}
-                        title={isDenimTucked ? "Áo jean đang đóng thùng. Bấm để thả ngoài" : "Áo jean đang thả ngoài. Bấm để đóng thùng"}
-                        data-testid="wardrobe-denim-tuck-btn"
-                      >
-                        {isDenimTucked ? "👔 Đóng thùng" : "👕 Thả ngoài"}
-                      </span>
-                    )}
+                    {isDenimTucked && <span className="outfit-card-check">✓</span>}
+                    <span className={`outfit-card-tuck-badge ${isDenimTucked ? "is-tucked" : "is-untucked"}`}>
+                      {isDenimTucked ? "Tucked" : "Untucked"}
+                    </span>
                   </div>
-                  <span className="outfit-card-name">{item.name}</span>
+                  <span className="outfit-card-name">Shirt Tuck</span>
                 </button>
-              ))}
+              )}
             </div>
           </div>
           <p className="sr-only" role="status" aria-live="polite">
@@ -781,25 +919,45 @@ export function DressUpStudio() {
         {isShowcaseMode && (
           <div className="showcase-action-bar" role="toolbar" aria-label="Showcase actions">
             <button
-              type="button"
-              className="showcase-face-btn"
-              onClick={() => { playSound("tap"); setFaceCamOpen(true); }}
-              disabled={isCapturing}
-              data-testid="open-face-cam-btn"
-            >
-              📷 {userFace ? "Chụp lại mặt" : "Thêm khuôn mặt"}
+                  type="button"
+                  className="showcase-face-btn"
+                  onClick={() => {
+                    playSound("tap");
+                    setIsFaceCompositeMode(true);
+                    setFaceCamOpen(true);
+                  }}
+                  disabled={isCapturing}
+                  data-testid="open-face-cam-btn"
+                >
+                  📷 {userFace ? "Retake Face" : "Add Face"}
             </button>
             {userFace && (
-              <button
-                type="button"
-                className="showcase-clear-face-btn"
-                onClick={() => { setUserFace(undefined); playSound("click"); }}
-                disabled={isCapturing}
-                data-testid="clear-face-btn"
-                title="Gỡ ảnh ghép và quay về mẫu gốc"
-              >
-                ✕ Gỡ mặt
-              </button>
+                  <button
+                    type="button"
+                    className="showcase-clear-face-btn"
+                    onClick={() => {
+                      setIsFaceCompositeMode((active) => !active);
+                      playSound("tap");
+                    }}
+                    disabled={isCapturing}
+                    data-testid="toggle-face-composite-btn"
+                    aria-pressed={isFaceCompositeMode}
+                    title={isFaceCompositeMode ? "Show your look without face swap" : "Show your look with face swap"}
+                  >
+                    {isFaceCompositeMode ? "◉ Original Face" : "🎭 Face Swap"}
+                  </button>
+            )}
+            {userFace && (
+                  <button
+                    type="button"
+                    className="showcase-clear-face-btn"
+                    onClick={() => { setUserFace(undefined); setIsFaceCompositeMode(false); playSound("click"); }}
+                    disabled={isCapturing}
+                    data-testid="clear-face-btn"
+                    title="Remove face composite and restore original model"
+                  >
+                    ✕ Remove Face
+                  </button>
             )}
             <button
               type="button"
@@ -848,7 +1006,7 @@ export function DressUpStudio() {
                   aria-hidden="true"
                 />
                 <div className="studio-stage" style={{ transform: "scale(0.92)", position: "relative", zIndex: 2 }}>
-                  {modelAssetIds(selected, isShowcaseMode, Boolean(userFace)).map((id, index) => (
+                  {modelAssetIds(selected, isShowcaseMode, faceSwapLayoutActive).map((id, index) => (
                     <img
                       key={id}
                       src={assetUrl(id)}
@@ -858,7 +1016,7 @@ export function DressUpStudio() {
                       draggable={false}
                     />
                   ))}
-                  {selected.tops === "top-modal-grommet" && !hasShowcasePose(selected, isShowcaseMode, Boolean(userFace)) && (
+                  {selected.tops === "top-modal-grommet" && (
                     <img
                       src={assetUrl("top-modal-grommet-skin")}
                       className="studio-layer"
@@ -870,39 +1028,39 @@ export function DressUpStudio() {
                   {layers.map((item) => (
                     <img
                       key={item.id}
-                      src={assetUrl(garmentAssetId(item.id, selected, isShowcaseMode, Boolean(userFace)))}
+                      src={assetUrl(garmentAssetId(item.id, selected, isShowcaseMode, faceSwapLayoutActive))}
                       className="studio-layer"
                       style={{ ...layerStyle(item.id), zIndex: garmentLayer(item) }}
                       alt=""
                       draggable={false}
                     />
                   ))}
-                  {userFace && (
+                  {/* Foreground jeans overlay in photoshoot capture */}
+                  {showcasePoseCoverId && (
+                    <img
+                      src={assetUrl(showcasePoseCoverId)}
+                      className="studio-layer"
+                      style={{ zIndex: showcasePoseCoverOrder }}
+                      alt=""
+                      draggable={false}
+                    />
+                  )}
+                  {showcaseFaceActive && userFace && (
                     <img
                       src={userFace}
                       className="studio-layer studio-user-face"
                       style={faceLayerStyle(facePose, userFaceLayerOrder)}
-                      alt="Khuôn mặt người chơi"
+                      alt="Player face"
                       data-face-pose={facePose.id}
                       draggable={false}
                     />
                   )}
-                  {userFace && (
+                  {showcaseFaceActive && userFace && (
                     <img
                       src={assetUrl("model-face-frame-overlay")}
                       className="studio-layer studio-user-hair-hat-overlay"
                       style={{ zIndex: faceFrameOrder }}
                       alt=""
-                      draggable={false}
-                    />
-                  )}
-                  {foregroundHands && (
-                    <img
-                      src={assetUrl(foregroundHands)}
-                      className="studio-layer studio-foreground-hands"
-                      style={{ zIndex: foregroundHandsOrder }}
-                      alt=""
-                      aria-hidden="true"
                       draggable={false}
                     />
                   )}
@@ -931,6 +1089,25 @@ export function DressUpStudio() {
           <img src={previewAssetUrl(dragPreview.id)} style={{ padding: dragPreview.padding }} alt="" draggable={false} />
         </div>
       )}
+      {toastNotice && (
+        <div
+          className="studio-toast-banner"
+          role="status"
+          aria-live="polite"
+          data-testid="studio-toast-banner"
+        >
+          <span className="studio-toast-icon" aria-hidden="true">ℹ️</span>
+          <span className="studio-toast-text">{toastNotice}</span>
+          <button
+            type="button"
+            className="studio-toast-close"
+            onClick={() => setToastNotice(null)}
+            aria-label="Dismiss notification"
+          >
+            ✕
+          </button>
+        </div>
+      )}
       <AudioSettingsModal open={audioModalOpen} onClose={() => setAudioModalOpen(false)} />
       <BubblePearlLoading
         active={loadingActive}
@@ -944,7 +1121,8 @@ export function DressUpStudio() {
         onClose={() => setFaceCamOpen(false)}
         onApplyFace={(faceUrl) => {
           setUserFace(faceUrl);
-          rememberLook({ selected, fits, variableFits, faceCompositeFit, eraseMasks, held, userFace: faceUrl, isDenimTucked, isShowcaseMode, hideUnderlyingBody });
+          setIsFaceCompositeMode(true);
+          rememberLook({ selected, fits, variableFits, faceCompositeFit, specialDressFaceCompositeFit, eraseMasks, held, userFace: faceUrl, isDenimTucked, isShowcaseMode: true, isFaceCompositeMode: true, hideUnderlyingBody, tuckableTopIds });
         }}
       />
     </main>

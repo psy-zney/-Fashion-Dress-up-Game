@@ -1,0 +1,7 @@
+Use case: identity-preserve
+Asset type: uncut pose-specific dress-up game layer source
+Input references: Use the neon lime modal grommet sleeveless top as the exact garment design reference. Use the new female model and prior hands-on-hips layers as scale, bare-arm anatomy, skin tone, lighting, pose, and 3D rendering references.
+Primary request: Generate only the lime grommet top plus both bare arms and hands in a confident hands-on-hips pose, isolated on an opaque white background for manual cutting.
+Garment fidelity: Preserve the bright lime fitted silhouette, deep V neckline, broad shoulder straps, gathered fabric converging at the large left-waist grommet, two curved black piping lines, the two smaller grommets, natural radiating folds, flared hem, and clearly visible red-orange dashed stitching around the entire V neckline, both armholes, and full lower hem. Keep all three grommet rims complete with open white centers.
+Visible content: Only the lime garment and two bare arms/hands. No head, neck, torso, abdomen, hips, legs, underwear, bracelets, jewelry, sleeves, or full body.
+Avoid: other garments, missing stitching, missing or filled grommets, body fragments, extra/missing fingers, warped hands, duplicate limbs, checkerboard/transparent background, text, watermark, halos.
