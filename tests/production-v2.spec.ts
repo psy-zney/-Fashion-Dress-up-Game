@@ -2,11 +2,29 @@ import { expect, test } from '@playwright/test';
 import fs from 'node:fs/promises';
 import sharp from 'sharp';
 import { FACE_CAPTURE_VERSION } from '../src/lib/face-composite';
-import { getLayerSubfolder, POSE_TOPS } from '../src/lib/studio';
+import { allGarments, getGarmentLayerOrder, getLayerSubfolder, POSE_TOPS } from '../src/lib/studio';
 
 const layer = (id: string) => sharp(`public/game/studio/layers/${getLayerSubfolder(id)}/${id}.png`).ensureAlpha().raw().toBuffer();
 const saved = (top: string, bottom = 'bottom-sculpted-jeans') => ({
   selected: { tops: top, bottoms: bottom, shoes: 'shoes-party-platform-boots' }, fits: {}, held: {},
+});
+
+test('denim legwear covers all high-shaft shoes and stays below bottoms', () => {
+  const selected = {
+    bottoms: 'bottom-sculpted-jeans',
+    accessories: ['legwear-pocket-denim-warmers'],
+  };
+  const byId = (id: string) => allGarments.find((item) => item.id === id)!;
+
+  expect(getGarmentLayerOrder(byId('legwear-pocket-denim-warmers'), selected)).toBe(25);
+  for (const shoeId of [
+    'shoes-party-platform-boots',
+    'shoes-pink-aqua-striped-platform-high-tops',
+    'shoes-aqua-coral-wedge-high-tops',
+  ]) {
+    expect(getGarmentLayerOrder(byId(shoeId), { ...selected, shoes: shoeId })).toBe(24);
+  }
+  expect(getGarmentLayerOrder(byId('bottom-sculpted-jeans'), selected)).toBe(30);
 });
 
 test('full models have soft alpha, preserve ankles, and obsolete model layers are absent', async () => {
@@ -259,7 +277,7 @@ test('Add Face keeps the hands-on-hips swap pose for regular tops before capture
   const legwear = stage.locator('[data-garment="legwear-pocket-denim-warmers"]');
   const highBoots = stage.locator('[data-garment="shoes-party-platform-boots"]');
   expect(await legwear.evaluate((node) => Number(getComputedStyle(node).zIndex))).toBe(25);
-  expect(await highBoots.evaluate((node) => Number(getComputedStyle(node).zIndex))).toBe(26);
+  expect(await highBoots.evaluate((node) => Number(getComputedStyle(node).zIndex))).toBe(24);
   await page.getByRole('button', { name: 'Close' }).click();
   await expect(stage.locator('[data-garment="top-fitted-denim"]')).toHaveAttribute('src', /top-fitted-denim-pose-swap\.png/);
 });
@@ -478,13 +496,15 @@ test('special dress isolates the legwear sandwich from the standing face-swap br
   const stage = page.getByTestId('studio-stage');
   const pose = stage.locator('[data-model-layer="dress-strapless-deep-fold-denim-pose"]');
   const legwear = stage.locator('[data-garment="legwear-pocket-denim-warmers"]');
+  const highBoots = stage.locator('[data-garment="shoes-party-platform-boots"]');
   const cover = stage.getByTestId('foreground-jeans-overlay');
   await expect(pose).toBeVisible();
   await expect(legwear).toBeVisible();
   await expect(cover).toBeVisible();
   expect(await pose.evaluate((node) => Number(getComputedStyle(node).zIndex))).toBe(0);
-  expect(await legwear.evaluate((node) => Number(getComputedStyle(node).zIndex))).toBe(1);
-  expect(await cover.evaluate((node) => Number(getComputedStyle(node).zIndex))).toBe(2);
+  expect(await highBoots.evaluate((node) => Number(getComputedStyle(node).zIndex))).toBe(1);
+  expect(await legwear.evaluate((node) => Number(getComputedStyle(node).zIndex))).toBe(2);
+  expect(await cover.evaluate((node) => Number(getComputedStyle(node).zIndex))).toBe(3);
 
   await page.getByTestId('toggle-face-composite-btn').click();
   await expect(stage.locator('[data-model-layer="model-neutral-shoes"]')).toBeVisible();
@@ -493,5 +513,6 @@ test('special dress isolates the legwear sandwich from the standing face-swap br
   await expect(stage.locator('[data-garment="dress-strapless-deep-fold-denim"]')).toBeVisible();
   await expect(stage.getByTestId('user-face-sprite')).toBeVisible();
   await expect(stage.getByTestId('user-hair-hat-overlay')).toBeVisible();
+  expect(await highBoots.evaluate((node) => Number(getComputedStyle(node).zIndex))).toBe(24);
   expect(await legwear.evaluate((node) => Number(getComputedStyle(node).zIndex))).toBe(25);
 });

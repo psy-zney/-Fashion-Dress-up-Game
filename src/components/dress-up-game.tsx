@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import { looks, wardrobeCards, type LookScreen, type Screen } from "@/lib/outfits";
 import { playSound } from "@/lib/sound-effects";
 import { SoapBubbles } from "@/components/soap-bubbles";
@@ -157,23 +157,90 @@ export function DressUpGame({ screen }: { screen: Screen }) {
   }, [loadAttempt, screen]);
 
   const parallaxStageRef = useRef<HTMLDivElement>(null);
+  const modelDragRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+  } | null>(null);
+
+  const updateModelDrag = useCallback((element: HTMLElement, x: number, y: number) => {
+    const canvas = parallaxStageRef.current;
+    const bounds = canvas?.getBoundingClientRect();
+    const maxX = (bounds?.width ?? window.innerWidth) * 0.12;
+    const maxY = (bounds?.height ?? window.innerHeight) * 0.08;
+    const dragX = Math.max(-maxX, Math.min(maxX, x));
+    const dragY = Math.max(-maxY, Math.min(maxY, y));
+    element.style.setProperty("--drag-x", `${dragX}px`);
+    element.style.setProperty("--drag-y", `${dragY}px`);
+  }, []);
+
+  const handleModelPointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
+    modelDragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    event.currentTarget.dataset.dragging = "true";
+  }, []);
+
+  const handleModelPointerMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = modelDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    updateModelDrag(event.currentTarget, event.clientX - drag.startX, event.clientY - drag.startY);
+  }, [updateModelDrag]);
+
+  const releaseModelDrag = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = modelDragRef.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    modelDragRef.current = null;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    delete event.currentTarget.dataset.dragging;
+    updateModelDrag(event.currentTarget, 0, 0);
+  }, [updateModelDrag]);
 
   useEffect(() => {
     if (screen !== 1) return;
     const stage = parallaxStageRef.current;
     if (!stage) return;
-    const handleMouseMove = (e: MouseEvent) => {
-      const x = (e.clientX / window.innerWidth) - 0.5;
-      const y = (e.clientY / window.innerHeight) - 0.5;
+    let animationFrame = 0;
+
+    const renderParallax = (clientX: number, clientY: number) => {
+      const bounds = stage.getBoundingClientRect();
+      const x = Math.max(-0.5, Math.min(0.5, (clientX - bounds.left) / bounds.width - 0.5));
+      const y = Math.max(-0.5, Math.min(0.5, (clientY - bounds.top) / bounds.height - 0.5));
       const layers = stage.querySelectorAll<HTMLElement>('.parallax-layer');
       layers.forEach((layer) => {
         const speedX = parseFloat(layer.getAttribute('data-speed-x') || '0');
         const speedY = parseFloat(layer.getAttribute('data-speed-y') || '0');
-        layer.style.transform = `translate(${x * speedX}px, ${y * speedY}px)`;
+        layer.style.setProperty('--parallax-x', `${x * speedX}px`);
+        layer.style.setProperty('--parallax-y', `${y * speedY}px`);
       });
     };
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+
+    const handlePointerMove = (event: PointerEvent) => {
+      if (!event.isPrimary) return;
+      cancelAnimationFrame(animationFrame);
+      animationFrame = requestAnimationFrame(() => renderParallax(event.clientX, event.clientY));
+    };
+    const resetParallax = () => {
+      cancelAnimationFrame(animationFrame);
+      stage.querySelectorAll<HTMLElement>('.parallax-layer').forEach((layer) => {
+        layer.style.setProperty('--parallax-x', '0px');
+        layer.style.setProperty('--parallax-y', '0px');
+      });
+    };
+
+    stage.addEventListener('pointermove', handlePointerMove, { passive: true });
+    stage.addEventListener('pointerleave', resetParallax, { passive: true });
+    return () => {
+      cancelAnimationFrame(animationFrame);
+      stage.removeEventListener('pointermove', handlePointerMove);
+      stage.removeEventListener('pointerleave', resetParallax);
+    };
   }, [screen]);
 
   const isBlurred = screen === 1 && (audioLoading || !isActivated);
@@ -196,28 +263,45 @@ export function DressUpGame({ screen }: { screen: Screen }) {
         }}
       >
         {screen === 1 ? <>
-          <img
-            className={`landing-art ${isBlurred ? "is-loading-blur" : ""}`}
-            src={asset("landing-new-bg.png")}
-            alt="Fashion Dress-Up Minigame — a colorful fashion collage in the city"
-            fetchPriority="high"
-            draggable={false}
-          />
-          <div className="landing-model-wrap parallax-layer" data-speed-x="-3" data-speed-y="-1">
+          <div className="landing-background-layer parallax-layer" data-speed-x="-12" data-speed-y="-7">
+            <img
+              className={`landing-art ${isBlurred ? "is-loading-blur" : ""}`}
+              src={asset("landing-new-bg.png")}
+              alt="Fashion Dress-Up Minigame — a colorful fashion collage in the city"
+              fetchPriority="high"
+              draggable={false}
+            />
+          </div>
+          <div
+            className="landing-model-wrap parallax-layer"
+            data-testid="landing-model-layer"
+            data-speed-x="28"
+            data-speed-y="16"
+            data-effects-ready={isActivated}
+            onPointerDown={handleModelPointerDown}
+            onPointerMove={handleModelPointerMove}
+            onPointerUp={releaseModelDrag}
+            onPointerCancel={releaseModelDrag}
+          >
             <img className={`landing-asset ${isBlurred ? "is-loading-blur" : ""}`} src={asset("landing-model.png")} alt="" draggable={false} />
+            {!audioLoading && <>
+              <img className="landing-clothing landing-jacket" src={asset("model-jacket.png")} alt="" draggable={false} />
+              <img className="landing-clothing landing-skirt" src={asset("model-skirt.png")} alt="" draggable={false} />
+              <img className="landing-clothing landing-belt" src={asset("model-belt.png")} alt="" draggable={false} />
+              <img className="landing-clothing landing-beanie" src={asset("model-beanie.png")} alt="" draggable={false} />
+            </>}
           </div>
           <div className="landing-pole-wrap parallax-layer" data-speed-x="3" data-speed-y="1">
             <img className={`landing-asset ${isBlurred ? "is-loading-blur" : ""}`} src={asset("landing-pole.png")} alt="" draggable={false} />
           </div>
 
           <div className="landing-sign-hehe-wrap parallax-layer" data-speed-x="10" data-speed-y="5">
+            <img className="landing-hover-overlay" src={asset("hehe-hover.png")} alt="" draggable={false} />
             <img className={`landing-asset landing-sign-hehe ${isBlurred ? "is-loading-blur" : ""}`} src={asset("sign-hehe.png")} alt="" draggable={false} />
           </div>
           <div className="landing-sign-tung-wrap parallax-layer" data-speed-x="12" data-speed-y="4">
+            <img className="landing-hover-overlay" src={asset("tung-tung-hover.png")} alt="" draggable={false} />
             <img className={`landing-asset landing-sign-tung ${isBlurred ? "is-loading-blur" : ""}`} src={asset("sign-tung-tung.png")} alt="" draggable={false} />
-          </div>
-          <div className="landing-dress-up-btn-wrap parallax-layer" data-speed-x="8" data-speed-y="6">
-            <img className={`landing-asset ${isBlurred ? "is-loading-blur" : ""}`} src={asset("button-dress-up.png")} alt="" draggable={false} />
           </div>
           {!audioLoading && isActivated && <SoapBubbles count={12} />}
           {loadError ? (
@@ -243,10 +327,11 @@ export function DressUpGame({ screen }: { screen: Screen }) {
                 PLAY
               </Link>
               <div className="landing-start-game-wrap parallax-layer" data-speed-x="10" data-speed-y="3">
+                <img className="landing-hover-overlay" src={asset("start-game-hover.png")} alt="" draggable={false} />
                 <Link
                   className={`landing-btn-inner ${freshlyLoaded ? "is-freshly-loaded" : ""}`}
                   href="/play"
-                  aria-label="PLAY"
+                  aria-label="START GAME"
                   onClick={() => {
                     handleActivate();
                     playSound("play");

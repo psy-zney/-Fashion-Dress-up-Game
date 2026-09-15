@@ -58,6 +58,40 @@ test("hướng dẫn mở, giữ focus, đóng bằng Escape và trả focus", a
   await expect(help).toBeFocused();
 });
 
+test("background parallax và model là layer kéo đàn hồi", async ({ page }) => {
+  await page.goto("/");
+  await page.setViewportSize({ width: 1440, height: 1024 });
+
+  const canvas = page.locator(".game-canvas");
+  const background = page.locator(".landing-background-layer");
+  const model = page.getByTestId("landing-model-layer");
+
+  await expect(model).toHaveAttribute("data-effects-ready", "false");
+  const tapNotification = page.locator(".landing-tap-notification");
+  await tapNotification.waitFor({ state: "visible" });
+  await tapNotification.click({ force: true });
+  await expect(model).toHaveAttribute("data-effects-ready", "true");
+  await expect(model.locator(".landing-clothing")).toHaveCount(4);
+
+  const modelBox = (await model.boundingBox())!;
+
+  await page.mouse.move(1300, 850);
+  await expect.poll(async () => background.evaluate((element) => getComputedStyle(element).transform))
+    .not.toBe("none");
+
+  await page.mouse.move(modelBox.x + modelBox.width * 0.55, modelBox.y + modelBox.height * 0.45);
+  await page.mouse.down();
+  await page.mouse.move(modelBox.x + modelBox.width * 0.55 + 90, modelBox.y + modelBox.height * 0.45 + 45);
+  await expect(model).toHaveAttribute("data-dragging", "true");
+  await expect.poll(async () => model.evaluate((element) => element.style.getPropertyValue("--drag-x")))
+    .not.toBe("0px");
+
+  await page.mouse.up();
+  await expect(model).not.toHaveAttribute("data-dragging", "true");
+  await expect(model).toHaveCSS("cursor", "grab");
+  await expect(canvas).toBeVisible();
+});
+
 test("các URL phòng mẫu cũ chuyển vào PLAY, route sai vẫn 404", async ({ page }) => {
   test.slow();
   for (const url of ["/studio", "/desktop/1", "/desktop/2", "/desktop/3", "/desktop/4", "/desktop/5"]) {

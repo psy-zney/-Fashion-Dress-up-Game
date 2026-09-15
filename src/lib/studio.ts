@@ -100,25 +100,27 @@ export const layerOrder: Record<Category, number> = {
   accessories: 45,
 };
 
-// These shoe shafts overlap the denim legwear. They must cover the lower edge
-// of the legwear while remaining below bottoms (30).
+// Denim legwear must cover the shafts of these shoes. Keep them immediately
+// below the legwear (25), while bottoms remain above both at 30+.
 export const highShaftShoeIds = new Set<string>([
   "shoes-party-platform-boots",
   "shoes-pink-aqua-striped-platform-high-tops",
   "shoes-aqua-coral-wedge-high-tops",
 ]);
-export const highShaftShoeOrder = 26;
+export const highShaftShoeOrder = 24;
 
 export const faceFrameOrder = 43;
 
 // The special dress pose is intentionally split into three registered canvases.
 // Keep these values adjacent and below normal garment orders so the relationship
 // cannot be reversed by an unrelated wardrobe z-index change:
-//   complete pose (0) -> denim legwear (1) -> legless pose cover (2).
+//   complete pose (0) -> high-shaft shoes (1) -> denim legwear (2)
+//   -> legless pose cover (3).
 export const showcasePoseLayerOrder = {
   base: 0,
-  legwear: 1,
-  cover: 2,
+  shoes: 1,
+  legwear: 2,
+  cover: 3,
 } as const;
 export const showcasePoseCoverOrder = showcasePoseLayerOrder.cover;
 
@@ -145,9 +147,19 @@ export function getGarmentLayerOrder(
   isShowcase = false,
   hasUserFace = false,
 ): number {
-  // In the plain special-dress showcase, denim legwear is sandwiched between
-  // the complete pose and its legless cover. Face swap uses the standing model
-  // and therefore keeps the legwear at its regular wardrobe order.
+  // In the plain special-dress showcase, high-shaft shoes stay behind the
+  // denim legwear, and both are sandwiched between the complete pose and its
+  // legless cover. Face swap returns to the regular standing-model orders.
+  if (
+    isShowcase &&
+    !hasUserFace &&
+    selected.tops === "dress-strapless-deep-fold-denim" &&
+    isGarmentSelected("legwear-pocket-denim-warmers", selected) &&
+    item.category === "shoes" &&
+    highShaftShoeIds.has(item.id)
+  ) {
+    return showcasePoseLayerOrder.shoes;
+  }
   if (
     isShowcase &&
     !hasUserFace &&

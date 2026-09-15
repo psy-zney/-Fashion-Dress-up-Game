@@ -33,10 +33,11 @@ archived under `assets/studio/`; the website only loads approved files under
   keeps that pose branch and overlays the captured face and face frame.
 - `dress-strapless-deep-fold-denim` is the only exception. Add Face returns to the
   standing model and renders the ordinary dress over it.
-- In the plain special-dress showcase, denim leg warmers use exactly three layers:
-  complete dress pose -> leg warmers -> legless dress-pose cover. The cover is
-  active only when the warmers are selected and never during Add Face.
-- High-shaft shoes render above the denim leg warmers but below bottoms. Other
+- In the plain special-dress showcase, the core sandwich is complete dress pose
+  -> leg warmers -> legless dress-pose cover. With high-shaft shoes it becomes
+  complete dress pose -> shoes -> leg warmers -> cover. The cover is active only
+  when the warmers are selected and never during Add Face.
+- High-shaft shoes render below the denim leg warmers; bottoms stay above both. Other
   wardrobe items keep the normal order declared in `src/lib/studio.ts`.
 
 ## Validation

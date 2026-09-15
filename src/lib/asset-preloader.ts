@@ -5,7 +5,13 @@ import { DEPLOY_VERSION, publicAsset } from "./public-asset";
 
 export const CORE_PRELOAD_IMAGES: string[] = [
   // Landing UI
-  publicAsset("/game/ui/landing-background.png"),
+  publicAsset("/game/ui/landing-new-bg.png"),
+  publicAsset("/game/ui/landing-model.png"),
+  publicAsset("/game/ui/model-beanie.png"),
+  publicAsset("/game/ui/model-jacket.png"),
+  publicAsset("/game/ui/model-skirt.png"),
+  publicAsset("/game/ui/model-belt.png"),
+  publicAsset("/game/ui/landing-pole.png"),
   publicAsset("/game/ui/landing-overlay.png"),
   publicAsset("/game/ui/button-play.png"),
   publicAsset("/game/ui/button-help.png"),

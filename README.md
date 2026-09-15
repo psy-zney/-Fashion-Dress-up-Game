@@ -51,9 +51,8 @@ assets or layer-order logic.
   the standing model and renders the ordinary dress on top.
 - In the special dress showcase, denim leg warmers are sandwiched between the
   complete dress pose and its legless cover. That cover only exists while the
-  warmers are selected.
-- High-shaft shoes cover the lower edge of denim leg warmers while staying below
-  bottoms.
+  warmers are selected; high-shaft shoes sit behind the warmers in that sandwich.
+- Denim leg warmers cover high-shaft shoes, while bottoms stay above both.
 
 ## Tests
 
