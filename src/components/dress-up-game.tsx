@@ -89,10 +89,14 @@ export function DressUpGame({ screen }: { screen: Screen }) {
   const [isActivated, setIsActivated] = useState(false);
 
   const handleActivate = useCallback(() => {
+    // Call initAudio and playBgmSafely OUTSIDE the setState callback so they
+    // run synchronously within the user-gesture call stack. Browser audio policy
+    // requires .play() to be invoked directly from a user event — placing it
+    // inside a React state updater function breaks that requirement.
+    initAudio();
+    void playBgmSafely();
     setIsActivated((prev) => {
       if (prev) return true;
-      initAudio();
-      void playBgmSafely();
       playSound("click");
       setFreshlyLoaded(true);
       return true;
