@@ -1117,7 +1117,7 @@ export function DressUpStudio() {
       />
       <FaceCamModal
         isOpen={faceCamOpen}
-        pose={facePose}
+        pose={facePoseFor(selected, faceCompositeFit)}
         onClose={() => setFaceCamOpen(false)}
         onApplyFace={(faceUrl) => {
           setUserFace(faceUrl);
